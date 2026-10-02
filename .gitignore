@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Environment variables — never commit secrets
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+
+# Neon project link — contains project/branch IDs, git-ignored per Neon convention
+.neon
+
+# Build & cache
+dist/
+coverage/
+*.tsbuildinfo
+.cache/
+.geo-cache/
+
+# Logs
+logs/
+*.log
+*.jsonl
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output & scratch directories
+output/
+geo-output/
+scratch/
+
+# IDE & AI tooling
+.claude/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Security & Secrets
+*.key
+*.pem
+*.pfx
+ssh-key*
