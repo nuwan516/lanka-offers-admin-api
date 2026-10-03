@@ -261,3 +261,9 @@ CREATE INDEX IF NOT EXISTS idx_offers_title_trgm
 CREATE INDEX IF NOT EXISTS idx_offers_merchant_trgm 
   ON offers USING gin (merchant_name gin_trgm_ops);
 
+-- ── PostGIS Spatial Extension & Geospatial Geometry ──────────────────────────
+CREATE EXTENSION IF NOT EXISTS postgis;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom geography(Point, 4326);
+CREATE INDEX IF NOT EXISTS idx_offers_geom_gist ON offers USING GIST (geom);
+
+
