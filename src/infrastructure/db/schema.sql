@@ -231,3 +231,33 @@ ALTER TABLE offers ADD COLUMN IF NOT EXISTS location_scope    TEXT DEFAULT 'UNRE
 CREATE INDEX IF NOT EXISTS offers_canonical_merchant_idx ON offers (canonical_merchant);
 CREATE INDEX IF NOT EXISTS offers_location_scope_idx ON offers (location_scope);
 
+-- ── High-Performance Production Query Indexes ─────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_offers_published_active 
+  ON offers (valid_to, updated_at DESC) 
+  WHERE db_status = 'PUBLISHED';
+
+CREATE INDEX IF NOT EXISTS idx_offers_published_bank 
+  ON offers (bank, valid_to, updated_at DESC) 
+  WHERE db_status = 'PUBLISHED';
+
+CREATE INDEX IF NOT EXISTS idx_offers_published_category 
+  ON offers (category) 
+  WHERE db_status = 'PUBLISHED';
+
+CREATE INDEX IF NOT EXISTS idx_offers_published_scope 
+  ON offers (location_scope) 
+  WHERE db_status = 'PUBLISHED';
+
+CREATE INDEX IF NOT EXISTS idx_offers_published_merchant 
+  ON offers (canonical_merchant) 
+  WHERE db_status = 'PUBLISHED';
+
+CREATE INDEX IF NOT EXISTS idx_offers_geo_locations_gin 
+  ON offers USING gin (geo_locations);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX IF NOT EXISTS idx_offers_title_trgm 
+  ON offers USING gin (title gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_offers_merchant_trgm 
+  ON offers USING gin (merchant_name gin_trgm_ops);
+
