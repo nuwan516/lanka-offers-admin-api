@@ -3,6 +3,7 @@ import { bankParserRulesRepository } from '@/infrastructure/repositories/bank-pa
 import {
   BankParserRule,
   testRuleAgainstRaw,
+  executeRuleOnInput,
   evaluateRulesForField,
   resolveSourcePath,
 } from '@/banks/bank-rules-loader';
@@ -154,6 +155,88 @@ router.delete('/bank-parser-rules/:id', async (req: Request, res: Response) => {
   res.json({ deleted: deletedId });
 });
 
+router.get('/bank-parser-rules/sample-offer', async (req: Request, res: Response) => {
+  const bank = String(req.query.bank ?? '');
+  if (!bank) {
+    res.status(400).json({ error: 'bank is required' });
+    return;
+  }
+  const sample = await bankParserRulesRepository.getSampleOffer(bank);
+  res.json({ sample });
+});
+
+router.post('/bank-parser-rules/compile-test', async (req: Request, res: Response) => {
+  const { rule, input, rawOffer } = req.body as {
+    rule: BankParserRule;
+    input?: string;
+    rawOffer?: Record<string, unknown>;
+  };
+
+  if (!rule || !rule.rule_type) {
+    res.status(400).json({ error: 'rule with rule_type is required' });
+    return;
+  }
+
+  // Compile check & generate signature
+  let compilationError: string | null = null;
+  let signature = '';
+
+  if (rule.rule_type === 'regex') {
+    try {
+      new RegExp(rule.pattern || '', rule.flags || 'i');
+      signature = `RegExp(/${rule.pattern || ''}/${rule.flags || 'i'}) -> group ${rule.capture_group || 1}`;
+    } catch (e: any) {
+      compilationError = e.message || 'Invalid regex syntax';
+    }
+  } else if (rule.rule_type === 'keyword_list') {
+    signature = `KeywordList(${rule.pattern || ''}) -> matched keywords`;
+  } else if (rule.rule_type === 'field_map') {
+    signature = `FieldMap(path="${rule.pattern || ''}") -> value`;
+  } else if (rule.rule_type === 'constant') {
+    signature = `Constant("${rule.pattern || ''}") -> literal`;
+  } else {
+    signature = `UnknownType(${rule.rule_type})`;
+  }
+
+  if (compilationError) {
+    res.json({
+      valid: false,
+      error: compilationError,
+      compiled: { signature, rule_type: rule.rule_type },
+      matched: false,
+      output: null,
+    });
+    return;
+  }
+
+  // Determine effective input
+  let effectiveInput = input;
+  if (effectiveInput === undefined) {
+    if (rule.source_path && rawOffer && typeof rawOffer === 'object') {
+      effectiveInput = resolveSourcePath(rawOffer, rule.source_path);
+    } else if (rawOffer) {
+      effectiveInput = JSON.stringify(rawOffer);
+    } else {
+      effectiveInput = '';
+    }
+  }
+
+  const exec = executeRuleOnInput(rule, effectiveInput ?? '', rawOffer);
+
+  res.json({
+    valid: true,
+    compiled: {
+      signature,
+      rule_type: rule.rule_type,
+      field: rule.field,
+    },
+    input: effectiveInput,
+    matched: exec.matched,
+    output: exec.extracted,
+    error: exec.error,
+  });
+});
+
 router.post('/bank-parser-rules/:id/test', async (req: Request, res: Response) => {
   const rule = await bankParserRulesRepository.getRuleById(String(req.params.id));
   if (!rule) {
@@ -164,7 +247,7 @@ router.post('/bank-parser-rules/:id/test', async (req: Request, res: Response) =
   const limit = parseInt((req.query.limit as string) ?? '20', 10);
   const offers = await bankParserRulesRepository.getOffersForTest(rule.bank, limit);
 
-  const results: { unique_id: string; title: string; extracted: string | null; matched: boolean; trace?: unknown }[] = [];
+  const results: { unique_id: string; title: string; input: string | null; extracted: string | null; matched: boolean; trace?: unknown }[] = [];
   const includeTrace = req.query.trace === 'true';
 
   for (const row of offers) {
@@ -175,6 +258,7 @@ router.post('/bank-parser-rules/:id/test', async (req: Request, res: Response) =
     results.push({
       unique_id: row.unique_id,
       title: row.title ?? '',
+      input: trace.input ?? row.title ?? '',
       extracted: trace.extracted,
       matched: trace.matched,
       ...(includeTrace ? { trace } : {}),

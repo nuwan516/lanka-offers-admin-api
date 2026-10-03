@@ -137,6 +137,19 @@ export class BankParserRulesRepository {
     );
     return result.rows;
   }
+
+  public async getSampleOffer(bank: string) {
+    const result = await pool.query<{
+      unique_id: string;
+      bank: string;
+      title: string;
+      raw_offer: Record<string, unknown>;
+    }>(
+      `SELECT unique_id, bank, title, raw_offer FROM offers WHERE bank = $1 AND raw_offer IS NOT NULL ORDER BY updated_at DESC LIMIT 1`,
+      [bank]
+    );
+    return result.rows[0] ?? null;
+  }
 }
 
 export const bankParserRulesRepository = new BankParserRulesRepository();
