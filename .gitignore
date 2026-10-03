@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+.pnp
+.pnp.js
 
 # Environment variables — never commit secrets
 .env
@@ -11,26 +13,53 @@ node_modules/
 # Neon project link — contains project/branch IDs, git-ignored per Neon convention
 .neon
 
-# Build & cache
+# Scraper & Geocode Caches (Dynamic bank scrapers & file caches)
+cache/
+.cache/
+cache_*/
+*.cache
+*.cache/
+.geo-cache/
+geo-cache/
+.browser-tmp/
+.browsers/
+
+# Build & TypeScript
 dist/
+build/
 coverage/
 *.tsbuildinfo
-.cache/
-.geo-cache/
+.eslintcache
+.prettiercache
 
-# Logs
+# Logs & Debugging
 logs/
 *.log
 *.jsonl
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Output & scratch directories
+# Output, temporary & scratch directories
 output/
+output_*/
 geo-output/
 scratch/
+tmp/
+temp/
+*.tmp
+test-results/
+playwright-report/
+
+# OS artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # IDE & AI tooling
 .claude/
