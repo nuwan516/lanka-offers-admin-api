@@ -134,7 +134,14 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
           loc = null;
         }
         const desc = o.description || o.offer?.description || title;
-        const scopeRes = determineLocationScope({ location: loc, title, description: desc, merchantName: mName });
+        const scopeRes = determineLocationScope({
+          location: loc,
+          title,
+          description: desc,
+          merchantName: mName,
+          addresses: o.merchant?.addresses || o.addresses || [],
+          geoLocations: o.merchant?.geocodedLocations || [],
+        });
         return {
           id: o.uniqueId,
           unique_id: o.uniqueId,
@@ -175,7 +182,14 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
           loc = null;
         }
         const desc = o.description || o.offer?.description || title;
-        const scopeRes = determineLocationScope({ location: loc, title, description: desc, merchantName: mName });
+        const scopeRes = determineLocationScope({
+          location: loc,
+          title,
+          description: desc,
+          merchantName: mName,
+          addresses: o.merchant?.addresses || o.addresses || [],
+          geoLocations: o.merchant?.geocodedLocations || [],
+        });
         return {
           id: o.uniqueId,
           unique_id: o.uniqueId,

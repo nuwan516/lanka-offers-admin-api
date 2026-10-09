@@ -82,4 +82,28 @@ describe('Location Scope Domain Service', () => {
     });
     expect(res.scope).toBe(LocationScope.UNRESOLVED);
   });
+
+  it('does NOT classify physical venues as ONLINE even if description contains a website URL', () => {
+    const res = determineLocationScope({
+      title: '20% off at Centauria Wild Udawalawa',
+      description: 'Terms apply. Website: http://www.centauriahotels.com or visit https://www.hnb.net',
+      location: 'Udawalawa',
+      merchantName: 'Centauria Wild - Udawalawa',
+      addresses: ['Udawalawa, Sri Lanka'],
+    });
+    expect(res.scope).not.toBe(LocationScope.ONLINE);
+    expect(res.scope).toBe(LocationScope.EXPLICIT_BRANCH);
+  });
+
+  it('classifies offer with resolved geoLocations as physical EXPLICIT_BRANCH', () => {
+    const res = determineLocationScope({
+      title: '30% off at Radisson Hotel Kandy',
+      description: 'Dine in promotion. Visit our website for details.',
+      location: null,
+      merchantName: 'Radisson Hotel Kandy',
+      geoLocations: [{ latitude: 7.29, longitude: 80.63 }],
+    });
+    expect(res.scope).not.toBe(LocationScope.ONLINE);
+    expect(res.scope).toBe(LocationScope.EXPLICIT_BRANCH);
+  });
 });

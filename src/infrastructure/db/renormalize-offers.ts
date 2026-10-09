@@ -55,7 +55,8 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
     db_status: string;
     canonical_merchant: string | null;
     location_scope: string | null;
-  }>(`SELECT id, unique_id, bank, title, merchant_name, merchant_location, valid_from::text, valid_to::text, card_eligibility, raw_offer, manual_override, db_status, canonical_merchant, location_scope FROM offers`);
+    geo_locations: any;
+  }>(`SELECT id, unique_id, bank, title, merchant_name, merchant_location, valid_from::text, valid_to::text, card_eligibility, raw_offer, manual_override, db_status, canonical_merchant, location_scope, geo_locations FROM offers`);
 
   console.log(`[Renormalize] Found ${rows.rows.length} offers in database.`);
 
@@ -210,8 +211,10 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
     } else {
       const scopeRes = determineLocationScope({
         location: newLocation,
+        addresses: raw.merchant?.addresses || raw.addresses || [],
+        geoLocations: row.geo_locations || raw.geoLocations,
         title: row.title,
-        description: raw.rawHtml || raw.description || raw.offer?.description || '',
+        description: raw.description || raw.offer?.description || '',
         merchantName: newMerchant || '',
       });
       locationScope = scopeRes.scope;
