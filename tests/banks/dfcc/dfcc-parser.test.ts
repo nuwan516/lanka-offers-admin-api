@@ -110,4 +110,25 @@ describe('parseDFCCOffer', () => {
     expect(offer?.merchant.name).toBe('Laugfs Super');
     expect(offer?.offer.description).not.toContain('About Us');
   });
+
+  it('strictly preserves discount cap without confusing it with maximum spend', () => {
+    const offer = parseDFCCOffer({
+      listing: {
+        cardType: 'Credit Card',
+        offerText: '25% off on dine-in. Minimum bill Rs. 2,500. Maximum discount Rs. 1,000.',
+        validityText: 'Valid till 31 December 2026',
+        discountBadge: '25%',
+        imageUrl: '',
+        imageAlt: 'Pizza Point',
+        detailUrl: 'https://www.dfcc.lk/cards/cards-promotions/pizza-point',
+        _categoryName: 'Dining',
+        _categoryId: 2,
+      },
+      detail: null,
+    });
+
+    expect(offer).not.toBeNull();
+    expect(offer?.transactionRange.min).toBe(2500);
+    expect(offer?.transactionRange.max).toBeNull(); // Must not be 1000!
+  });
 });

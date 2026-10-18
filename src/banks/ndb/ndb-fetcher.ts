@@ -14,19 +14,34 @@ export class NDBFetcher {
   ) {}
 
   async fetchList(category: BankCategory): Promise<NDBRawOffer[]> {
-    const offers = await this.browser.extract<NDBRawOffer[]>(
-      category.url,
-      extractNDBOffersFromPage,
-      { waitForSelector: '.ant-card, .offer-card, .col-12.col-md-6.col-lg-4' },
-    );
+    let offers: NDBRawOffer[] = [];
+    try {
+      offers = await this.browser.extract<NDBRawOffer[]>(
+        category.url,
+        extractNDBOffersFromPage,
+        { waitForSelector: '.ant-card, .offer-card, .col-12.col-md-6.col-lg-4' },
+      );
+    } catch {
+      // Safe degradation on navigation/rendering failure
+      return [];
+    }
 
-    return offers.map((offer) => ({
-      ...offer,
-      _categoryName: category.name,
-      _categoryId: category.id,
-      _sourceUrl: category.url,
-      rawText: JSON.stringify(offer),
-    }));
+    const seen = new Set<string>();
+    const uniqueOffers: NDBRawOffer[] = [];
+    for (const offer of offers) {
+      const key = `${offer.detailUrl || ''}|${offer.merchantName}|${offer.offerDetails}`.trim().toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      uniqueOffers.push({
+        ...offer,
+        _categoryName: category.name,
+        _categoryId: category.id,
+        _sourceUrl: category.url,
+        rawText: JSON.stringify(offer),
+      });
+    }
+
+    return uniqueOffers;
   }
 
   async fetchDetail(raw: NDBRawOffer): Promise<NDBRawOffer> {
@@ -40,7 +55,7 @@ export class NDBFetcher {
         const { data: html } = await this.http.getHTML(raw.detailUrl);
         enriched = { ...raw, ...parseNDBDetailHtml(html, raw) };
       } catch {
-        // keep listing-card data
+        // keep listing-card data safely on failure
       }
     }
 
@@ -48,12 +63,17 @@ export class NDBFetcher {
       return enriched;
     }
 
-    const pdf = await this.pdfExtractor.extract(enriched.termsAndConditionsPdfUrl);
-    return {
-      ...enriched,
-      pdfText: pdf.text,
-      rawText: [enriched.rawText, pdf.text].filter(Boolean).join('\n\n'),
-    };
+    try {
+      const pdf = await this.pdfExtractor.extract(enriched.termsAndConditionsPdfUrl);
+      return {
+        ...enriched,
+        pdfText: pdf.text,
+        rawText: [enriched.rawText, pdf.text].filter(Boolean).join('\n\n'),
+      };
+    } catch {
+      // Preserve enriched listing data if PDF extraction fails
+      return enriched;
+    }
   }
 }
 
@@ -144,5 +164,14 @@ function extractNDBOffersFromPage(): NDBRawOffer[] {
     });
   }
 
-  return results.filter((offer) => offer.merchantName || offer.offerDetails);
+  const seen = new Set<string>();
+  const deduplicated: NDBRawOffer[] = [];
+  for (const item of results) {
+    const key = `${item.detailUrl || ''}|${item.merchantName}|${item.offerDetails}`.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    deduplicated.push(item);
+  }
+
+  return deduplicated.filter((offer) => offer.merchantName || offer.offerDetails);
 }

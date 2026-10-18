@@ -265,5 +265,23 @@ describe('parseComBankOffer', () => {
       }));
       expect(offer?.merchant.name).toBe('Commercial Bank');
     });
+
+    it('does not conflate maximum discount cap with maximum transaction spend', () => {
+      const offer = parseComBankOffer(rawOffer(
+        { title: 'Order your favourite food on Uber Eats with ComBank Credit Cards' },
+        {
+          mainImageUrl: null,
+          sections: {
+            'Offer terms and conditions': [
+              { type: 'item', text: 'Minimum bill value is Rs. 2,500' },
+              { type: 'item', text: 'Maximum discount Rs. 750/- per transaction' },
+            ],
+          },
+        },
+      ));
+      expect(offer?.merchant.name).toBe('Uber Eats');
+      expect(offer?.transactionRange.min).toBe(2500);
+      expect(offer?.transactionRange.max).toBeNull();
+    });
   });
 });

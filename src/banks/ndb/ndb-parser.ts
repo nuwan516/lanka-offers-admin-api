@@ -13,6 +13,7 @@ import { AddressEngine } from '@/parsing/address/address-engine';
 import { stableHash, stableOfferId } from '@/parsing/normalization/offer-normalizer';
 import { stripHtml } from '@/parsing/text/html';
 import { applyRegexRule, applyKeywordRule, applyTransactionRule } from '@/banks/bank-rules-loader';
+import { extractStructuredTransactionRange } from '@/parsing/transaction/transaction-parser';
 
 export interface NDBRawOffer {
   merchantName: string;
@@ -161,11 +162,17 @@ function extractRestrictions(text: string): string[] {
 }
 
 function extractTransactionRange(text: string, context?: Record<string, unknown>): TransactionRange {
+  const structured = extractStructuredTransactionRange(text).transactionRange;
+  const txMin = applyTransactionRule('ndb', 'transaction_min', text,
+    /minimum\s+(?:bill|spend|transaction)(?:\s+value)?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)/i, context) ?? structured.min;
+  let txMax = applyTransactionRule('ndb', 'transaction_max', text,
+    /maximum\s+(?:transaction|bill|spend)(?:\s+value)?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)/i, context) ?? structured.max;
+  if (txMin !== null && txMax !== null && txMax < txMin) {
+    txMax = null;
+  }
   return {
-    min: applyTransactionRule('ndb', 'transaction_min', text,
-      /minimum\s+(?:bill|spend|transaction)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context),
-    max: applyTransactionRule('ndb', 'transaction_max', text,
-      /maximum\s+(?:transaction|bill|discount)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context),
+    min: txMin,
+    max: txMax,
     currency: 'LKR',
   };
 }

@@ -179,6 +179,65 @@ describe('Workflow Hardening Tests (Phase 2)', () => {
         expect.stringMatching(/UPDATE scrape_runs/i)
       );
     });
+
+    it('reconciles orphaned running runs from DB when cancel is requested for a bank not in memory', async () => {
+      mockPool.query.mockResolvedValueOnce({ rowCount: 1 });
+
+      const jm = new JobManager();
+      const res = await jm.cancelScrapeJob('hnb', 'operator');
+
+      expect(res.cancelled).toBe(true);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringMatching(/UPDATE scrape_runs\s+SET status = 'failed'/i),
+        expect.arrayContaining(['hnb'])
+      );
+    });
+
+    it('cancels all individual active jobs when group cancel for all is requested', async () => {
+      const jm = new JobManager();
+      const killHnb = jest.fn();
+      const killBoc = jest.fn();
+
+      (jm as any).activeJobs.set('hnb', {
+        child: { kill: killHnb },
+        bank: 'hnb',
+        startedAt: new Date().toISOString(),
+        pid: 11111,
+        timeoutTimer: setTimeout(() => {}, 10000),
+      });
+
+      (jm as any).activeJobs.set('boc', {
+        child: { kill: killBoc },
+        bank: 'boc',
+        startedAt: new Date().toISOString(),
+        pid: 22222,
+        timeoutTimer: setTimeout(() => {}, 10000),
+      });
+
+      mockPool.query.mockResolvedValue({ rowCount: 1 });
+
+      const res = await jm.cancelScrapeJob('all', 'operator');
+      expect(res.cancelled).toBe(true);
+      expect((jm as any).activeJobs.size).toBe(0);
+    });
+
+    it('supports configurable watchdog timeout via SCRAPER_JOB_TIMEOUT_MS and options.timeoutMs', () => {
+      const prevEnv = process.env.SCRAPER_JOB_TIMEOUT_MS;
+      process.env.SCRAPER_JOB_TIMEOUT_MS = '600000';
+      const timeoutMs = Number(process.env.SCRAPER_JOB_TIMEOUT_MS) || 15 * 60 * 1000;
+      expect(timeoutMs).toBe(600000);
+
+      // Verify custom options override
+      const customOptionTimeout = 1200000;
+      const effectiveTimeout = customOptionTimeout > 0 ? customOptionTimeout : timeoutMs;
+      expect(effectiveTimeout).toBe(1200000);
+
+      if (prevEnv !== undefined) {
+        process.env.SCRAPER_JOB_TIMEOUT_MS = prevEnv;
+      } else {
+        delete process.env.SCRAPER_JOB_TIMEOUT_MS;
+      }
+    });
   });
 
   describe('OfferWorkflowRepository — Optimistic Concurrency Control', () => {

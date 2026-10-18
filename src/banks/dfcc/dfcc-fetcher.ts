@@ -17,21 +17,34 @@ export class DFCCFetcher {
   }
 
   async fetchList(category: BankCategory): Promise<DFCCListItem[]> {
-    const items = await this.browser.extract<DFCCListItem[]>(
-      category.url,
-      extractDFCCPromotionsFromListing,
-      // a.cardd is DFCC's current card markup; the other selectors are a
-      // fallback chain for categories mid-migration to a different template
-      // (observed: some category pages still 200 but never render a.cardd).
-      { waitForSelector: 'a.cardd, a[href*="cards-promotions"], .promotion-item, article' },
-    );
+    try {
+      const items = await this.browser.extract<DFCCListItem[]>(
+        category.url,
+        extractDFCCPromotionsFromListing,
+        // a.cardd is DFCC's current card markup; the other selectors are a
+        // fallback chain for categories mid-migration to a different template
+        // (observed: some category pages still 200 but never render a.cardd).
+        { waitForSelector: 'a.cardd, a[href*="cards-promotions"], .promotion-item, article' },
+      );
 
-    return items.map((item) => ({
-      ...item,
-      _categoryName: category.name,
-      _categoryId: category.id,
-      _sourceUrl: category.url,
-    }));
+      const seen = new Set<string>();
+      const uniqueItems: DFCCListItem[] = [];
+      for (const item of items) {
+        const key = `${item.detailUrl || ''}|${item.cardType}|${item.offerText}`.trim().toLowerCase();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        uniqueItems.push({
+          ...item,
+          _categoryName: category.name,
+          _categoryId: category.id,
+          _sourceUrl: category.url,
+        });
+      }
+
+      return uniqueItems;
+    } catch {
+      return [];
+    }
   }
 
   // CONFIRMED LIVE 2026-08-01: every "Read More" detailUrl 200s at the raw

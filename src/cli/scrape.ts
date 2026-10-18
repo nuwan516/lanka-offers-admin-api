@@ -17,6 +17,7 @@
  *   --output=<dir>      Output directory (default: ./output)
  *   --concurrency=<n>   Parallel detail requests (default: 5)
  *   --max-categories=<n> Smoke-test only the first N categories
+ *   --dry-run           Perform scraping and validation without writing to the database
  */
 
 import 'dotenv/config';
@@ -54,6 +55,7 @@ import { getCostControlConfig, formatSafePolicySummary } from '@/config/cost-con
 import { decideOfferQuality } from '@/domain/offer-quality-decision';
 import type { OfferLifecycleStatus } from '@/domain/offer-lifecycle';
 import { detectAndRecordDuplicates, flagOfferAsDuplicate, shouldRunDuplicateDetection } from '@/infrastructure/db/duplicate-repository';
+import { exportDryRunArtifacts } from '@/cli/dry-run-exporter';
 
 // ─── CLI arg parsing ────────────────────────────────────────────────────────────
 
@@ -66,6 +68,7 @@ interface CliOptions {
   output: string;
   concurrency: number;
   maxCategories?: number;
+  dryRun: boolean;
 }
 
 function parseArgs(): CliOptions {
@@ -78,6 +81,7 @@ function parseArgs(): CliOptions {
     llm: false,
     output: './output',
     concurrency: 5,
+    dryRun: false,
   };
 
   for (const arg of args) {
@@ -86,6 +90,7 @@ function parseArgs(): CliOptions {
     else if (arg === '--skip-details') opts.skipDetails = true;
     else if (arg === '--no-validate') opts.validate = false;
     else if (arg === '--llm') opts.llm = true;
+    else if (arg === '--dry-run') opts.dryRun = true;
     else if (arg.startsWith('--output=')) opts.output = arg.split('=')[1];
     else if (arg.startsWith('--concurrency=')) opts.concurrency = parseInt(arg.split('=')[1], 10);
     else if (arg.startsWith('--max-categories=')) opts.maxCategories = parseInt(arg.split('=')[1], 10);
@@ -201,16 +206,20 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
 
   logger.info('CLI', `Starting scraper for ${bankName.toUpperCase()}`);
 
-  // Create DB record for this run
-  const runId = await createScrapeRun(bankName, opts.cache ? 'cached' : 'full', 'cli').catch(() => null);
+  // Create DB record for this run (skipped if dry-run)
+  const runId = opts.dryRun
+    ? null
+    : await createScrapeRun(bankName, opts.cache ? 'cached' : 'full', 'cli').catch(() => null);
 
   // Load DB parser rules into module cache so parsers can use them synchronously
   await preloadBankRules(bankName).catch(() => null);
 
   const scrapeTimer = logger.timer('Scraper', `${bankName} scrape`);
   let offers: Offer[];
+  let rawOffers: Offer[] = [];
   try {
     offers = await scraper.scrape();
+    rawOffers = [...offers];
     scrapeTimer.done({ offers: offers.length });
   } catch (err) {
     scrapeTimer.fail(err);
@@ -235,6 +244,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
 
   const costConfig = getCostControlConfig();
   const reportsById = new Map<string, ValidationPipelineReport>();
+  let validationReports: ValidationPipelineReport[] = [];
 
   if (opts.validate && offers.length > 0) {
     const llmEnabled = opts.llm && costConfig.llm.validationEnabled;
@@ -272,6 +282,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
 
     logger.info('Validator', `Running validation pipeline${llmEnabled ? ' with LLM full-offer comparison' : ''}`);
     const reports = await pipeline.validateBatch(offers);
+    validationReports = reports;
     for (const report of reports) reportsById.set(report.offerId, report);
     const offersById = new Map(offers.map((offer) => [offer.uniqueId, offer]));
     const failedReports = reports.filter((report) => !report.passed);
@@ -322,8 +333,30 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     );
   }
 
-  // Persist offers to Neon Postgres
-  if (runId) {
+  // Persist offers to Neon Postgres (skipped entirely on --dry-run)
+  if (opts.dryRun) {
+    const { exportDir, manifestPath, manifest } = exportDryRunArtifacts({
+      bank: bankName,
+      rawOffers,
+      normalizedOffers: offers,
+      duplicatesRemoved: deduped.duplicatesRemoved,
+      validationReports,
+      durationMs: 0,
+      options: opts as any,
+      baseOutputDir: opts.output,
+    });
+    logger.success('DRY-RUN', `[DRY-RUN] Production DB writes skipped. Isolated artifacts exported to:\n  ${exportDir}`);
+    logger.info('DRY-RUN', `Manifest: ${manifestPath}`);
+    logger.info(
+      'DRY-RUN',
+      `Summary: ${manifest.counts.normalized} normalized offers (` +
+        `${manifest.counts.validHighConfidence} high-confidence, ` +
+        `${manifest.counts.validWithWarnings} warnings, ` +
+        `${manifest.counts.reviewRequired} review-required, ` +
+        `${manifest.counts.invalid} invalid, ` +
+        `${manifest.counts.duplicateCandidate} duplicate candidates)`
+    );
+  } else if (runId) {
     if (offers.length > 0) {
       logger.info('DB', `Persisting ${offers.length} offers to Neon…`);
       let dbNew = 0, dbChanged = 0, dbUnchanged = 0, dbErrors = 0, validationWrites = 0, duplicatesFlagged = 0;

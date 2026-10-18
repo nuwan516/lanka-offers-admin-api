@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "TypeScript scrapers for Sri Lankan bank offers — modern, type-safe, loosely coupled",
   "scripts": {
+    "admin": "ts-node -r tsconfig-paths/register src/cli/admin.ts",
     "api": "ts-node -r tsconfig-paths/register src/api/server.ts",
     "scrape": "ts-node -r tsconfig-paths/register src/cli/scrape.ts",
+    "import:dryrun": "ts-node -r tsconfig-paths/register src/cli/import-dryrun.ts",
     "migrate": "ts-node -r tsconfig-paths/register src/infrastructure/db/migrate.ts",
     "type-check": "tsc --noEmit",
     "lint": "eslint 'src/**/*.ts'",

@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import { BankCategory } from '@/config/banks';
 import { HttpClient } from '@/infrastructure/http/http-client';
 import { stripHtml } from '@/parsing/text/html';
+import { extractStructuredTransactionRange } from '@/parsing/transaction/transaction-parser';
 import { SeylanListItem, SeylanRawOffer } from './seylan-parser';
 
 const BASE_URL = 'https://www.seylan.lk';
@@ -139,10 +140,9 @@ function parsePhones(text: string | null): string[] {
 }
 
 function extractTransactionValues(text: string): { min: number | null; max: number | null } {
-  const minMatch = text.match(/Minimum\s+(?:Transaction\s+)?Value\s*[–-]?\s*Rs\.?\s*([\d,]+)/i);
-  const maxMatch = text.match(/[Mm]aximum\s*Rs\.?\s*([\d,]+)/i);
+  const structured = extractStructuredTransactionRange(text).transactionRange;
   return {
-    min: minMatch ? parseInt(minMatch[1].replace(/,/g, ''), 10) : null,
-    max: maxMatch ? parseInt(maxMatch[1].replace(/,/g, ''), 10) : null,
+    min: structured.min,
+    max: structured.max,
   };
 }

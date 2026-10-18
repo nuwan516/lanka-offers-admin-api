@@ -8,6 +8,7 @@ import {
   saveManualCorrection,
   transitionOffer,
   WorkflowError,
+  reconcileExpiredOffers,
 } from '@/infrastructure/db/offer-workflow-repository';
 import { PUBLIC_LIFECYCLE_STATUSES, LIFECYCLE_STATUSES, type OfferReviewAction } from '@/domain/offer-lifecycle';
 import { buildOfferListQuery, sanitizePublicOffer } from '@/api/offer-query-scope';
@@ -168,6 +169,22 @@ router.post('/offers/:id/transition', async (req: Request, res: Response) => {
 router.get('/offers/:id/history', async (req: Request, res: Response) => {
   const items = await getReviewHistory(String(req.params.id));
   res.json({ items });
+});
+
+router.post('/offers/reconcile-expired', async (req: Request, res: Response) => {
+  const isDryRun = req.query.dryRun === 'true' || req.body?.dryRun === true;
+  const operator = String(req.body?.operator || (isDryRun ? 'admin:preview' : 'admin:reconcile'));
+  const result = await reconcileExpiredOffers({ dryRun: isDryRun, operator });
+  res.json({
+    success: true,
+    mode: result.mode,
+    skippedDueToLock: result.skippedDueToLock ?? false,
+    message: isDryRun
+      ? `Preview: Found ${result.expiredCount} expired offer(s) eligible for transition to EXPIRED (no database mutations)`
+      : `Reconciled ${result.expiredCount} expired offer(s) from PUBLISHED to EXPIRED`,
+    expiredCount: result.expiredCount,
+    sampleOfferIds: result.sampleOfferIds ?? [],
+  });
 });
 
 export const offerRoutes = router;

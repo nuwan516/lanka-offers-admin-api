@@ -238,11 +238,16 @@ function extractRestrictions(text: string): string[] {
 }
 
 function extractTransactionRange(text: string, context?: Record<string, unknown>): TransactionRange {
+  const txMin = applyTransactionRule('nsb', 'transaction_min', text,
+    /minimum\s+(?:spend|bill|transaction)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context);
+  let txMax = applyTransactionRule('nsb', 'transaction_max', text,
+    /maximum\s+(?:bill|transaction|spend)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context);
+  if (txMin !== null && txMax !== null && txMax < txMin) {
+    txMax = null;
+  }
   return {
-    min: applyTransactionRule('nsb', 'transaction_min', text,
-      /minimum\s+(?:spend|bill|transaction)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context),
-    max: applyTransactionRule('nsb', 'transaction_max', text,
-      /maximum\s+(?:bill|transaction|discount)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context),
+    min: txMin,
+    max: txMax,
     currency: 'LKR',
   };
 }

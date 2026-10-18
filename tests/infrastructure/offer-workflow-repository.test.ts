@@ -11,7 +11,7 @@ jest.mock('@/infrastructure/db/db-client', () => ({
 
 import {
   transitionOffer, saveManualCorrection, syncApprovedOffer,
-  bulkSyncApprovedOffers, getSyncPreview, WorkflowError,
+  bulkSyncApprovedOffers, getSyncPreview, reconcileExpiredOffers, WorkflowError,
 } from '@/infrastructure/db/offer-workflow-repository';
 
 function makeOffer(overrides: Partial<Offer> = {}): Offer {
@@ -252,5 +252,75 @@ describe('getSyncPreview', () => {
     expect(mockPool.query).toHaveBeenCalledTimes(1);
     const sql = mockPool.query.mock.calls[0][0] as string;
     expect(sql.trim().toUpperCase().startsWith('SELECT')).toBe(true);
+  });
+});
+
+describe('reconcileExpiredOffers', () => {
+  it('transitions published offers with valid_to < CURRENT_DATE to EXPIRED and logs history when authorized', async () => {
+    mockClient.query.mockResolvedValueOnce({ rows: [{ acquired: true }] }); // pg_try_advisory_xact_lock
+    mockClient.query.mockResolvedValueOnce({
+      rows: [
+        { id: 'offer-expired-1', unique_id: 'hnb_001' },
+        { id: 'offer-expired-2', unique_id: 'hnb_002' },
+      ],
+    }); // UPDATE offers ... RETURNING id, unique_id
+    mockClient.query.mockResolvedValueOnce({ rows: [] }); // logHistory 1
+    mockClient.query.mockResolvedValueOnce({ rows: [] }); // logHistory 2
+
+    const result = await reconcileExpiredOffers({ dryRun: false });
+    expect(result.expiredCount).toBe(2);
+    expect(result.mode).toBe('mutated');
+    expect(result.sampleOfferIds).toEqual(['hnb_001', 'hnb_002']);
+
+    const lockSql = mockClient.query.mock.calls[0][0] as string;
+    expect(lockSql).toContain('pg_try_advisory_xact_lock');
+
+    const updateSql = mockClient.query.mock.calls[1][0] as string;
+    expect(updateSql).toContain("SET db_status = 'EXPIRED'");
+    expect(updateSql).toContain("WHERE db_status = 'PUBLISHED'");
+    expect(updateSql).toContain('valid_to < CURRENT_DATE');
+
+    expect(mockClient.query).toHaveBeenCalledTimes(4);
+    const historySql1 = mockClient.query.mock.calls[2][0] as string;
+    expect(historySql1).toContain('offer_review_history');
+    expect(mockClient.query.mock.calls[2][1]).toEqual(
+      expect.arrayContaining(['offer-expired-1', 'expire', 'PUBLISHED', 'EXPIRED', 'system:expiry-reconciliation'])
+    );
+  });
+
+  it('runs in read-only preview mode when dryRun is true with zero updates', async () => {
+    mockClient.query.mockResolvedValueOnce({ rows: [{ acquired: true }] }); // lock
+    mockClient.query.mockResolvedValueOnce({
+      rows: [{ id: 'offer-1', unique_id: 'sampath_101' }],
+    }); // SELECT preview query
+
+    const result = await reconcileExpiredOffers({ dryRun: true });
+    expect(result.expiredCount).toBe(1);
+    expect(result.mode).toBe('preview');
+    expect(result.sampleOfferIds).toEqual(['sampath_101']);
+
+    expect(mockClient.query).toHaveBeenCalledTimes(2);
+    const selectSql = mockClient.query.mock.calls[1][0] as string;
+    expect(selectSql.trim().startsWith('SELECT')).toBe(true);
+    expect(selectSql).not.toContain('UPDATE');
+  });
+
+  it('safely skips execution when another instance holds the distributed advisory lock', async () => {
+    mockClient.query.mockResolvedValueOnce({ rows: [{ acquired: false }] }); // lock not acquired
+
+    const result = await reconcileExpiredOffers({ dryRun: false });
+    expect(result.expiredCount).toBe(0);
+    expect(result.skippedDueToLock).toBe(true);
+    expect(mockClient.query).toHaveBeenCalledTimes(1);
+  });
+
+  it('is completely idempotent when no offers are expired', async () => {
+    mockClient.query.mockResolvedValueOnce({ rows: [{ acquired: true }] }); // lock
+    mockClient.query.mockResolvedValueOnce({ rows: [] }); // UPDATE returned 0 rows
+
+    const result = await reconcileExpiredOffers({ dryRun: false });
+    expect(result.expiredCount).toBe(0);
+    expect(result.mode).toBe('mutated');
+    expect(mockClient.query).toHaveBeenCalledTimes(2);
   });
 });

@@ -53,6 +53,7 @@ export async function initDatabaseSchemas(): Promise<void> {
   await pool.query('CREATE EXTENSION IF NOT EXISTS postgis;');
   await pool.query('ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom geography(Point, 4326);');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_offers_geom_gist ON offers USING GIST (geom);');
+  await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS failure_classification TEXT;');
 
   // 2. Rule configs & custom rules
   await ruleConfigRepository.initRuleConfigs();
@@ -222,4 +223,39 @@ export async function initDatabaseSchemas(): Promise<void> {
   if (parseInt(countPgc.rows[0].count) === 0) {
     await seedGoldenCases();
   }
+
+  // 8. Distributed scraper leases and durable scheduler configuration
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS scraper_leases (
+      bank             TEXT PRIMARY KEY,
+      job_id           TEXT NOT NULL,
+      instance_id      TEXT NOT NULL,
+      lease_generation BIGINT NOT NULL DEFAULT 1,
+      acquired_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      heartbeat_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      expires_at       TIMESTAMPTZ NOT NULL,
+      released_at      TIMESTAMPTZ
+    )
+  `);
+  await pool.query(`ALTER TABLE scraper_leases ADD COLUMN IF NOT EXISTS lease_generation BIGINT NOT NULL DEFAULT 1`);
+  await pool.query(`ALTER TABLE scraper_leases ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scraper_leases_expires ON scraper_leases (expires_at) WHERE released_at IS NULL`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scraper_leases_fencing ON scraper_leases (bank, job_id, lease_generation) WHERE released_at IS NULL`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS scheduler_config (
+      id            TEXT PRIMARY KEY,
+      bank          TEXT,
+      enabled       BOOLEAN NOT NULL DEFAULT FALSE,
+      cron_expr     TEXT,
+      timeout_ms    INTEGER,
+      max_retries   INTEGER DEFAULT 2,
+      concurrency   INTEGER DEFAULT 2,
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_by    TEXT NOT NULL DEFAULT 'system',
+      last_run_at   TIMESTAMPTZ,
+      last_status   TEXT DEFAULT 'idle',
+      retry_count   INTEGER DEFAULT 0
+    )
+  `);
 }

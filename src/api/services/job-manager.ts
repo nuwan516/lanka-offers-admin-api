@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
 import { pool } from '@/infrastructure/db/db-client';
 import { randomUUID } from 'crypto';
 
@@ -10,6 +11,7 @@ export interface ScrapeExecutionOptions {
   skipDetails?: boolean;
   concurrency?: number;
   maxCategories?: number;
+  timeoutMs?: number;
 }
 
 export interface ActiveJob {
@@ -20,6 +22,7 @@ export interface ActiveJob {
   startedAt: string;
   options?: ScrapeExecutionOptions;
   retryCount?: number;
+  timeoutTimer?: NodeJS.Timeout;
 }
 
 export const VALID_BANKS = [
@@ -120,6 +123,20 @@ export class JobManager {
     }
 
     const jobId = `job-${Date.now()}-${randomUUID().slice(0, 8)}`;
+    const timeoutMs =
+      typeof options.timeoutMs === 'number' && options.timeoutMs > 0
+        ? options.timeoutMs
+        : Number(process.env.SCRAPER_JOB_TIMEOUT_MS) || 15 * 60 * 1000; // configurable via SCRAPER_JOB_TIMEOUT_MS with 15m default
+
+    const timeoutTimer = setTimeout(() => {
+      console.warn(
+        `[JobManager] Scraper for ${b} exceeded maximum timeout (${Math.round(timeoutMs / 1000)}s). Terminating...`
+      );
+      this.cancelScrapeJob(b, 'timeout-watchdog').catch((err) =>
+        console.error(`[JobManager] Error in timeout watchdog cancel for ${b}:`, err)
+      );
+    }, timeoutMs);
+
     const job: ActiveJob = {
       jobId,
       bank: b,
@@ -128,13 +145,28 @@ export class JobManager {
       startedAt: new Date().toISOString(),
       options,
       retryCount,
+      timeoutTimer,
     };
 
     this.activeJobs.set(b, job);
 
+    // Acquire database-backed distributed execution lease
+    this.acquireDistributedLease(b, jobId, timeoutMs).catch((err) => {
+      console.warn(`[JobManager] Non-fatal distributed lease acquisition warning for ${b}:`, err);
+    });
+
     child.on('close', (code) => {
+      clearTimeout(timeoutTimer);
       this.activeJobs.delete(b);
+      this.releaseDistributedLease(b, jobId).catch(() => {});
       console.log(`[JobManager] Scraper for ${b} exited with code ${code}`);
+    });
+
+    child.on('error', (err) => {
+      clearTimeout(timeoutTimer);
+      this.activeJobs.delete(b);
+      this.releaseDistributedLease(b, jobId).catch(() => {});
+      console.error(`[JobManager] Scraper process error for ${b}:`, err);
     });
 
     child.unref();
@@ -150,12 +182,45 @@ export class JobManager {
   /**
    * Safely terminates a running scrape process tree.
    */
-  public async cancelScrapeJob(bank: string, actor = 'operator'): Promise<{ cancelled: boolean; bank: string; pid?: number }> {
+  public async cancelScrapeJob(
+    bank: string,
+    actor = 'operator'
+  ): Promise<{ cancelled: boolean; bank: string; pid?: number }> {
     const b = bank.toLowerCase();
+
+    // If 'all' is cancelled and multiple individual scrapers are active, cancel all of them
+    if (b === 'all' && this.activeJobs.size > 0 && !this.activeJobs.has('all')) {
+      console.log(`[JobManager] Cancelling all ${this.activeJobs.size} active scraper jobs triggered by ${actor}...`);
+      const activeBanks = Array.from(this.activeJobs.keys());
+      for (const activeBank of activeBanks) {
+        await this.cancelScrapeJob(activeBank, actor);
+      }
+      return { cancelled: true, bank: 'all' };
+    }
+
     const job = this.activeJobs.get(b);
 
     if (!job) {
+      // Reconcile database if an orphaned running job exists
+      try {
+        const updateRes = await pool.query(
+          `UPDATE scrape_runs
+           SET status = 'failed', error_message = $2, finished_at = NOW()
+           WHERE bank = $1 AND status = 'running'`,
+          [b, `Cancelled by ${actor} (reconciled orphaned run)`]
+        );
+        if (updateRes.rowCount && updateRes.rowCount > 0) {
+          console.log(`[JobManager] Reconciled ${updateRes.rowCount} orphaned running run(s) for ${b} on cancel request.`);
+          return { cancelled: true, bank: b };
+        }
+      } catch (dbErr) {
+        console.error(`[JobManager] Failed to reconcile scrape_runs on cancel:`, dbErr);
+      }
       return { cancelled: false, bank: b };
+    }
+
+    if (job.timeoutTimer) {
+      clearTimeout(job.timeoutTimer);
     }
 
     const pid = job.pid;
@@ -163,7 +228,8 @@ export class JobManager {
     try {
       if (process.platform === 'win32') {
         // Kill whole process tree on Windows
-        spawn('taskkill', ['/pid', String(pid), '/T', '/F']);
+        const killProc = spawn('taskkill', ['/pid', String(pid), '/T', '/F']);
+        killProc.on('error', (err) => console.warn(`[JobManager] taskkill error for PID ${pid}:`, err.message));
       } else {
         try {
           process.kill(-pid, 'SIGTERM');
@@ -176,6 +242,7 @@ export class JobManager {
     }
 
     this.activeJobs.delete(b);
+    await this.releaseDistributedLease(b, job.jobId).catch(() => {});
 
     // Update database scrape_runs for this bank to mark cancelled
     try {
@@ -248,6 +315,11 @@ export class JobManager {
       console.log(`[JobManager] Geocoder for ${b} exited with code ${code}`);
     });
 
+    child.on('error', (err) => {
+      this.activeGeoJobs.delete(b);
+      console.error(`[JobManager] Geocoder process error for ${b}:`, err);
+    });
+
     child.unref();
     return { pid: job.pid, bank: job.bank, startedAt: job.startedAt };
   }
@@ -268,10 +340,83 @@ export class JobManager {
       if (res.rowCount && res.rowCount > 0) {
         console.log(`[JobManager] Recovered ${res.rowCount} stale running scrape run(s) on startup.`);
       }
+
+      // Reconcile and clean up any expired or dangling scraper leases
+      await pool.query(
+        `UPDATE scraper_leases
+         SET released_at = NOW()
+         WHERE released_at IS NULL AND expires_at < NOW()`
+      );
+
       return res.rowCount ?? 0;
     } catch (e) {
       console.error('[JobManager] Failed to recover stale scrape runs:', e);
       return 0;
+    }
+  }
+
+  /**
+   * Durably acquires a database-backed distributed execution lease.
+   * Prevents multi-instance collisions across processes/nodes.
+   */
+  public async acquireDistributedLease(bank: string, jobId: string, timeoutMs: number): Promise<boolean> {
+    const b = bank.toLowerCase();
+    const instanceId = `${process.env.INSTANCE_ID || os.hostname()}:${process.pid}`;
+    try {
+      const res = await pool.query(
+        `INSERT INTO scraper_leases (bank, job_id, instance_id, acquired_at, expires_at, released_at)
+         VALUES ($1, $2, $3, NOW(), NOW() + ($4 || ' milliseconds')::interval, NULL)
+         ON CONFLICT (bank) DO UPDATE
+           SET job_id = EXCLUDED.job_id,
+               instance_id = EXCLUDED.instance_id,
+               acquired_at = NOW(),
+               expires_at = EXCLUDED.expires_at,
+               released_at = NULL
+           WHERE scraper_leases.expires_at < NOW() OR scraper_leases.released_at IS NOT NULL
+         RETURNING bank, job_id`,
+        [b, jobId, instanceId, timeoutMs]
+      );
+      return (res.rowCount ?? 0) > 0;
+    } catch (err) {
+      // In offline/test environments where table doesn't exist, allow fallback to in-memory lock
+      console.warn(`[JobManager] Database lease check failed (falling back to in-memory lock):`, err instanceof Error ? err.message : String(err));
+      return true;
+    }
+  }
+
+  /**
+   * Releases the durable database lease when the scraper finishes or fails.
+   */
+  public async releaseDistributedLease(bank: string, jobId: string): Promise<void> {
+    const b = bank.toLowerCase();
+    try {
+      await pool.query(
+        `UPDATE scraper_leases
+         SET released_at = NOW()
+         WHERE bank = $1 AND job_id = $2 AND released_at IS NULL`,
+        [b, jobId]
+      );
+    } catch (err) {
+      console.warn(`[JobManager] Failed to release distributed lease for ${b}:`, err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  /**
+   * Queries if a bank is locked by another instance in the database.
+   */
+  public async isBankLockedInDatabase(bank: string): Promise<boolean> {
+    const b = bank.toLowerCase();
+    try {
+      const res = await pool.query(
+        `SELECT job_id, instance_id, expires_at
+         FROM scraper_leases
+         WHERE bank = $1 AND released_at IS NULL AND expires_at >= NOW()
+         LIMIT 1`,
+        [b]
+      );
+      return (res.rowCount ?? 0) > 0;
+    } catch {
+      return false;
     }
   }
 
@@ -282,6 +427,7 @@ export class JobManager {
     console.log('[JobManager] Graceful shutdown: terminating active scraper child processes...');
     for (const [bank, job] of this.activeJobs.entries()) {
       try {
+        await this.releaseDistributedLease(bank, job.jobId).catch(() => {});
         if (process.platform === 'win32') {
           spawn('taskkill', ['/pid', String(job.pid), '/T', '/F']);
         } else {

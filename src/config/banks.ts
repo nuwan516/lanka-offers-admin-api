@@ -62,18 +62,20 @@ export const HNB_CATEGORIES: BankCategory[] = [
 // Sampath API: GET /api/offers?type=<type>&page={page}&pageSize=20
 
 export const SAMPATH_CATEGORIES: BankCategory[] = [
-  { id: 1, name: 'Hotels', slug: 'hotels', url: 'https://www.sampath.lk/api/card-promotions?category=hotels&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 2, name: 'SuperMarkets', slug: 'super_market', url: 'https://www.sampath.lk/api/card-promotions?category=super_market&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 3, name: 'Online', slug: 'online', url: 'https://www.sampath.lk/api/card-promotions?category=online&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 4, name: 'Electronics & Furniture', slug: 'Electronics_and_Furniture', url: 'https://www.sampath.lk/api/card-promotions?category=Electronics_and_Furniture&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 5, name: 'Health and insurance', slug: 'health_and_insurance', url: 'https://www.sampath.lk/api/card-promotions?category=health_and_insurance&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 6, name: 'Fashion', slug: 'fashion', url: 'https://www.sampath.lk/api/card-promotions?category=fashion&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 7, name: 'Dining', slug: 'dining', url: 'https://www.sampath.lk/api/card-promotions?category=dining&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 8, name: 'Travel and Leisure', slug: 'travel_and_leisure', url: 'https://www.sampath.lk/api/card-promotions?category=travel_and_leisure&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 9, name: 'Premium Offers', slug: 'Premium_Offers', url: 'https://www.sampath.lk/api/card-promotions?category=Premium_Offers&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 10, name: 'VISA Offers', slug: 'VISA_Offers', url: 'https://www.sampath.lk/api/card-promotions?category=VISA_Offers&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 11, name: 'Mastercard Offers', slug: 'Mastercard_Offers', url: 'https://www.sampath.lk/api/card-promotions?category=Mastercard_Offers&page={page}', sourceType: 'json-api', detailRequired: true },
-  { id: 12, name: 'Other', slug: 'Other', url: 'https://www.sampath.lk/api/card-promotions?category=Other&page={page}', sourceType: 'json-api', detailRequired: true },
+  { id: 1, name: 'Hotels', slug: 'hotels', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=hotels', sourceType: 'headless-browser', browserRequired: true },
+  { id: 2, name: 'Supermarkets', slug: 'super_markets', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=super_markets', sourceType: 'headless-browser', browserRequired: true },
+  { id: 3, name: 'Online', slug: 'online', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=online', sourceType: 'headless-browser', browserRequired: true },
+  { id: 4, name: 'Electronics & Furniture', slug: 'Electronics_and_Furniture', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=Electronics_and_Furniture', sourceType: 'headless-browser', browserRequired: true },
+  { id: 5, name: 'Health and Insurance', slug: 'health_and_insurance', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=health_and_insurance', sourceType: 'headless-browser', browserRequired: true },
+  { id: 6, name: 'Fashion', slug: 'fashion', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=fashion', sourceType: 'headless-browser', browserRequired: true },
+  { id: 7, name: 'Dining', slug: 'dining', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=dining', sourceType: 'headless-browser', browserRequired: true },
+  { id: 8, name: 'Travel and Leisure', slug: 'travel_and_leisure', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=travel_and_leisure', sourceType: 'headless-browser', browserRequired: true },
+  { id: 9, name: 'Premium Offers', slug: 'Premium_Offers', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=Premium_Offers', sourceType: 'headless-browser', browserRequired: true },
+  { id: 10, name: 'VISA Offers', slug: 'VISA_Offers', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=VISA_Offers', sourceType: 'headless-browser', browserRequired: true },
+  { id: 11, name: 'Mastercard Offers', slug: 'Mastercard_Offers', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=Mastercard_Offers', sourceType: 'headless-browser', browserRequired: true },
+  { id: 12, name: 'Other', slug: 'Other', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer?firstTab=Other', sourceType: 'headless-browser', browserRequired: true },
+  // Catch-all LAST: captures offers across all categories
+  { id: 0, name: 'All', slug: 'all', url: 'https://www.sampath.lk/sampath-cards/credit-card-offer', sourceType: 'headless-browser', browserRequired: true },
 ];
 
 // ─── BOC ──────────────────────────────────────────────────────────────────────
@@ -280,9 +282,9 @@ export const BANK_CONFIGS: Record<BankName, BankConfig> = {
     displayName: 'Sampath',
     categories: SAMPATH_CATEGORIES,
     outputPrefix: 'sampath',
-    sourceType: 'mixed',
+    sourceType: 'headless-browser',
     activeBaseScript: 'sampath-7.js',
-    notes: 'API listing with optional HTML detail pages for addresses, terms, and images.',
+    notes: 'Headless browser Nuxt state hydration extraction across categories.',
     capabilities: { scrape: true, geocode: true, llmValidation: true },
   },
   boc: {
@@ -333,7 +335,7 @@ export const BANK_CONFIGS: Record<BankName, BankConfig> = {
     sourceType: 'headless-browser',
     activeBaseScript: 'dfcc.js',
     notes: 'Rendered card layout with browser automation and optional PDF extraction.',
-    capabilities: { scrape: true, geocode: false, llmValidation: true },
+    capabilities: { scrape: true, geocode: true, llmValidation: true },
   },
   pabc: {
     bank: 'pabc',
@@ -343,7 +345,7 @@ export const BANK_CONFIGS: Record<BankName, BankConfig> = {
     sourceType: 'headless-browser',
     activeBaseScript: 'panasia-2.js',
     notes: 'Browser-based scraper in base repo. Runtime scraper uses https://www.pabcbank.com/card-offers/ as the canonical card-offers page.',
-    capabilities: { scrape: true, geocode: false, llmValidation: true },
+    capabilities: { scrape: true, geocode: true, llmValidation: true },
   },
   nsb: {
     bank: 'nsb',

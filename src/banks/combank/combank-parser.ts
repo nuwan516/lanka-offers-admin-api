@@ -13,6 +13,7 @@ import { AddressEngine } from '@/parsing/address/address-engine';
 import { stableHash, stableOfferId } from '@/parsing/normalization/offer-normalizer';
 import { stripHtml } from '@/parsing/text/html';
 import { applyRegexRule, applyKeywordRule, applyTransactionRule } from '@/banks/bank-rules-loader';
+import { extractStructuredTransactionRange } from '@/parsing/transaction/transaction-parser';
 
 export interface ComBankListItem {
   title: string;
@@ -267,13 +268,13 @@ function extractMerchantName(title: string): string {
     }
   }
 
-  // 3. Product brand: "savings on <Merchant/Brand> with ComBank"
+  // 3. Product brand or platform: "on <Merchant> with ComBank" (e.g. "Order your favourite food on Uber Eats with ComBank Credit Cards")
   const onAnchored = title.match(
-    /\b(?:savings\s+on|discounts?\s+on)\s+([A-Za-z0-9&'’.\s-]+?)\s+(?:using|with|and)\s+(?:all\s+)?(?:ComBank|Q\+|LankaPay)\b/i,
+    /\b(?:savings\s+on|discounts?\s+on|food\s+on|purchases?\s+on|orders?\s+on|rides?\s+on|deals?\s+on|\bon)\s+([A-Za-z0-9&'’.\s-]+?)\s+(?:using|with|and)\s+(?:all\s+)?(?:ComBank|Q\+|LankaPay|your\s+ComBank)\b/i,
   );
   if (onAnchored) {
     let candidate = onAnchored[1].trim();
-    if (!isGenericPlaceholder(candidate) && candidate.length > 1) {
+    if (!isGenericPlaceholder(candidate) && candidate.length > 1 && !/^(?:selected|online|credit|debit)/i.test(candidate)) {
       return candidate;
     }
   }
@@ -337,14 +338,21 @@ function extractRestrictions(text: string): string[] {
 }
 
 function extractTransactionRange(text: string): TransactionRange {
+  const structured = extractStructuredTransactionRange(text).transactionRange;
   const minFallback = /minimum\s+bill\s+value(?:\s+at\s+[^.]+)?\s+is\s+Rs\.?\s*([\d,]+)/i;
   const minFallback2 = /minimum\s+(?:spend|bill|transaction)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i;
   const txMin = applyTransactionRule('combank', 'transaction_min', text, minFallback)
-    ?? applyTransactionRule('combank', 'transaction_min', text, minFallback2);
+    ?? applyTransactionRule('combank', 'transaction_min', text, minFallback2)
+    ?? structured.min;
+  let txMax = applyTransactionRule('combank', 'transaction_max', text,
+    /maximum\s+(?:bill|transaction|spend)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i)
+    ?? structured.max;
+  if (txMin !== null && txMax !== null && txMax < txMin) {
+    txMax = null;
+  }
   return {
     min: txMin,
-    max: applyTransactionRule('combank', 'transaction_max', text,
-      /maximum\s+(?:bill|transaction|discount)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i),
+    max: txMax,
     currency: 'LKR',
   };
 }

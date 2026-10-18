@@ -213,11 +213,14 @@ function extractRestrictions(text: string): string[] {
 
 function extractTransactionRange(text: string, detail: PeoplesDetailPage | null, context?: Record<string, unknown>): TransactionRange {
   const minRegex = /(?:minimum|min)\s+(?:spend|bill|transaction)(?:\s+value)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[:\s-]*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i;
-  const maxRegex = /(?:maximum|max)\s+(?:bill|transaction|discount)(?:\s+value)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[:\s-]*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i;
+  const maxRegex = /(?:maximum|max)\s+(?:bill|transaction|spend)(?:\s+value)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[:\s-]*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i;
   const txMin = detail?.structuredTerms.minimumSpend ??
     applyTransactionRule('peoples', 'transaction_min', text, minRegex, context);
-  const txMax = detail?.structuredTerms.maximumBill ??
+  let txMax = detail?.structuredTerms.maximumBill ??
     applyTransactionRule('peoples', 'transaction_max', text, maxRegex, context);
+  if (txMin !== null && txMax !== null && txMax < txMin) {
+    txMax = null;
+  }
   return { min: txMin, max: txMax, currency: 'LKR' };
 }
 

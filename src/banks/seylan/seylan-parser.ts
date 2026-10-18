@@ -13,6 +13,7 @@ import { AddressEngine } from '@/parsing/address/address-engine';
 import { stripHtml } from '@/parsing/text/html';
 import { stableHash, stableOfferId } from '@/parsing/normalization/offer-normalizer';
 import { applyRegexRule, applyKeywordRule, applyTransactionRule } from '@/banks/bank-rules-loader';
+import { extractStructuredTransactionRange } from '@/parsing/transaction/transaction-parser';
 
 export interface SeylanListItem {
   url: string;
@@ -206,11 +207,17 @@ function extractRestrictions(text: string): string[] {
 }
 
 function extractTransactionRange(text: string): TransactionRange {
+  const structured = extractStructuredTransactionRange(text).transactionRange;
+  const txMin = applyTransactionRule('seylan', 'transaction_min', text,
+    /(?:minimum|min)\s+(?:transaction\s+)?(?:value|spend|bill|purchase)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[-:]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i) ?? structured.min;
+  let txMax = applyTransactionRule('seylan', 'transaction_max', text,
+    /(?:maximum|max)\s+(?:transaction\s+)?(?:value|bill|spend)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[-:]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i) ?? structured.max;
+  if (txMin !== null && txMax !== null && txMax < txMin) {
+    txMax = null;
+  }
   return {
-    min: applyTransactionRule('seylan', 'transaction_min', text,
-      /(?:minimum|min)\s+(?:transaction\s+)?(?:value|spend|bill|purchase)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[-:]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i),
-    max: applyTransactionRule('seylan', 'transaction_max', text,
-      /(?:maximum|max)\s+(?:transaction\s+)?(?:value|bill|spend)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[-:]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i),
+    min: txMin,
+    max: txMax,
     currency: 'LKR',
   };
 }

@@ -29,4 +29,19 @@ describe('parseNDBOffer', () => {
     expect(offer?.cardEligibility.networks).toContain('Visa');
     expect(offer?.validityPeriods[0].validTo).toBe('2026-02-28');
   });
+
+  it('strictly separates minimum bill from maximum discount cap without setting max spend', () => {
+    const offer = parseNDBOffer({
+      merchantName: 'Pizza Haven',
+      offerDetails: '25% off on food. Minimum bill Rs. 2,500. Maximum discount Rs. 750.',
+      validity: 'Valid till 31st December 2026',
+      cardType: 'Credit Cards',
+      _categoryName: 'Dining',
+    });
+
+    expect(offer).not.toBeNull();
+    expect(offer?.transactionRange.min).toBe(2500);
+    expect(offer?.transactionRange.max).toBeNull(); // Must NOT be 750!
+    expect(offer?.offer.discountPercentage).toBe(25);
+  });
 });

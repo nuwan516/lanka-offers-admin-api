@@ -4,6 +4,7 @@ import { parsePeriod } from '@/parsing/period/period-engine';
 import { AddressEngine } from '@/parsing/address/address-engine';
 import { stripHtml } from '@/parsing/text/html';
 import { applyRegexRule, applyKeywordRule, applyTransactionRule } from '@/banks/bank-rules-loader';
+import { extractStructuredTransactionRange } from '@/parsing/transaction/transaction-parser';
 import * as crypto from 'crypto';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
@@ -127,6 +128,20 @@ export function parseSampathOffer(
   const discountRaw = applyRegexRule('sampath', 'discount_pct', discountSrc, /(\d+(?:\.\d+)?)\s*%/, ruleContext);
   const discountPercentage = discountRaw ? parseFloat(discountRaw) : null;
 
+  const combinedProse = [
+    item.title,
+    item.short_discount,
+    item.discount,
+    promoDetails,
+    item.terms_and_conditions ? stripHtml(item.terms_and_conditions) : '',
+    ...(detail?.termsArray ?? []),
+  ].filter(Boolean).join('\n\n');
+
+  const isUpTo =
+    /up\s+to\s+\d+%/i.test(combinedProse) ||
+    /up\s+to\s+\d+%/i.test(item.short_discount ?? '') ||
+    /up\s+to\s+\d+%/i.test(item.discount ?? '');
+
   const offerDetails: OfferDetails = {
     description: promoDetails || stripHtml(item.short_discount ?? item.short_description ?? ''),
     discountPercentage,
@@ -136,17 +151,25 @@ export function parseSampathOffer(
         (detail?.eligibleCards ? [detail.eligibleCards] : []),
     ),
     bookingRequired: applyKeywordRule('sampath', 'booking_required', promoDetails, /reservation|booking/i, ruleContext),
-    restrictions: extractRestrictions(promoDetails),
+    restrictions: [
+      ...extractRestrictions(combinedProse),
+      ...(isUpTo ? ['Discount is "up to" the stated percentage, may vary by item/venue'] : []),
+    ],
     specialConditions: [],
-    generalTerms: detail?.termsArray ?? [],
+    generalTerms: detail?.termsArray ?? (item.terms_and_conditions ? [item.terms_and_conditions] : []),
   };
 
   // ── Card eligibility ────────────────────────────────────────────────────────
+  const cardTypes = [
+    ...(applyKeywordRule('sampath', 'card_types', combinedProse, /credit/i, ruleContext) || /credit/i.test(combinedProse) ? ['Credit Card'] : []),
+    ...(/debit/i.test(combinedProse) ? ['Debit Card'] : []),
+  ];
+
   const cardEligibility: CardEligibility = {
     includedCards: item.eligible_cards ?? [],
     excludedCards: [],
-    cardTypes: applyKeywordRule('sampath', 'card_types', promoDetails, /credit/i, ruleContext) ? ['Credit Card'] : [],
-    networks: extractNetworks(promoDetails),
+    cardTypes: cardTypes.length > 0 ? cardTypes : ['Credit Card'],
+    networks: extractNetworks(combinedProse),
     restrictions: [],
   };
 
@@ -154,20 +177,24 @@ export function parseSampathOffer(
   const images = buildImages(item, detail);
 
   // ── Transaction range ────────────────────────────────────────────────────────
-  const transactionRange = extractTransactionRange(promoDetails, ruleContext);
+  const transactionRange = extractTransactionRange(combinedProse, ruleContext);
 
-  // ── Unique ID ────────────────────────────────────────────────────────────────
+  // ── Source URL & Unique ID ──────────────────────────────────────────────────
+  const sourceUrl =
+    detail?.sourceUrl ??
+    (item.detail_url ? (item.detail_url.startsWith('http') ? item.detail_url : `https://www.sampath.lk${item.detail_url}`) : null);
+
   const uniqueId = `sampath_${String(item.id)}`;
 
   return {
     uniqueId,
     source: 'sampath',
     sourceId: String(item.id),
-    sourceUrl: detail?.sourceUrl ?? null,
+    sourceUrl,
     title: item.title ?? merchantName,
     category: item._categoryName ?? item.category ?? 'General',
     categoryId: item._categoryId ?? null,
-    cardType: item.eligible_cards?.join(', ') ?? '',
+    cardType: cardEligibility.cardTypes.join(', ') || item.eligible_cards?.join(', ') || '',
     scrapedAt: new Date().toISOString(),
     merchant,
     offer: offerDetails,
@@ -239,20 +266,13 @@ function extractNetworks(text: string): string[] {
 }
 
 function extractTransactionRange(text: string, context?: Record<string, unknown>): TransactionRange {
-  const txMin = applyTransactionRule('sampath', 'transaction_min', text,
-    /minimum\s+(?:bill|spend|transaction)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context);
-  const txMax = applyTransactionRule('sampath', 'transaction_max', text,
-    /maximum\s+(?:bill|transaction|discount)(?:\s+value)?\s*[:-]?\s*Rs\.?\s*([\d,]+)/i, context);
-  if (txMin !== null || txMax !== null) return { min: txMin, max: txMax, currency: 'LKR' };
-
-  const m = text.match(/Rs\.?\s*([\d,.]+(?:\s*(?:Million|Lakh|Mn|k|m))?)\s*(?:to|[-–])\s*Rs\.?\s*([\d,.]+(?:\s*(?:Million|Lakh|Mn|k|m))?)/i);
-  if (m) {
-    let min = parseAmount(m[1]);
-    let max = parseAmount(m[2]);
-    if (min !== null && max !== null && min > max) { const temp = min; min = max; max = temp; }
-    return { min, max, currency: 'LKR' };
+  const structured = extractStructuredTransactionRange(text).transactionRange;
+  const txMin = applyTransactionRule('sampath', 'transaction_min', text, null, context) ?? structured.min;
+  let txMax = applyTransactionRule('sampath', 'transaction_max', text, null, context) ?? structured.max;
+  if (txMin !== null && txMax !== null && txMax < txMin) {
+    txMax = null;
   }
-  return { min: null, max: null, currency: 'LKR' };
+  return { min: txMin, max: txMax, currency: 'LKR' };
 }
 
 function parseAmount(str: string): number | null {
@@ -273,15 +293,28 @@ function parseAmount(str: string): number | null {
 
 function extractInstallmentPlans(text: string): InstallmentPlan[] {
   const plans: InstallmentPlan[] = [];
-  const m = text.match(/(\d+(?:\.\d+)?)\s*%\s+(\d+(?:\s*,\s*\d+)*(?:\s*&\s*\d+)?)\s*months/i);
-  if (m) {
-    const interest = parseFloat(m[1]);
-    const months = m[2]
-      .replace(/&/g, ',')
-      .split(',')
-      .map((s) => parseInt(s.trim(), 10))
-      .filter((n) => !isNaN(n));
+  const m1 = text.match(/(\d+(?:\.\d+)?)\s*%\s+(?:interest\s+)?(?:for\s+)?(\d+(?:\s*,\s*\d+)*(?:\s*&\s*\d+)?)\s*months/i);
+  if (m1) {
+    const interest = parseFloat(m1[1]);
+    const months = m1[2].replace(/&/g, ',').split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
     months.forEach((mo) => plans.push({ months: mo, interestRate: interest, type: 'installment' }));
+    return plans;
+  }
+
+  const m2 = text.match(/(\d+(?:\s*,\s*\d+)*(?:\s*&\s*\d+)?)\s*months(?:\s*,\s*)?\s*(\d+(?:\.\d+)?)?\s*%\s*(?:instalments?|installments?|interest)/i);
+  if (m2) {
+    const interest = m2[2] ? parseFloat(m2[2]) : 0;
+    const months = m2[1].replace(/&/g, ',').split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+    months.forEach((mo) => plans.push({ months: mo, interestRate: interest, type: 'installment' }));
+    return plans;
+  }
+
+  const m3 = text.match(/(?:0\s*%\s*)?(?:easy\s+payment|installment|instalment).*?(\d{1,2})\s*(?:months?|mths?)/i);
+  if (m3) {
+    const mo = parseInt(m3[1], 10);
+    if (!isNaN(mo)) {
+      plans.push({ months: mo, interestRate: 0, type: 'installment' });
+    }
   }
   return plans;
 }

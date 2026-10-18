@@ -69,4 +69,32 @@ describe('getGeoAdapter — every geocode:true bank has a registered adapter', (
     const data = adapter.extractLocationData(sampleOffer({ addresses: [] }));
     expect(data.addresses).toEqual(['Test Merchant']);
   });
+
+  it('dfcc adapter resolves and extracts addresses or falls back to clean location', () => {
+    const adapter = getGeoAdapter('dfcc');
+    const data = adapter.extractLocationData(sampleOffer());
+    expect(data.addresses).toEqual(['Test Merchant, No 5, Galle Road, Colombo 03, Sri Lanka']);
+
+    const singleLoc = adapter.extractLocationData(sampleOffer({ addresses: [], location: 'Kollupitiya' }));
+    expect(singleLoc.addresses).toEqual(['Test Merchant, Kollupitiya']);
+  });
+
+  it('pabc adapter resolves and extracts addresses or falls back to clean location', () => {
+    const adapter = getGeoAdapter('pabc');
+    const data = adapter.extractLocationData(sampleOffer());
+    expect(data.addresses).toEqual(['Test Merchant, No 5, Galle Road, Colombo 03, Sri Lanka']);
+
+    const singleLoc = adapter.extractLocationData(sampleOffer({ addresses: [], location: 'Kandy' }));
+    expect(singleLoc.addresses).toEqual(['Test Merchant, Kandy']);
+  });
+
+  it('registers all 10 production banks for geocoding', () => {
+    const allBanks = ['hnb', 'sampath', 'boc', 'peoples', 'seylan', 'ndb', 'nsb', 'combank', 'dfcc', 'pabc'];
+    for (const bank of allBanks) {
+      const adapter = getGeoAdapter(bank);
+      expect(adapter).toBeDefined();
+      expect(adapter.bank).toBe(bank);
+    }
+  });
 });
+

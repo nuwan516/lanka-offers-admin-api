@@ -175,11 +175,33 @@ export class GeoRepository {
   public async backfillGeometries(): Promise<number> {
     const res = await pool.query(`
       UPDATE offers 
-      SET geom = ST_SetSRID(ST_MakePoint((geo_locations->0->>'lng')::float, (geo_locations->0->>'lat')::float), 4326)::geography
+      SET geom = ST_SetSRID(
+        ST_MakePoint(
+          CASE 
+            WHEN jsonb_typeof(geo_locations->0) = 'object'
+              AND (geo_locations->0->>'lng') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+              AND (geo_locations->0->>'lat') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+            THEN (geo_locations->0->>'lng')::double precision
+            ELSE NULL
+          END,
+          CASE 
+            WHEN jsonb_typeof(geo_locations->0) = 'object'
+              AND (geo_locations->0->>'lng') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+              AND (geo_locations->0->>'lat') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+            THEN (geo_locations->0->>'lat')::double precision
+            ELSE NULL
+          END
+        ), 
+        4326
+      )::geography
       WHERE geo_locations IS NOT NULL 
+        AND jsonb_typeof(geo_locations) = 'array'
         AND jsonb_array_length(geo_locations) > 0 
-        AND (geo_locations->0->>'lat') IS NOT NULL
-        AND (geo_locations->0->>'lng') IS NOT NULL
+        AND jsonb_typeof(geo_locations->0) = 'object'
+        AND (geo_locations->0->>'lat') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+        AND (geo_locations->0->>'lng') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+        AND (geo_locations->0->>'lat')::double precision BETWEEN -90.0 AND 90.0
+        AND (geo_locations->0->>'lng')::double precision BETWEEN -180.0 AND 180.0
         AND geom IS NULL;
     `);
     return res.rowCount ?? 0;

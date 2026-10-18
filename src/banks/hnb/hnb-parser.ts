@@ -253,9 +253,12 @@ function extractCardEligibility(plainText: string, cardTypeFromApi: string, cont
 
 function extractTransactionRange(plainText: string, context?: Record<string, unknown>): TransactionRange {
     const minFallback = /(?:minimum|min)\s+(?:bill|spend|transaction)(?:\s+value)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i;
-    const maxFallback = /(?:maximum|max)\s+(?:bill|transaction|discount)(?:\s+value)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i;
+    const maxFallback = /(?:maximum|max)\s+(?:bill|transaction|spend)(?:\s+value)?(?:\s+at\s+[^.]+)?(?:\s+is|\s+of)?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+)(?:\/-)?/i;
     const txMin = applyTransactionRule('hnb', 'transaction_min', plainText, minFallback, context);
-    const txMax = applyTransactionRule('hnb', 'transaction_max', plainText, maxFallback, context);
+    let txMax = applyTransactionRule('hnb', 'transaction_max', plainText, maxFallback, context);
+    if (txMin !== null && txMax !== null && txMax < txMin) {
+        txMax = null;
+    }
     if (txMin !== null || txMax !== null) return { min: txMin, max: txMax, currency: 'LKR' };
 
     const rangeMatch = plainText.match(/(?:Rs\.?|LKR)\s*([\d,.]+(?:\s*(?:Million|Lakh|Mn|k|m))?)\s*(?:to|[-–])\s*(?:Rs\.?|LKR)?\s*([\d,.]+(?:\s*(?:Million|Lakh|Mn|k|m))?)/i);

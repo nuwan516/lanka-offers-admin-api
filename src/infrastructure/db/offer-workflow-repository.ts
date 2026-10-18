@@ -406,13 +406,65 @@ export async function getSyncPreview(): Promise<SyncPreview> {
   };
 }
 
+export interface ExpiryReconciliationOptions {
+  dryRun?: boolean;
+  operator?: string;
+}
+
+export interface ExpiryReconciliationResult {
+  expiredCount: number;
+  mode: 'preview' | 'mutated';
+  skippedDueToLock?: boolean;
+  sampleOfferIds?: string[];
+}
+
 /**
  * Reconciles offers whose valid_to date is in the past:
  * transitions db_status from PUBLISHED to EXPIRED so downstream consumer APIs,
  * Admin dashboard, and Flutter views have consistent expiry state.
+ *
+ * Guarantees:
+ * - Read-only preview mode when options.dryRun is true (zero mutations).
+ * - Distributed-safe execution via Postgres advisory lock (skips safely if locked).
+ * - Clear audit trail via offer_review_history.
  */
-export async function reconcileExpiredOffers(): Promise<{ expiredCount: number }> {
+export async function reconcileExpiredOffers(
+  options: ExpiryReconciliationOptions = {}
+): Promise<ExpiryReconciliationResult> {
+  const isDryRun = Boolean(options.dryRun);
+  const operator = options.operator || (isDryRun ? 'preview:expiry-check' : 'system:expiry-reconciliation');
+
   return withTransaction(async (client) => {
+    // Acquire a transaction-level advisory lock (ID 7429103) to prevent overlapping runs across multiple server instances
+    const lockRes = await client.query<{ acquired: boolean }>(
+      'SELECT pg_try_advisory_xact_lock(7429103) AS acquired'
+    );
+    if (!lockRes.rows[0]?.acquired) {
+      return {
+        expiredCount: 0,
+        mode: isDryRun ? 'preview' : 'mutated',
+        skippedDueToLock: true,
+        sampleOfferIds: [],
+      };
+    }
+
+    if (isDryRun) {
+      // Read-only preview query: no rows are modified
+      const previewRes = await client.query<{ id: string; unique_id: string }>(
+        `SELECT id, unique_id
+         FROM offers
+         WHERE db_status = 'PUBLISHED'
+           AND valid_to IS NOT NULL
+           AND valid_to < CURRENT_DATE`
+      );
+
+      return {
+        expiredCount: previewRes.rows.length,
+        mode: 'preview',
+        sampleOfferIds: previewRes.rows.slice(0, 10).map((r) => r.unique_id),
+      };
+    }
+
     const expiredRes = await client.query<{ id: string; unique_id: string }>(
       `UPDATE offers
        SET db_status = 'EXPIRED',
@@ -432,10 +484,14 @@ export async function reconcileExpiredOffers(): Promise<{ expiredCount: number }
         'EXPIRED',
         {},
         'Offer validity period ended (valid_to < CURRENT_DATE)',
-        'system:expiry-reconciliation'
+        operator
       );
     }
 
-    return { expiredCount: expiredRes.rows.length };
+    return {
+      expiredCount: expiredRes.rows.length,
+      mode: 'mutated',
+      sampleOfferIds: expiredRes.rows.slice(0, 10).map((r) => r.unique_id),
+    };
   });
 }

@@ -26,13 +26,36 @@ import { bankParserRulesRoutes } from './routes/bank-parser-rules.routes';
 import { goldenCasesRoutes } from './routes/golden-cases.routes';
 import { scraperRoutes } from './routes/scraper.routes';
 import { geoRoutes } from './routes/geo.routes';
+import scheduleRoutes from './routes/schedule.routes';
+import { scraperScheduler } from './services/scraper-scheduler';
+import { adminNetworkGuard } from './middleware/admin-network-guard';
 
 const app = express();
-const PORT = Number(process.env.API_PORT ?? 3001);
+const PORT = Number(process.env.API_PORT ?? process.env.PORT ?? 3002);
+const HOST = process.env.ADMIN_HOST ?? '127.0.0.1';
 
-app.use(cors());
+const allowedAdminOrigins = (process.env.ADMIN_CORS_ORIGINS ?? 'http://localhost:3002,http://127.0.0.1:3002,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5173,http://localhost:3000')
+  .split(',')
+  .map((s) => s.trim());
+
+// Reject untrusted reverse proxy spoofing by default (Batch F2)
+app.set('trust proxy', process.env.TRUST_PROXY === 'true');
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedAdminOrigins.includes('*') || allowedAdminOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for unauthorized admin origin: ${origin}`));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(correlationMiddleware);
+app.use(adminNetworkGuard);
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api', healthRoutes);
@@ -46,6 +69,7 @@ app.use('/api', bankParserRulesRoutes);
 app.use('/api', goldenCasesRoutes);
 app.use('/api', scraperRoutes);
 app.use('/api', geoRoutes);
+app.use('/api', scheduleRoutes);
 
 // ─── Admin Dashboard Static Assets ────────────────────────────────────────────
 const CANDIDATE_DISTS = [
@@ -80,17 +104,55 @@ app.get(/^(?!\/api\/).*/, (_req, res, next) => {
 app.use(errorHandler);
 
 // ─── Server Startup ───────────────────────────────────────────────────────────
-const server = app.listen(PORT, async () => {
-  console.log(`Lanka Offers Admin API running on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, async () => {
+  console.log(`Lanka Offers Admin API running on http://${HOST}:${PORT}`);
   console.log(formatSafePolicySummary());
   try {
     await initDatabaseSchemas();
     console.log('[DB] Schemas and PostGIS extensions initialized successfully');
     await jobManager.recoverStaleRunsOnStartup();
+    await scraperScheduler.init();
+
+    // ─── Configurable Expiry Reconciliation Policy ──────────────────────────
+    // Disabled by default to protect production against unintended mutations.
+    // Set ENABLE_EXPIRY_RECONCILIATION=true and EXPIRY_RECONCILIATION_MODE=mutate in .env to authorize mutations.
+    const enableReconciliation = process.env.ENABLE_EXPIRY_RECONCILIATION === 'true';
+    const isMutateMode = process.env.EXPIRY_RECONCILIATION_MODE === 'mutate';
+
+    if (!enableReconciliation) {
+      console.log('[Lifecycle] Automatic background expiry reconciliation is DISABLED by policy (default safe state).');
+    } else {
+      const { reconcileExpiredOffers } = await import('@/infrastructure/db/offer-workflow-repository');
+      const startupResult = await reconcileExpiredOffers({ dryRun: !isMutateMode });
+      if (startupResult.skippedDueToLock) {
+        console.log('[Lifecycle] Startup reconciliation skipped: another instance holds the distributed advisory lock.');
+      } else if (startupResult.mode === 'preview') {
+        console.log(`[Lifecycle] Startup reconciliation (READ-ONLY PREVIEW): ${startupResult.expiredCount} expired offer(s) identified (zero DB mutations).`);
+      } else {
+        console.log(`[Lifecycle] Startup reconciliation (AUTHORIZED MUTATE): ${startupResult.expiredCount} expired offer(s) transitioned to EXPIRED.`);
+      }
+
+      // Schedule periodic reconciliation every 6 hours if authorized
+      const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+      expiryInterval = setInterval(async () => {
+        try {
+          const { reconcileExpiredOffers: runReconcile } = await import('@/infrastructure/db/offer-workflow-repository');
+          const res = await runReconcile({ dryRun: !isMutateMode });
+          if (!res.skippedDueToLock && res.expiredCount > 0) {
+            console.log(`[Lifecycle] Periodic reconciliation (${res.mode}): ${res.expiredCount} expired offer(s) processed.`);
+          }
+        } catch (err) {
+          console.warn('[Lifecycle] Periodic expiry reconciliation error:', err);
+        }
+      }, SIX_HOURS_MS);
+      expiryInterval.unref();
+    }
   } catch (e) {
-    console.warn('[DB] Could not init database schemas:', (e as Error).message);
+    console.warn('[DB] Startup task warning:', (e as Error).message);
   }
 });
+
+let expiryInterval: NodeJS.Timeout | null = null;
 
 server.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {
@@ -103,12 +165,16 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 
 process.on('SIGINT', async () => {
   console.log('\n[Server] SIGINT received, shutting down gracefully...');
+  if (expiryInterval) clearInterval(expiryInterval);
+  scraperScheduler.shutdown();
   await jobManager.shutdown();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('\n[Server] SIGTERM received, shutting down gracefully...');
+  if (expiryInterval) clearInterval(expiryInterval);
+  scraperScheduler.shutdown();
   await jobManager.shutdown();
   process.exit(0);
 });

@@ -7,6 +7,8 @@ import { SeylanGeoAdapter } from './adapters/seylan-geo-adapter';
 import { NDBGeoAdapter } from './adapters/ndb-geo-adapter';
 import { NSBGeoAdapter } from './adapters/nsb-geo-adapter';
 import { ComBankGeoAdapter } from './adapters/combank-geo-adapter';
+import { DFCCGeoAdapter } from './adapters/dfcc-geo-adapter';
+import { PABCGeoAdapter } from './adapters/pabc-geo-adapter';
 import { listBanksByCapability } from '@/config/banks';
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
@@ -20,6 +22,8 @@ const ADAPTERS: Record<string, IGeoAdapter> = {
   ndb: new NDBGeoAdapter(),
   nsb: new NSBGeoAdapter(),
   combank: new ComBankGeoAdapter(),
+  dfcc: new DFCCGeoAdapter(),
+  pabc: new PABCGeoAdapter(),
 };
 
 /**

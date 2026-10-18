@@ -99,4 +99,64 @@ describe('decideOfferQuality', () => {
     });
     expect(decision).toBe('REVIEW_REQUIRED');
   });
+
+  describe('classifyDetailedOfferQuality (Phase 4 Ingestion Quality Gate)', () => {
+    const { classifyDetailedOfferQuality } = require('@/domain/offer-quality-decision');
+
+    it('classifies SOURCE_INCOMPLETE when essential promotion attributes are missing', () => {
+      const res = classifyDetailedOfferQuality({
+        ruleValid: true, ruleErrorCount: 0, ruleWarningCount: 0,
+        llmScore: 95, llmValid: true, llmStatus: 'validated',
+        isSourceIncomplete: true,
+      });
+      expect(res.category).toBe('SOURCE_INCOMPLETE');
+      expect(res.decision).toBe('REVIEW_REQUIRED');
+    });
+
+    it('classifies DUPLICATE_CANDIDATE when duplicate flag is present', () => {
+      const res = classifyDetailedOfferQuality({
+        ruleValid: true, ruleErrorCount: 0, ruleWarningCount: 0,
+        llmScore: 95, llmValid: true, llmStatus: 'validated',
+        isDuplicate: true,
+      });
+      expect(res.category).toBe('DUPLICATE_CANDIDATE');
+      expect(res.decision).toBe('REVIEW_REQUIRED');
+    });
+
+    it('classifies INVALID when parser rules fail or LLM score is below floor', () => {
+      const ruleFail = classifyDetailedOfferQuality({
+        ruleValid: false, ruleErrorCount: 2, ruleWarningCount: 0,
+        llmScore: 95, llmValid: true, llmStatus: 'validated',
+      });
+      expect(ruleFail.category).toBe('INVALID');
+      expect(ruleFail.decision).toBe('REVIEW_REQUIRED');
+
+      const floorFail = classifyDetailedOfferQuality({
+        ruleValid: true, ruleErrorCount: 0, ruleWarningCount: 0,
+        llmScore: 20, llmValid: false, llmStatus: 'validated',
+      });
+      expect(floorFail.category).toBe('INVALID');
+      expect(floorFail.decision).toBe('REJECT');
+    });
+
+    it('classifies VALID_WITH_WARNINGS when warnings exist despite high score', () => {
+      const res = classifyDetailedOfferQuality({
+        ruleValid: true, ruleErrorCount: 0, ruleWarningCount: 2,
+        llmScore: 95, llmValid: true, llmStatus: 'validated',
+      });
+      expect(res.category).toBe('VALID_WITH_WARNINGS');
+      expect(res.decision).toBe('REVIEW_REQUIRED');
+    });
+
+    it('classifies VALID_HIGH_CONFIDENCE when 0 errors, 0 warnings, and score meets threshold', () => {
+      const res = classifyDetailedOfferQuality({
+        ruleValid: true, ruleErrorCount: 0, ruleWarningCount: 0,
+        llmScore: 95, llmValid: true, llmStatus: 'validated',
+      });
+      expect(res.category).toBe('VALID_HIGH_CONFIDENCE');
+      expect(res.decision).toBe('AUTO_APPROVE');
+      expect(res.reasons.length).toBeGreaterThan(0);
+    });
+  });
 });
+

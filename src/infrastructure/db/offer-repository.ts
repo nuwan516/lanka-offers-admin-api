@@ -7,6 +7,7 @@ import { pool, withTransaction } from './db-client';
 import type { Offer, GeoLocation } from '@/core/types/offers';
 import type { ValidatorReport } from '@/core/types/validation';
 import type { OfferLifecycleStatus, OfferChangeStatus } from '@/domain/offer-lifecycle';
+import { classifyScraperFailure } from '@/domain/failure-classifier';
 
 // ─── Scrape Runs ─────────────────────────────────────────────────────────────
 
@@ -86,13 +87,26 @@ export async function completeScrapeRun(
     // If anomaly lookup encounters an error, proceed with basic stats
   }
 
+  let failureClassification: string | null = null;
+  if (finalStatus === 'warning' && finalErrorMessage) {
+    try {
+      failureClassification = classifyScraperFailure(finalErrorMessage, {
+        offersFound: stats.found,
+        ruleErrors: stats.errors,
+      }).classification;
+    } catch {
+      // Non-blocking
+    }
+  }
+
   await pool.query(
     `UPDATE scrape_runs
      SET status = $2, finished_at = NOW(),
          offers_found = $3, offers_new = $4, offers_changed = $5,
-         offers_unchanged = $6, errors = $7, error_message = $8
+         offers_unchanged = $6, errors = $7, error_message = $8,
+         failure_classification = $9
      WHERE id = $1`,
-    [runId, finalStatus, stats.found, stats.newCount, stats.changed, stats.unchanged, stats.errors, finalErrorMessage]
+    [runId, finalStatus, stats.found, stats.newCount, stats.changed, stats.unchanged, stats.errors, finalErrorMessage, failureClassification]
   );
 
   return {
@@ -102,11 +116,12 @@ export async function completeScrapeRun(
 }
 
 export async function failScrapeRun(runId: string, errorMessage: string): Promise<void> {
+  const analysis = classifyScraperFailure(errorMessage);
   await pool.query(
     `UPDATE scrape_runs
-     SET status = 'failed', finished_at = NOW(), error_message = $2
+     SET status = 'failed', finished_at = NOW(), error_message = $2, failure_classification = $3
      WHERE id = $1`,
-    [runId, errorMessage]
+    [runId, errorMessage, analysis.classification]
   );
 }
 
