@@ -23,6 +23,9 @@ export interface ActiveJob {
   options?: ScrapeExecutionOptions;
   retryCount?: number;
   timeoutTimer?: NodeJS.Timeout;
+  leaseGeneration?: number;
+  heartbeatTimer?: NodeJS.Timeout;
+  consecutiveHeartbeatFailures?: number;
 }
 
 export const VALID_BANKS = [
@@ -31,11 +34,23 @@ export const VALID_BANKS = [
 ];
 
 const MAX_PARALLEL_SCRAPES = 3;
+const LEASE_HEARTBEAT_INTERVAL_MS = 30 * 1000; // 30s heartbeat renewal
 
 export class JobManager {
   private activeJobs = new Map<string, ActiveJob>();
   private activeGeoJobs = new Map<string, { pid: number; bank: string; startedAt: string; child: ChildProcess }>();
   private projectRoot = path.resolve(__dirname, '..', '..', '..');
+
+  /**
+   * Optional completion callback for scheduler or orchestration subscribers.
+   */
+  public onJobCompleted?: (
+    bank: string,
+    jobId: string,
+    exitCode: number | null,
+    success: boolean,
+    errorMessage?: string
+  ) => Promise<void> | void;
 
   public isValidBank(bank: string): boolean {
     return VALID_BANKS.includes(bank.toLowerCase());
@@ -150,23 +165,69 @@ export class JobManager {
 
     this.activeJobs.set(b, job);
 
-    // Acquire database-backed distributed execution lease
-    this.acquireDistributedLease(b, jobId, timeoutMs).catch((err) => {
-      console.warn(`[JobManager] Non-fatal distributed lease acquisition warning for ${b}:`, err);
-    });
+    // Acquire database-backed distributed execution lease with fencing token
+    this.acquireDistributedLease(b, jobId, timeoutMs)
+      .then((leaseRes) => {
+        if (leaseRes.acquired) {
+          job.leaseGeneration = leaseRes.leaseGeneration;
+          this.startHeartbeat(b, job, timeoutMs);
+        }
+      })
+      .catch((err) => {
+        console.warn(`[JobManager] Non-fatal distributed lease acquisition warning for ${b}:`, err);
+      });
 
-    child.on('close', (code) => {
+    child.on('close', async (code) => {
       clearTimeout(timeoutTimer);
+      if (job.heartbeatTimer) clearInterval(job.heartbeatTimer);
       this.activeJobs.delete(b);
-      this.releaseDistributedLease(b, jobId).catch(() => {});
+      await this.releaseDistributedLease(b, jobId, job.leaseGeneration).catch(() => {});
       console.log(`[JobManager] Scraper for ${b} exited with code ${code}`);
+
+      let isSuccess = code === 0;
+      let errMsg: string | undefined;
+      try {
+        const runRes = await pool.query<{ status: string; error_message: string | null }>(
+          `SELECT status, error_message FROM scrape_runs
+           WHERE bank = $1 AND id IN (
+             SELECT id FROM scrape_runs WHERE bank = $1 ORDER BY started_at DESC LIMIT 1
+           )`,
+          [b]
+        );
+        if (runRes.rows.length > 0) {
+          const runStatus = runRes.rows[0].status;
+          errMsg = runRes.rows[0].error_message ?? undefined;
+          if (runStatus === 'failed') {
+            isSuccess = false;
+          }
+        }
+      } catch {
+        // Non-blocking
+      }
+
+      if (this.onJobCompleted) {
+        try {
+          await this.onJobCompleted(b, jobId, code, isSuccess, errMsg);
+        } catch (hookErr) {
+          console.error(`[JobManager] onJobCompleted error for ${b}:`, hookErr);
+        }
+      }
     });
 
-    child.on('error', (err) => {
+    child.on('error', async (err) => {
       clearTimeout(timeoutTimer);
+      if (job.heartbeatTimer) clearInterval(job.heartbeatTimer);
       this.activeJobs.delete(b);
-      this.releaseDistributedLease(b, jobId).catch(() => {});
+      await this.releaseDistributedLease(b, jobId, job.leaseGeneration).catch(() => {});
       console.error(`[JobManager] Scraper process error for ${b}:`, err);
+
+      if (this.onJobCompleted) {
+        try {
+          await this.onJobCompleted(b, jobId, null, false, err.message);
+        } catch (hookErr) {
+          console.error(`[JobManager] onJobCompleted error for ${b}:`, hookErr);
+        }
+      }
     });
 
     child.unref();
@@ -222,6 +283,9 @@ export class JobManager {
     if (job.timeoutTimer) {
       clearTimeout(job.timeoutTimer);
     }
+    if (job.heartbeatTimer) {
+      clearInterval(job.heartbeatTimer);
+    }
 
     const pid = job.pid;
 
@@ -242,7 +306,7 @@ export class JobManager {
     }
 
     this.activeJobs.delete(b);
-    await this.releaseDistributedLease(b, job.jobId).catch(() => {});
+    await this.releaseDistributedLease(b, job.jobId, job.leaseGeneration).catch(() => {});
 
     // Update database scrape_runs for this bank to mark cancelled
     try {
@@ -356,46 +420,203 @@ export class JobManager {
   }
 
   /**
-   * Durably acquires a database-backed distributed execution lease.
+   * Durably acquires a database-backed distributed execution lease with fencing generation.
    * Prevents multi-instance collisions across processes/nodes.
    */
-  public async acquireDistributedLease(bank: string, jobId: string, timeoutMs: number): Promise<boolean> {
+  public async acquireDistributedLease(
+    bank: string,
+    jobId: string,
+    timeoutMs: number
+  ): Promise<{ acquired: boolean; leaseGeneration: number }> {
     const b = bank.toLowerCase();
     const instanceId = `${process.env.INSTANCE_ID || os.hostname()}:${process.pid}`;
     try {
-      const res = await pool.query(
-        `INSERT INTO scraper_leases (bank, job_id, instance_id, acquired_at, expires_at, released_at)
-         VALUES ($1, $2, $3, NOW(), NOW() + ($4 || ' milliseconds')::interval, NULL)
+      const res = await pool.query<{ bank: string; job_id: string; lease_generation: string }>(
+        `INSERT INTO scraper_leases (bank, job_id, instance_id, lease_generation, acquired_at, heartbeat_at, expires_at, released_at)
+         VALUES ($1, $2, $3, 1, NOW(), NOW(), NOW() + ($4 || ' milliseconds')::interval, NULL)
          ON CONFLICT (bank) DO UPDATE
            SET job_id = EXCLUDED.job_id,
                instance_id = EXCLUDED.instance_id,
+               lease_generation = scraper_leases.lease_generation + 1,
                acquired_at = NOW(),
+               heartbeat_at = NOW(),
                expires_at = EXCLUDED.expires_at,
                released_at = NULL
            WHERE scraper_leases.expires_at < NOW() OR scraper_leases.released_at IS NOT NULL
-         RETURNING bank, job_id`,
+         RETURNING bank, job_id, lease_generation`,
         [b, jobId, instanceId, timeoutMs]
+      );
+      if (res.rows.length > 0) {
+        return {
+          acquired: true,
+          leaseGeneration: parseInt(res.rows[0].lease_generation, 10),
+        };
+      }
+      return { acquired: false, leaseGeneration: 0 };
+    } catch (err) {
+      // In offline/test environments where table doesn't exist, allow fallback to in-memory lock
+      console.warn(
+        `[JobManager] Database lease check failed (falling back to in-memory lock):`,
+        err instanceof Error ? err.message : String(err)
+      );
+      return { acquired: true, leaseGeneration: 1 };
+    }
+  }
+
+  /**
+   * Starts periodic heartbeat to renew the distributed lease while the worker is active.
+   */
+  private startHeartbeat(bank: string, job: ActiveJob, timeoutMs: number): void {
+    if (job.heartbeatTimer) clearInterval(job.heartbeatTimer);
+    job.consecutiveHeartbeatFailures = 0;
+
+    const timer = setInterval(async () => {
+      if (!this.activeJobs.has(bank.toLowerCase())) {
+        clearInterval(timer);
+        return;
+      }
+      if (job.leaseGeneration === undefined) return;
+
+      const ok = await this.renewDistributedLease(bank, job.jobId, job.leaseGeneration, timeoutMs);
+      if (ok) {
+        job.consecutiveHeartbeatFailures = 0;
+      } else {
+        job.consecutiveHeartbeatFailures = (job.consecutiveHeartbeatFailures ?? 0) + 1;
+        console.warn(
+          `[JobManager] Heartbeat renewal failed for ${bank} (${job.consecutiveHeartbeatFailures}/3)`
+        );
+        if (job.consecutiveHeartbeatFailures >= 3) {
+          this.handleLeaseLoss(bank, job);
+        }
+      }
+    }, LEASE_HEARTBEAT_INTERVAL_MS);
+
+    timer.unref();
+    job.heartbeatTimer = timer;
+  }
+
+  /**
+   * Renews an existing distributed lease during execution.
+   * If the generation does not match or the lease was reclaimed/expired, returns false (lease lost).
+   */
+  public async renewDistributedLease(
+    bank: string,
+    jobId: string,
+    leaseGeneration: number,
+    extensionMs: number
+  ): Promise<boolean> {
+    const b = bank.toLowerCase();
+    try {
+      const res = await pool.query(
+        `UPDATE scraper_leases
+         SET expires_at = NOW() + ($4 || ' milliseconds')::interval,
+             heartbeat_at = NOW()
+         WHERE bank = $1
+           AND job_id = $2
+           AND lease_generation = $3
+           AND released_at IS NULL
+         RETURNING lease_generation`,
+        [b, jobId, leaseGeneration, extensionMs]
       );
       return (res.rowCount ?? 0) > 0;
     } catch (err) {
-      // In offline/test environments where table doesn't exist, allow fallback to in-memory lock
-      console.warn(`[JobManager] Database lease check failed (falling back to in-memory lock):`, err instanceof Error ? err.message : String(err));
-      return true;
+      console.error(
+        `[JobManager] Failed to renew heartbeat for ${b} (lease gen ${leaseGeneration}):`,
+        err instanceof Error ? err.message : String(err)
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Handles fencing token violation / lease loss.
+   * Fails closed: terminates the child scraper process immediately to prevent split-brain writes.
+   */
+  public handleLeaseLoss(bank: string, job: ActiveJob): void {
+    const b = bank.toLowerCase();
+    console.error(
+      `[JobManager] CRITICAL FENCING VIOLATION: Lease for ${b.toUpperCase()} was lost (generation ${job.leaseGeneration}). Terminating PID ${job.pid} to prevent stale writes.`
+    );
+    if (job.heartbeatTimer) {
+      clearInterval(job.heartbeatTimer);
+      job.heartbeatTimer = undefined;
+    }
+    if (job.timeoutTimer) {
+      clearTimeout(job.timeoutTimer);
+      job.timeoutTimer = undefined;
+    }
+    try {
+      if (process.platform === 'win32') {
+        spawn('taskkill', ['/pid', String(job.pid), '/T', '/F']);
+      } else {
+        process.kill(-job.pid, 'SIGKILL');
+      }
+    } catch (killErr) {
+      console.error(`[JobManager] Error terminating stale PID ${job.pid}:`, killErr);
+    }
+    this.activeJobs.delete(b);
+    if (this.onJobCompleted) {
+      try {
+        const ret = this.onJobCompleted(b, job.jobId, null, false, 'Lease lost to newer worker or expired (fencing violation)');
+        if (ret && typeof (ret as Promise<void>).catch === 'function') {
+          (ret as Promise<void>).catch(() => {});
+        }
+      } catch {
+        // Non-blocking
+      }
+    }
+  }
+
+  /**
+   * Verifies that the given worker still holds a valid unexpired lease with matching fencing generation.
+   * Use this at sensitive write boundaries (staging, publishing) to fail closed on stale workers.
+   */
+  public async verifyLeaseFencing(
+    bank: string,
+    jobId: string,
+    leaseGeneration: number
+  ): Promise<boolean> {
+    const b = bank.toLowerCase();
+    try {
+      const res = await pool.query(
+        `SELECT lease_generation
+         FROM scraper_leases
+         WHERE bank = $1
+           AND job_id = $2
+           AND lease_generation = $3
+           AND released_at IS NULL
+           AND expires_at >= NOW()
+         LIMIT 1`,
+        [b, jobId, leaseGeneration]
+      );
+      return (res.rowCount ?? 0) > 0;
+    } catch {
+      return false;
     }
   }
 
   /**
    * Releases the durable database lease when the scraper finishes or fails.
+   * Ensures an old worker cannot release a newer worker's lease.
    */
-  public async releaseDistributedLease(bank: string, jobId: string): Promise<void> {
+  public async releaseDistributedLease(bank: string, jobId: string, leaseGeneration?: number): Promise<void> {
     const b = bank.toLowerCase();
     try {
-      await pool.query(
-        `UPDATE scraper_leases
-         SET released_at = NOW()
-         WHERE bank = $1 AND job_id = $2 AND released_at IS NULL`,
-        [b, jobId]
-      );
+      if (leaseGeneration !== undefined) {
+        await pool.query(
+          `UPDATE scraper_leases
+           SET released_at = NOW()
+           WHERE bank = $1 AND job_id = $2 AND lease_generation = $3 AND released_at IS NULL`,
+          [b, jobId, leaseGeneration]
+        );
+      } else {
+        await pool.query(
+          `UPDATE scraper_leases
+           SET released_at = NOW()
+           WHERE bank = $1 AND job_id = $2 AND released_at IS NULL`,
+          [b, jobId]
+        );
+      }
     } catch (err) {
       console.warn(`[JobManager] Failed to release distributed lease for ${b}:`, err instanceof Error ? err.message : String(err));
     }
@@ -427,7 +648,8 @@ export class JobManager {
     console.log('[JobManager] Graceful shutdown: terminating active scraper child processes...');
     for (const [bank, job] of this.activeJobs.entries()) {
       try {
-        await this.releaseDistributedLease(bank, job.jobId).catch(() => {});
+        if (job.heartbeatTimer) clearInterval(job.heartbeatTimer);
+        await this.releaseDistributedLease(bank, job.jobId, job.leaseGeneration).catch(() => {});
         if (process.platform === 'win32') {
           spawn('taskkill', ['/pid', String(job.pid), '/T', '/F']);
         } else {

@@ -32,12 +32,39 @@ export interface ScheduleEntry {
   concurrency?: number;
 }
 
+export interface SchedulerSecurityGates {
+  schedulerEnabled: boolean;
+  scrapingEnabled: boolean;
+  stagingEnabled: boolean;
+  autoApprovalEnabled: boolean;
+  autoPublishingEnabled: boolean;
+}
+
 export interface SchedulerStatus {
   enabled: boolean;
   activeScrapes: number;
   totalSchedules: number;
   activeSchedules: number;
   schedules: ScheduleEntry[];
+  securityGates?: SchedulerSecurityGates;
+}
+
+/**
+ * B3: Evaluates date & time in Sri Lanka (Asia/Colombo, UTC+05:30) timezone
+ * regardless of host OS or VM timezone (e.g. UTC Oracle Cloud VM).
+ */
+export function getColomboTime(date: Date = new Date()): { hour: number; minute: number; dayOfWeek: number } {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Colombo',
+    hour: 'numeric',
+    minute: 'numeric',
+    weekday: 'short',
+    hourCycle: 'h23',
+  });
+  const parts = formatter.formatToParts(date);
+  const hour = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10);
+  const minute = parseInt(parts.find((p) => p.type === 'minute')?.value ?? '0', 10);
+  return { hour, minute, dayOfWeek: date.getDay() };
 }
 
 export const DEFAULT_BANK_SCHEDULES: ScheduleEntry[] = [
@@ -254,12 +281,34 @@ export class ScraperScheduler {
       // Seamless in-memory fallback during unit tests / offline DB
     }
 
+    // B1: Register completion listener on jobManager for verified lifecycle updates
+    jobManager.onJobCompleted = async (bank, jobId, exitCode, success, errorMessage) => {
+      const entry = Array.from(this.schedules.values()).find((s) => s.bank === bank.toLowerCase());
+      if (entry) {
+        if (success) {
+          this.handleJobSuccess(entry.id);
+        } else {
+          this.handleJobFailure(entry.id, errorMessage || `Process exited with code ${exitCode}`);
+        }
+      }
+    };
+
     if (this.globalEnabled) {
       console.log('[ScraperScheduler] Scheduler initialized in ACTIVE mode (ENABLE_SCRAPER_SCHEDULER=true)');
       this.startCheckLoop();
     } else {
       console.log('[ScraperScheduler] Scheduler initialized in DISABLED/PAUSED mode by default (ENABLE_SCRAPER_SCHEDULER=false)');
     }
+  }
+
+  public getSecurityGates(): SchedulerSecurityGates {
+    return {
+      schedulerEnabled: this.globalEnabled,
+      scrapingEnabled: process.env.ENABLE_SCRAPER_SCHEDULER === 'true' || this.globalEnabled,
+      stagingEnabled: true,
+      autoApprovalEnabled: process.env.ENABLE_AUTO_APPROVAL === 'true',
+      autoPublishingEnabled: process.env.ENABLE_AUTO_PUBLISHING === 'true',
+    };
   }
 
   public getStatus(): SchedulerStatus {
@@ -270,6 +319,7 @@ export class ScraperScheduler {
       totalSchedules: list.length,
       activeSchedules: list.filter((s) => s.enabled).length,
       schedules: list,
+      securityGates: this.getSecurityGates(),
     };
   }
 
@@ -451,13 +501,12 @@ export class ScraperScheduler {
     }
   }
 
-  private tick(): void {
+  private async tick(): Promise<void> {
     if (!this.globalEnabled) return;
 
-    // Check if any scheduled items should run
+    // B3: Strictly evaluate schedule in Sri Lanka (Asia/Colombo) time
     const now = new Date();
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+    const { hour: currentHour, minute: currentMinute } = getColomboTime(now);
 
     for (const entry of this.schedules.values()) {
       if (!entry.enabled) continue;
@@ -471,7 +520,13 @@ export class ScraperScheduler {
         if (cronHour === currentHour && cronMinute === currentMinute) {
           // Time to execute!
           if (!jobManager.isBankRunning(entry.bank)) {
-            console.log(`[ScraperScheduler] Cron triggered for ${entry.bank} at ${now.toISOString()}`);
+            const isLocked = await jobManager.isBankLockedInDatabase(entry.bank).catch(() => false);
+            if (isLocked) {
+              console.warn(`[ScraperScheduler] Skipping scheduled run for ${entry.bank}: active distributed lease held by another worker`);
+              continue;
+            }
+
+            console.log(`[ScraperScheduler] Cron triggered for ${entry.bank} at ${now.toISOString()} (Colombo: ${currentHour}:${currentMinute.toString().padStart(2, '0')})`);
             entry.lastRun = now.toISOString();
             entry.lastStatus = 'running';
             try {

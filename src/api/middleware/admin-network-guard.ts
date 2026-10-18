@@ -20,13 +20,12 @@ export function adminNetworkGuard(req: Request, res: Response, next: NextFunctio
     return next();
   }
 
-  const socketIp = req.socket?.remoteAddress || '';
+  const socketIp = req.socket?.remoteAddress || req.ip || '';
   const isDirectLoopback =
     socketIp === '127.0.0.1' ||
     socketIp === '::1' ||
     socketIp === '::ffff:127.0.0.1' ||
-    socketIp.startsWith('127.') ||
-    socketIp === '';
+    socketIp.startsWith('127.');
 
   const trustedProxies = (process.env.TRUSTED_PROXIES || '')
     .split(',')
@@ -49,8 +48,7 @@ export function adminNetworkGuard(req: Request, res: Response, next: NextFunctio
     effectiveIp === '127.0.0.1' ||
     effectiveIp === '::1' ||
     effectiveIp === '::ffff:127.0.0.1' ||
-    effectiveIp.startsWith('127.') ||
-    effectiveIp === '';
+    effectiveIp.startsWith('127.');
 
   if (!isAuthorized && process.env.ALLOW_REMOTE_ADMIN_MUTATIONS !== 'true') {
     res.status(403).json({

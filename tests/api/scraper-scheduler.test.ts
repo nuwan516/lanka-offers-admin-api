@@ -1,6 +1,12 @@
 import { ScraperScheduler, DEFAULT_BANK_SCHEDULES } from '@/api/services/scraper-scheduler';
 import { jobManager } from '@/api/services/job-manager';
 
+jest.mock('@/infrastructure/db/db-client', () => ({
+  pool: {
+    query: jest.fn().mockResolvedValue({ rows: [] }),
+  },
+}));
+
 jest.mock('@/api/services/job-manager', () => ({
   jobManager: {
     getActiveJobs: jest.fn().mockReturnValue([]),
@@ -154,4 +160,51 @@ describe('ScraperScheduler — Safe Orchestration & Scheduling', () => {
     expect(updated.retryCount).toBe(0);
     expect(updated.lastStatus).toBe('success');
   });
+
+  it('correctly calculates Sri Lanka (Asia/Colombo) time for cron triggers (B3)', () => {
+    const { getColomboTime } = require('@/api/services/scraper-scheduler');
+
+    // 00:30 UTC is 06:00 AM Colombo (UTC+05:30)
+    const utcMorning = new Date('2026-10-18T00:30:00.000Z');
+    const colomboMorning = getColomboTime(utcMorning);
+    expect(colomboMorning.hour).toBe(6);
+    expect(colomboMorning.minute).toBe(0);
+
+    // 18:30 UTC is 00:00 midnight next day Colombo
+    const utcNight = new Date('2026-10-18T18:30:00.000Z');
+    const colomboMidnight = getColomboTime(utcNight);
+    expect(colomboMidnight.hour).toBe(0);
+    expect(colomboMidnight.minute).toBe(0);
+  });
+
+  it('maintains strict security gates separating scheduling from auto-publishing (B4)', () => {
+    const gates = scheduler.getSecurityGates();
+    expect(gates.autoPublishingEnabled).toBe(false);
+    expect(gates.autoApprovalEnabled).toBe(false);
+    expect(gates.stagingEnabled).toBe(true);
+
+    const status = scheduler.getStatus();
+    expect(status.securityGates).toBeDefined();
+    expect(status.securityGates?.autoPublishingEnabled).toBe(false);
+  });
+
+  it('updates schedule state when jobManager notifies onJobCompleted (B1)', async () => {
+    await scheduler.init();
+    expect(jobManager.onJobCompleted).toBeDefined();
+
+    // Simulate scraper failure reported by job manager
+    await jobManager.onJobCompleted!('hnb', 'job-test-123', 1, false, 'Connection terminated');
+
+    const entryFailed = scheduler.getStatus().schedules.find((s) => s.bank === 'hnb')!;
+    expect(entryFailed.retryCount).toBe(1);
+    expect(entryFailed.lastStatus).toBe('failed');
+
+    // Simulate scraper success reported by job manager
+    await jobManager.onJobCompleted!('hnb', 'job-test-124', 0, true);
+
+    const entrySuccess = scheduler.getStatus().schedules.find((s) => s.bank === 'hnb')!;
+    expect(entrySuccess.retryCount).toBe(0);
+    expect(entrySuccess.lastStatus).toBe('success');
+  });
 });
+
