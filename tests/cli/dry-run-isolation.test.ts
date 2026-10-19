@@ -66,8 +66,12 @@ describe('Dry-Run Architecture & Isolation Tests (Phase 4)', () => {
   const tmpOutputDir = path.join(__dirname, '..', '..', 'tmp-dry-run-test');
 
   afterEach(() => {
-    if (fs.existsSync(tmpOutputDir)) {
-      fs.rmSync(tmpOutputDir, { recursive: true, force: true });
+    try {
+      if (fs.existsSync(tmpOutputDir)) {
+        fs.rmSync(tmpOutputDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+      }
+    } catch {
+      // Ignored for transient Windows locks
     }
   });
 

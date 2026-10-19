@@ -49,11 +49,33 @@ const BANK_PARSER_RULE_SEED = [
 ];
 
 export async function initDatabaseSchemas(): Promise<void> {
+  // Schema changes at boot are opt-in in every environment, not only production: a dev machine
+  // whose .env points at Neon would otherwise migrate that database just by starting the API.
+  // Use `npm run migrate` for an explicit migration, or AUTO_MIGRATE=true on a disposable database.
+  const autoMigrate = process.env.AUTO_MIGRATE === 'true';
+  const skipStartupMigrations = process.env.SKIP_STARTUP_MIGRATIONS === 'true' || !autoMigrate;
+
+  if (skipStartupMigrations) {
+    console.log('[DB] Startup DDL skipped: set AUTO_MIGRATE=true (disposable databases only) or run `npm run migrate`. Checking schema readiness...');
+    const readyCheck = await pool.query<{ count: string }>(
+      `SELECT count(*)::int as count FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('offers', 'scraper_leases', 'scrape_runs')`
+    );
+    if (parseInt(readyCheck.rows[0]?.count || '0', 10) < 3) {
+      console.warn('[DB] WARNING: Core tables missing. Ensure migrations were run via privileged migration runner.');
+    } else {
+      console.log('[DB] Core database schema verified ready.');
+    }
+    return;
+  }
+
   // 1. PostGIS Spatial Extension & Geospatial Geometry
   await pool.query('CREATE EXTENSION IF NOT EXISTS postgis;');
   await pool.query('ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom geography(Point, 4326);');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_offers_geom_gist ON offers USING GIST (geom);');
   await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS failure_classification TEXT;');
+  await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS job_id TEXT;');
+  await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS lease_generation BIGINT;');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_scrape_runs_job_fencing ON scrape_runs (bank, job_id, lease_generation);');
 
   // 2. Rule configs & custom rules
   await ruleConfigRepository.initRuleConfigs();

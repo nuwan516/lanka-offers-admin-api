@@ -9,14 +9,58 @@ import type { ValidatorReport } from '@/core/types/validation';
 import type { OfferLifecycleStatus, OfferChangeStatus } from '@/domain/offer-lifecycle';
 import { classifyScraperFailure } from '@/domain/failure-classifier';
 
-// ─── Scrape Runs ─────────────────────────────────────────────────────────────
+// ─── Scrape Runs & Fencing ───────────────────────────────────────────────────
 
-export async function createScrapeRun(bank: string, mode: string, triggeredBy: string): Promise<string> {
+export interface FencingToken {
+  bank: string;
+  jobId: string;
+  leaseGeneration: number;
+}
+
+export class FencingViolationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FencingViolationError';
+  }
+}
+
+export async function assertActiveLease(
+  client: { query: (sql: string, params?: unknown[]) => Promise<{ rowCount?: number | null }> },
+  fencingToken?: FencingToken,
+  forShare = false
+): Promise<void> {
+  if (!fencingToken) return;
+  const res = await client.query(
+    `SELECT 1 FROM scraper_leases
+     WHERE bank = $1
+       AND job_id = $2
+       AND lease_generation = $3
+       AND released_at IS NULL
+       AND expires_at >= NOW()
+     ${forShare ? 'FOR SHARE' : ''}`,
+    [fencingToken.bank.toLowerCase(), fencingToken.jobId, fencingToken.leaseGeneration]
+  );
+  if ((res.rowCount ?? 0) === 0) {
+    throw new FencingViolationError(
+      `Fencing violation: Worker '${fencingToken.jobId}' (gen ${fencingToken.leaseGeneration}) has lost the lease for bank '${fencingToken.bank}'. Mutation rejected.`
+    );
+  }
+}
+
+export async function createScrapeRun(
+  bank: string,
+  mode: string,
+  triggeredBy: string,
+  fencingToken?: FencingToken
+): Promise<string> {
+  if (fencingToken) {
+    await assertActiveLease(pool, fencingToken);
+  }
   const res = await pool.query<{ id: string }>(
-    `INSERT INTO scrape_runs (bank, mode, triggered_by, status)
-     VALUES ($1, $2, $3, 'running')
+    `INSERT INTO scrape_runs (bank, mode, triggered_by, status, job_id, lease_generation)
+     VALUES ($1, $2, $3, 'running', $4, $5)
      RETURNING id`,
-    [bank, mode, triggeredBy]
+    [bank, mode, triggeredBy, fencingToken?.jobId ?? null, fencingToken?.leaseGeneration ?? null]
   );
   return res.rows[0].id;
 }
@@ -38,8 +82,12 @@ export interface CompleteScrapeRunResult {
 
 export async function completeScrapeRun(
   runId: string,
-  stats: CompleteScrapeRunStats
+  stats: CompleteScrapeRunStats,
+  fencingToken?: FencingToken
 ): Promise<CompleteScrapeRunResult> {
+  if (fencingToken) {
+    await assertActiveLease(pool, fencingToken);
+  }
   let finalStatus = stats.status ?? 'completed';
   let finalErrorMessage = stats.errorMessage ?? null;
 
@@ -115,7 +163,10 @@ export async function completeScrapeRun(
   };
 }
 
-export async function failScrapeRun(runId: string, errorMessage: string): Promise<void> {
+export async function failScrapeRun(runId: string, errorMessage: string, fencingToken?: FencingToken): Promise<void> {
+  if (fencingToken) {
+    await assertActiveLease(pool, fencingToken);
+  }
   const analysis = classifyScraperFailure(errorMessage);
   await pool.query(
     `UPDATE scrape_runs
@@ -178,13 +229,18 @@ function offerColumnValues(offer: Offer) {
  *
  * Runs inside a transaction with `SELECT ... FOR UPDATE` so concurrent
  * scrape runs for the same offer can't race each other.
+ * If fencingToken is provided, atomically verifies active lease with FOR SHARE.
  */
 export async function upsertOffer(
   offer: Offer,
   runId: string,
-  decision: OfferLifecycleDecision
+  decision: OfferLifecycleDecision,
+  fencingToken?: FencingToken
 ): Promise<UpsertResult> {
   return withTransaction(async (client) => {
+    if (fencingToken) {
+      await assertActiveLease(client, fencingToken, true);
+    }
     const existingRes = await client.query<{ id: string; content_hash: string | null; db_status: string }>(
       `SELECT id, content_hash, db_status FROM offers WHERE unique_id = $1 FOR UPDATE`,
       [offer.uniqueId]
@@ -318,11 +374,12 @@ export async function saveValidationReport(
   runId: string,
   report: ValidatorReport,
   fingerprint?: LlmFingerprintMeta,
-  /** True when this offer's new candidate was staged (Step 10) rather than
-   *  applied directly — the currently-PUBLISHED row's displayed rule/LLM
-   *  columns must keep describing the published content, not the candidate. */
-  staged = false
+  staged = false,
+  fencingToken?: FencingToken
 ): Promise<void> {
+  if (fencingToken) {
+    await assertActiveLease(pool, fencingToken);
+  }
   const llm = report.llmValidation;
   await pool.query(
     `INSERT INTO validation_reports (

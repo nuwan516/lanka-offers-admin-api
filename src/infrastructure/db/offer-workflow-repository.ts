@@ -14,6 +14,7 @@ import {
   type OfferLifecycleStatus,
   type OfferReviewAction,
 } from '@/domain/offer-lifecycle';
+import { type FencingToken, assertActiveLease } from './offer-repository';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -161,9 +162,13 @@ export async function transitionOffer(
   actor = 'admin',
   reason: string | null = null,
   correction?: ManualOverride,
-  expectedUpdatedAt?: string
+  expectedUpdatedAt?: string,
+  fencingToken?: FencingToken
 ): Promise<TransitionResult> {
   return withTransaction(async (client) => {
+    if (fencingToken) {
+      await assertActiveLease(client, fencingToken, true);
+    }
     const res = await client.query<OfferWorkflowRow>(`SELECT * FROM offers WHERE id = $1 FOR UPDATE`, [offerId]);
     const row = res.rows[0];
     if (!row) throw new WorkflowError('Offer not found');
@@ -203,7 +208,7 @@ export async function transitionOffer(
     // direct PUBLISH call would mark an offer live without ever writing its
     // corrected/merged fields (Part 9 correctness).
     if (action === 'PUBLISH') {
-      const syncResult = await syncOneOfferWithClient(client, offerId);
+      const syncResult = await syncOneOfferWithClient(client, offerId, fencingToken);
       if (syncResult.outcome !== 'published') {
         throw new WorkflowError(`Cannot publish: ${syncResult.reason ?? syncResult.outcome}`);
       }
@@ -260,12 +265,16 @@ export interface SyncResult {
  * Uses SELECT ... FOR UPDATE + a fresh re-read so a concurrent change to the
  * same row can't be silently clobbered ("confirm source/version has not
  * unexpectedly changed" — Step 8.4).
+ * If fencingToken is provided, atomically verifies active lease with FOR SHARE.
  */
-export async function syncApprovedOffer(offerId: string): Promise<SyncResult> {
-  return withTransaction(async (client) => syncOneOfferWithClient(client, offerId));
+export async function syncApprovedOffer(offerId: string, fencingToken?: FencingToken): Promise<SyncResult> {
+  return withTransaction(async (client) => syncOneOfferWithClient(client, offerId, fencingToken));
 }
 
-async function syncOneOfferWithClient(client: PoolClient, offerId: string): Promise<SyncResult> {
+async function syncOneOfferWithClient(client: PoolClient, offerId: string, fencingToken?: FencingToken): Promise<SyncResult> {
+  if (fencingToken) {
+    await assertActiveLease(client, fencingToken, true);
+  }
   const res = await client.query<OfferWorkflowRow>(`SELECT * FROM offers WHERE id = $1 FOR UPDATE`, [offerId]);
   const row = res.rows[0];
   if (!row) return { offerId, outcome: 'failed', reason: 'not_found' };

@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS scrape_runs (
 );
 
 ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS failure_classification TEXT;
+ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS job_id TEXT;
+ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS lease_generation BIGINT;
+CREATE INDEX IF NOT EXISTS idx_scrape_runs_job_fencing ON scrape_runs (bank, job_id, lease_generation);
 
 CREATE TABLE IF NOT EXISTS offers (
   id               UUID        PRIMARY KEY DEFAULT gen_random_uuid(),

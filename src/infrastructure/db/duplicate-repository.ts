@@ -14,9 +14,9 @@ import type { DuplicateClassification, DuplicateReviewStatus } from '@/domain/du
 import { decideOfferQuality } from '@/domain/offer-quality-decision';
 import type { OfferLifecycleStatus } from '@/domain/offer-lifecycle';
 import { logHistory, WorkflowError } from './offer-workflow-repository';
-import type { UpsertStatus } from './offer-repository';
+import { type UpsertStatus, type FencingToken, assertActiveLease } from './offer-repository';
 
-export { WorkflowError };
+export { WorkflowError, FencingToken };
 
 // ─── Candidate lookup (Part 7 — narrow, cheap prefilter) ─────────────────────
 
@@ -93,8 +93,12 @@ export interface DuplicateDetectionResult {
 export async function detectAndRecordDuplicates(
   offerId: string,
   offer: Offer,
-  bank: string
+  bank: string,
+  fencingToken?: FencingToken
 ): Promise<DuplicateDetectionResult> {
+  if (fencingToken) {
+    await assertActiveLease(pool, fencingToken);
+  }
   const policy = getDuplicatePolicyConfig();
   const candidates = await findCandidateOffers(bank, offerId, policy.candidateSearchLimit, policy.candidateMaxStaleDays);
 
@@ -126,8 +130,22 @@ export async function detectAndRecordDuplicates(
  * NOT_DUPLICATE decision can restore it instead of guessing (Part 6 fix —
  * previously a never-published item always reset to 'NEW').
  */
-export async function flagOfferAsDuplicate(offerId: string, staged: boolean, actor = 'system'): Promise<void> {
+export async function flagOfferAsDuplicate(offerId: string, staged: boolean, actor = 'system', fencingToken?: FencingToken): Promise<void> {
   return withTransaction(async (client) => {
+    if (fencingToken) {
+      const check = await client.query(
+        `SELECT 1 FROM scraper_leases
+         WHERE bank = $1 AND job_id = $2 AND lease_generation = $3
+           AND released_at IS NULL AND expires_at >= NOW()
+         FOR SHARE`,
+        [fencingToken.bank.toLowerCase(), fencingToken.jobId, fencingToken.leaseGeneration]
+      );
+      if ((check.rowCount ?? 0) === 0) {
+        throw new WorkflowError(
+          `Fencing violation: Worker '${fencingToken.jobId}' (gen ${fencingToken.leaseGeneration}) has lost the lease for bank '${fencingToken.bank}'. Duplicate flagging rejected.`
+        );
+      }
+    }
     const res = await client.query<{ change_status: string; pending_change_status: string | null }>(
       `SELECT change_status, pending_change_status FROM offers WHERE id = $1 FOR UPDATE`,
       [offerId]

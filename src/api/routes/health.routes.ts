@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { statsRepository } from '@/infrastructure/repositories/stats.repository';
 import { jobManager } from '../services/job-manager';
 import { scraperScheduler } from '../services/scraper-scheduler';
-import { bankRepository } from '@/infrastructure/repositories/bank.repository';
+import { bankRepository, BankOverview } from '@/infrastructure/repositories/bank.repository';
 import { evaluateOperationalAlerts, BankHealthInput } from '@/domain/operational-alerts';
 
 const router = Router();
@@ -38,14 +38,14 @@ router.get('/health', async (_req: Request, res: Response) => {
 
   // Gather bank operational data for alert evaluation
   const schedulerStatus = scraperScheduler.getStatus();
-  const bankOverviews = await bankRepository.getBankOverviews().catch(() => []);
+  const bankOverviews = await bankRepository.getBanksOverview().catch(() => []);
 
-  const healthInputs: BankHealthInput[] = bankOverviews.map((b) => ({
+  const healthInputs: BankHealthInput[] = bankOverviews.map((b: BankOverview) => ({
     bank: b.bank,
-    consecutiveFailures: b.failed_count,
+    consecutiveFailures: b.last_run_errors || 0,
     lastSuccessAt: b.last_success_at,
     lastAttemptAt: b.last_attempted_at,
-    lastError: b.error_message,
+    lastError: undefined,
   }));
 
   const alerts = evaluateOperationalAlerts(healthInputs);

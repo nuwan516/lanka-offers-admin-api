@@ -48,8 +48,9 @@ import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import {
   createScrapeRun, completeScrapeRun, failScrapeRun, upsertOffer,
   saveValidationReport as saveValidationReportDb, getLlmFingerprints,
+  FencingToken,
 } from '@/infrastructure/db/offer-repository';
-import { closePool } from '@/infrastructure/db/db-client';
+import { closePool, pool } from '@/infrastructure/db/db-client';
 import { preloadBankRules } from '@/banks/bank-rules-loader';
 import { getCostControlConfig, formatSafePolicySummary } from '@/config/cost-control';
 import { decideOfferQuality } from '@/domain/offer-quality-decision';
@@ -69,6 +70,8 @@ interface CliOptions {
   concurrency: number;
   maxCategories?: number;
   dryRun: boolean;
+  jobId?: string;
+  leaseGeneration?: number;
 }
 
 function parseArgs(): CliOptions {
@@ -94,6 +97,13 @@ function parseArgs(): CliOptions {
     else if (arg.startsWith('--output=')) opts.output = arg.split('=')[1];
     else if (arg.startsWith('--concurrency=')) opts.concurrency = parseInt(arg.split('=')[1], 10);
     else if (arg.startsWith('--max-categories=')) opts.maxCategories = parseInt(arg.split('=')[1], 10);
+    else if (arg.startsWith('--job-id=')) opts.jobId = arg.split('=')[1];
+    else if (arg.startsWith('--lease-generation=')) opts.leaseGeneration = parseInt(arg.split('=')[1], 10);
+  }
+
+  if (!opts.jobId && process.env.JOB_ID) opts.jobId = process.env.JOB_ID;
+  if (!opts.leaseGeneration && process.env.LEASE_GENERATION) {
+    opts.leaseGeneration = parseInt(process.env.LEASE_GENERATION, 10);
   }
 
   if (opts.bank !== 'all') {
@@ -206,10 +216,35 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
 
   logger.info('CLI', `Starting scraper for ${bankName.toUpperCase()}`);
 
+  let fencingToken: FencingToken | undefined;
+  if (opts.jobId) {
+    let leaseGen = opts.leaseGeneration;
+    if (!leaseGen) {
+      try {
+        const leaseRes = await pool.query<{ lease_generation: string }>(
+          `SELECT lease_generation FROM scraper_leases WHERE bank = $1 AND job_id = $2 AND released_at IS NULL AND expires_at >= NOW() LIMIT 1`,
+          [bankName, opts.jobId]
+        );
+        if (leaseRes.rows.length > 0) {
+          leaseGen = parseInt(leaseRes.rows[0].lease_generation, 10);
+        }
+      } catch {
+        // non-blocking
+      }
+    }
+    if (leaseGen) {
+      fencingToken = { bank: bankName, jobId: opts.jobId, leaseGeneration: leaseGen };
+      logger.info('Fencing', `Active lease bound: Worker '${opts.jobId}' (gen ${leaseGen})`);
+    }
+  }
+
   // Create DB record for this run (skipped if dry-run)
   const runId = opts.dryRun
     ? null
-    : await createScrapeRun(bankName, opts.cache ? 'cached' : 'full', 'cli').catch(() => null);
+    : await createScrapeRun(bankName, opts.cache ? 'cached' : 'full', 'cli', fencingToken).catch((err) => {
+        logger.warn('DB', `Failed to create scrape run: ${err instanceof Error ? err.message : err}`);
+        return null;
+      });
 
   // Load DB parser rules into module cache so parsers can use them synchronously
   await preloadBankRules(bankName).catch(() => null);
@@ -223,7 +258,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     scrapeTimer.done({ offers: offers.length });
   } catch (err) {
     scrapeTimer.fail(err);
-    if (runId) await failScrapeRun(runId, err instanceof Error ? err.message : String(err)).catch(() => null);
+    if (runId) await failScrapeRun(runId, err instanceof Error ? err.message : String(err), fencingToken).catch(() => null);
     throw err;
   }
 
@@ -377,7 +412,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
             quality === 'AUTO_APPROVE' ? 'APPROVED' :
             quality === 'REJECT' ? 'REJECTED' : 'REVIEW_REQUIRED';
 
-          const result = await upsertOffer(offer, runId, { lifecycleStatus });
+          const result = await upsertOffer(offer, runId, { lifecycleStatus }, fencingToken);
           if (result.isNew) dbNew++;
           else if (result.isChanged) dbChanged++;
           else dbUnchanged++;
@@ -402,7 +437,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
                 promptVersion: costConfig.llm.promptVersion,
                 validatorVersion: costConfig.llm.validatorVersion,
                 status: llmStatus ?? 'not_run',
-              }, result.staged);
+              }, result.staged, fencingToken);
               validationWrites++;
             }
           }
@@ -412,9 +447,9 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
           // an UNCHANGED offer can't have created a new duplicate.
           if (shouldRunDuplicateDetection(result.status)) {
             try {
-              const dup = await detectAndRecordDuplicates(result.id, offer, bankName);
+              const dup = await detectAndRecordDuplicates(result.id, offer, bankName, fencingToken);
               if (dup.flagged) {
-                await flagOfferAsDuplicate(result.id, result.staged, 'scrape');
+                await flagOfferAsDuplicate(result.id, result.staged, 'scrape', fencingToken);
                 duplicatesFlagged++;
               }
             } catch (e) {
@@ -432,7 +467,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       }
       const runOutcome = await completeScrapeRun(runId, {
         found: offers.length, newCount: dbNew, changed: dbChanged, unchanged: dbUnchanged, errors: dbErrors,
-      }).catch(() => null);
+      }, fencingToken).catch(() => null);
       if (runOutcome?.anomalyWarning) {
         logger.warn('Quality', `Run anomaly detected: ${runOutcome.anomalyWarning}`);
       }
@@ -441,7 +476,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       logger.warn('Scraper', `0 offers extracted for ${bankName.toUpperCase()}`);
       const runOutcome = await completeScrapeRun(runId, {
         found: 0, newCount: 0, changed: 0, unchanged: 0, errors: 0,
-      }).catch(() => null);
+      }, fencingToken).catch(() => null);
       if (runOutcome?.anomalyWarning) {
         logger.warn('Quality', `Run anomaly detected: ${runOutcome.anomalyWarning}`);
       }

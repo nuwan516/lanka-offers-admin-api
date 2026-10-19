@@ -23,13 +23,14 @@ router.post('/geocode/:bank', (req: Request, res: Response) => {
 
 router.post('/scrape/:bank', (req: Request, res: Response) => {
   const bank = String(req.params.bank);
-  const { cache, llm, noValidate, skipDetails, concurrency, maxCategories } = (req.body ?? {}) as {
+  const { cache, llm, noValidate, skipDetails, concurrency, maxCategories, dryRun } = (req.body ?? {}) as {
     cache?: boolean;
     llm?: boolean;
     noValidate?: boolean;
     skipDetails?: boolean;
     concurrency?: number;
     maxCategories?: number;
+    dryRun?: boolean;
   };
 
   try {
@@ -40,8 +41,13 @@ router.post('/scrape/:bank', (req: Request, res: Response) => {
       skipDetails,
       concurrency,
       maxCategories,
+      dryRun: dryRun === true,
     });
-    res.json({ message: `Scrape started for ${bank}`, ...job });
+    res.json({
+      message: dryRun === true ? `Dry-run started for ${bank} (no database writes)` : `Scrape started for ${bank}`,
+      dryRun: dryRun === true,
+      ...job,
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     if (

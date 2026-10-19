@@ -11,11 +11,12 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
-    "test": "jest --passWithNoTests",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration --passWithNoTests",
     "evaluate:quality": "ts-node -r tsconfig-paths/register src/cli/quality-evaluation.ts",
     "renormalize:offers": "ts-node -r tsconfig-paths/register src/infrastructure/db/renormalize-offers.ts",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --passWithNoTests --coverage",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests --coverage",
     "browser:install": "browsers install chrome-headless-shell@stable",
     "browser:list": "browsers list",
     "scrape:hnb": "ts-node -r tsconfig-paths/register src/cli/scrape.ts --bank=hnb --cache",
@@ -38,6 +39,7 @@
     "llm:revalidate:boc": "ts-node -r tsconfig-paths/register src/cli/revalidate-llm.ts --bank=boc"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@types/cheerio": "^0.22.35",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

@@ -67,15 +67,19 @@ describe('Staging Import Security & Integrity Tests (Phase 5)', () => {
   const tmpOutputDir = path.join(__dirname, '..', '..', 'tmp-import-sec-test');
 
   beforeEach(() => {
-    if (fs.existsSync(tmpOutputDir)) {
-      fs.rmSync(tmpOutputDir, { recursive: true, force: true });
-    }
+    try {
+      if (fs.existsSync(tmpOutputDir)) {
+        fs.rmSync(tmpOutputDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+      }
+    } catch {}
   });
 
   afterEach(() => {
-    if (fs.existsSync(tmpOutputDir)) {
-      fs.rmSync(tmpOutputDir, { recursive: true, force: true });
-    }
+    try {
+      if (fs.existsSync(tmpOutputDir)) {
+        fs.rmSync(tmpOutputDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+      }
+    } catch {}
   });
 
   it('generates SHA-256 checksums in dry-run manifest for all artifacts', () => {

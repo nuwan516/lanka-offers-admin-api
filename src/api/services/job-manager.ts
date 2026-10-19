@@ -12,6 +12,8 @@ export interface ScrapeExecutionOptions {
   concurrency?: number;
   maxCategories?: number;
   timeoutMs?: number;
+  /** Scrape and validate without writing offers, runs or staging (CLI `--dry-run`). */
+  dryRun?: boolean;
 }
 
 export interface ActiveJob {
@@ -56,12 +58,13 @@ export class JobManager {
     return VALID_BANKS.includes(bank.toLowerCase());
   }
 
-  public getActiveJobs(): Array<{ jobId: string; pid: number; bank: string; startedAt: string }> {
+  public getActiveJobs(): Array<{ jobId: string; pid: number; bank: string; startedAt: string; dryRun: boolean }> {
     return Array.from(this.activeJobs.values()).map(j => ({
       jobId: j.jobId,
       pid: j.pid,
       bank: j.bank,
       startedAt: j.startedAt,
+      dryRun: j.options?.dryRun === true,
     }));
   }
 
@@ -111,12 +114,14 @@ export class JobManager {
       throw new Error(`Maximum concurrent scraper limit reached (${MAX_PARALLEL_SCRAPES} active)`);
     }
 
-    const args = ['run', 'scrape', '--', `--bank=${b}`];
+    const jobId = `job-${Date.now()}-${randomUUID().slice(0, 8)}`;
+    const args = ['run', 'scrape', '--', `--bank=${b}`, `--job-id=${jobId}`];
 
     if (options.cache) args.push('--cache');
     if (options.llm) args.push('--llm');
     if (options.noValidate) args.push('--no-validate');
     if (options.skipDetails) args.push('--skip-details');
+    if (options.dryRun === true) args.push('--dry-run');
 
     if (typeof options.concurrency === 'number' && options.concurrency >= 1 && options.concurrency <= 10) {
       args.push(`--concurrency=${Math.floor(options.concurrency)}`);
@@ -127,7 +132,7 @@ export class JobManager {
 
     const child = spawn('npm', args, {
       cwd: this.projectRoot,
-      env: { ...process.env },
+      env: { ...process.env, JOB_ID: jobId },
       stdio: 'ignore',
       shell: true,
       detached: true,
@@ -137,7 +142,6 @@ export class JobManager {
       throw new Error('Failed to spawn scraper process. Ensure npm and node are accessible in system PATH.');
     }
 
-    const jobId = `job-${Date.now()}-${randomUUID().slice(0, 8)}`;
     const timeoutMs =
       typeof options.timeoutMs === 'number' && options.timeoutMs > 0
         ? options.timeoutMs
@@ -171,6 +175,9 @@ export class JobManager {
         if (leaseRes.acquired) {
           job.leaseGeneration = leaseRes.leaseGeneration;
           this.startHeartbeat(b, job, timeoutMs);
+        } else {
+          console.warn(`[JobManager] Bank ${b.toUpperCase()} lease already held by another worker. Terminating to prevent collision.`);
+          this.cancelScrapeJob(b, 'lease-collision-detected').catch(() => {});
         }
       })
       .catch((err) => {
@@ -183,6 +190,13 @@ export class JobManager {
       this.activeJobs.delete(b);
       await this.releaseDistributedLease(b, jobId, job.leaseGeneration).catch(() => {});
       console.log(`[JobManager] Scraper for ${b} exited with code ${code}`);
+
+      // A dry-run writes no scrape_runs row, so the latest row would be an earlier
+      // real run; and it must never count as a scheduled run for retry bookkeeping.
+      if (options.dryRun === true) {
+        console.log(`[JobManager] Dry-run for ${b} finished (no database writes, scheduler not notified)`);
+        return;
+      }
 
       let isSuccess = code === 0;
       let errMsg: string | undefined;
@@ -221,7 +235,7 @@ export class JobManager {
       await this.releaseDistributedLease(b, jobId, job.leaseGeneration).catch(() => {});
       console.error(`[JobManager] Scraper process error for ${b}:`, err);
 
-      if (this.onJobCompleted) {
+      if (this.onJobCompleted && options.dryRun !== true) {
         try {
           await this.onJobCompleted(b, jobId, null, false, err.message);
         } catch (hookErr) {
