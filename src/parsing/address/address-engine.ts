@@ -27,11 +27,17 @@ export interface AddressEngineConfig {
 
     /**
      * Whether to fall back to `<merchantName>, <country>` when no address is found.
-     * Defaults to true for backward compatibility. Set to false in parsers to prevent
-     * false precision where merchant names are treated as street addresses.
+     * Defaults to true: the merchant-name query is the Places search hint for chains. It is NOT
+     * a venue — location-scope classification ignores merchant-only addresses.
      * @default true
      */
     fallbackToMerchant?: boolean;
+
+    /**
+     * Dynamic reject patterns (admin `address_exclude` rules), evaluated per address so rule
+     * edits apply without a restart. A match means the text is not an address.
+     */
+    rejectPatterns?: () => RegExp[];
 }
 
 // ─── Built-in labeled marker patterns ─────────────────────────────────────────
@@ -130,6 +136,12 @@ const NOISE_PATTERNS: RegExp[] = [
     /\bdiscount\b/i,
     /\bcontact\b/i,
     /\bpayable\b/i,
+    /\b(?:easy\s+)?payment\s+plans?\b/i,                          // "request for easy payment plans up to 06 months"
+    /\b\d+\s*(?:\(\w+\)\s*)?months?\b/i,                          // tenor wording, never a place
+    /\brequest\s+for\b/i,
+    /\b(?:debit|credit)\s+(?:and\s+(?:debit|credit)\s+)?cards?\b/i,
+    /^(?:business|personal|corporate|retail|online|islandwide|general)\.?$/i, // generic labels
+    /@/,                                                          // broken email fragment left after contact stripping
 ];
 
 // ─── Phone / URL / email cleaners ────────────────────────────────────────────
@@ -166,12 +178,14 @@ export class AddressEngine {
     private readonly markers: RegExp[];
     private readonly excludePatterns: RegExp[];
     private readonly fallbackToMerchant: boolean;
+    private readonly rejectPatterns: () => RegExp[];
 
     constructor(config: AddressEngineConfig = {}) {
         this.country = config.country ?? 'Sri Lanka';
         this.markers = [...(config.extraMarkers ?? []), ...BUILT_IN_MARKERS];
         this.excludePatterns = config.excludePatterns ?? [];
         this.fallbackToMerchant = config.fallbackToMerchant ?? true;
+        this.rejectPatterns = config.rejectPatterns ?? (() => []);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -247,10 +261,13 @@ export class AddressEngine {
             cleaned = cleaned.replace(pattern, '').trim();
         }
 
+        // Portal boilerplate glued to a place: "Hikkaduwa Special Terms" -> "Hikkaduwa"
+        cleaned = cleaned.replace(/\s*[-–]?\s*\bSpecial\s+Terms\b.*$/i, '');
         cleaned = stripTrailing(cleaned);
 
         if (cleaned.length < 3) return null;
         if (isNoise(cleaned)) return null;
+        if (this.rejectPatterns().some(p => p.test(cleaned))) return null;
 
         return this.appendCountry(cleaned);
     }

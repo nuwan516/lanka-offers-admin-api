@@ -91,6 +91,20 @@ function hasPhysicalIndicator(text: string): boolean {
   return false;
 }
 
+const norm = (v: string) => v.toLowerCase().replace(/,?\s*sri\s*lanka\s*$/i, '').replace(/[^a-z0-9]+/g, ' ').trim();
+
+/**
+ * An "address" that is only the merchant's own name (e.g. "Daraz, Sri Lanka") is a search hint,
+ * not a venue — it must not make an offer look like it has a physical location.
+ */
+export function isMerchantOnlyAddress(address: string, merchantName?: string | null): boolean {
+  const a = norm(address);
+  if (!a) return true;
+  const m = norm(merchantName ?? '');
+  if (m && a === m) return true;
+  return false;
+}
+
 /**
  * Pure function to classify an offer's location evidence into an accurate LocationScope.
  * Guarantees:
@@ -110,7 +124,9 @@ export function determineLocationScope(input: {
   const title = (input.title ?? '').trim();
   const desc = (input.description ?? '').trim();
   const mName = (input.merchantName ?? '').trim();
-  const addresses = (input.addresses ?? []).filter((a) => a && a.trim() && !a.startsWith('http'));
+  const addresses = (input.addresses ?? []).filter(
+    (a) => a && a.trim() && !a.startsWith('http') && !isMerchantOnlyAddress(a, input.merchantName),
+  );
   const hasGeom = Array.isArray(input.geoLocations) && input.geoLocations.length > 0;
 
   const combined = `${loc} | ${title} | ${desc}`.toLowerCase();

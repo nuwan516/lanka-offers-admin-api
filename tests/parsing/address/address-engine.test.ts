@@ -153,3 +153,35 @@ describe('AddressEngine — custom config', () => {
         expect(result[0]).toContain('Grand');
     });
 });
+// ─── Accuracy: junk the portals put in address fields ─────────────────────────
+
+describe('AddressEngine.normalize — rejects non-address text', () => {
+    const e = new AddressEngine({ country: 'Sri Lanka' });
+
+    it.each([
+        'request for easy payment plans up to 06 (six) months',
+        'both Debit and Credit Cards',
+        'Business',
+        'wild@centauriaho',
+    ])('rejects "%s"', (junk) => {
+        expect(e.normalize(junk)).toBeNull();
+    });
+
+    it('strips glued "Special Terms" boilerplate but keeps the place', () => {
+        expect(e.normalize('Hikkaduwa Special Terms')).toBe('Hikkaduwa, Sri Lanka');
+    });
+
+    it('keeps real addresses', () => {
+        expect(e.normalize('No 10, Galle Road, Colombo 03')).toContain('Galle Road');
+    });
+});
+
+describe('AddressEngine dynamic reject patterns', () => {
+    it('applies admin rules per call, without rebuilding the engine', () => {
+        let rules: RegExp[] = [];
+        const e = new AddressEngine({ country: 'Sri Lanka', rejectPatterns: () => rules });
+        expect(e.normalize('Mystery Plaza, Colombo 03')).not.toBeNull();
+        rules = [/mystery/i];
+        expect(e.normalize('Mystery Plaza, Colombo 03')).toBeNull();
+    });
+});

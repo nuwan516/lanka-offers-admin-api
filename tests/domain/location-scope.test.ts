@@ -107,3 +107,24 @@ describe('Location Scope Domain Service', () => {
     expect(res.scope).toBe(LocationScope.EXPLICIT_BRANCH);
   });
 });
+
+describe('merchant-name-only addresses', () => {
+  it('does not treat "<merchant>, Sri Lanka" as a physical venue', () => {
+    const r = determineLocationScope({
+      title: 'Daraz 10% off online with promo code',
+      merchantName: 'Daraz',
+      addresses: ['Daraz, Sri Lanka'],
+    });
+    expect(r.scope).toBe(LocationScope.ONLINE);
+    expect(r.isGeocodableToCoordinates).toBe(false);
+  });
+
+  it('still honours a real address', () => {
+    const r = determineLocationScope({
+      title: 'Dinner offer',
+      merchantName: 'Pizza Hut',
+      addresses: ['No 10, Galle Road, Colombo 03, Sri Lanka'],
+    });
+    expect(r.scope).toBe(LocationScope.EXPLICIT_BRANCH);
+  });
+});

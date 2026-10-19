@@ -1,4 +1,5 @@
 import { Offer, Merchant, OfferDetails, CardEligibility, TransactionRange, InstallmentPlan, ImageInfo } from '@/core/types/offers';
+import { getAddressRejectPatterns } from '@/banks/bank-rules-loader';
 import { PeriodType } from '@/core/types/offers';
 import { parsePeriod, parseHumanDate } from '@/parsing/period/period-engine';
 import { AddressEngine } from '@/parsing/address/address-engine';
@@ -27,7 +28,7 @@ export interface BOCRawOffer {
 
 // ─── Address engine ───────────────────────────────────────────────────────────
 
-const addressEngine = new AddressEngine({ country: 'Sri Lanka' });
+const addressEngine = new AddressEngine({ country: 'Sri Lanka', rejectPatterns: () => getAddressRejectPatterns('boc') });
 
 // ─── Parser ───────────────────────────────────────────────────────────────────
 

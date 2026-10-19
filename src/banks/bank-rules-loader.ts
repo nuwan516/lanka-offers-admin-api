@@ -609,3 +609,19 @@ export function areGoldenValuesEqual(
   return false;
 }
 
+
+/**
+ * Admin-managed address reject patterns for a bank (rules with field `address_exclude`,
+ * rule_type `regex`). Reads the preloaded cache only — no DB call — so it is safe to use
+ * per address. An invalid admin pattern is skipped, never thrown.
+ */
+export function getAddressRejectPatterns(bank: string): RegExp[] {
+  const rules = cache.get(bank)?.get('address_exclude') ?? [];
+  const out: RegExp[] = [];
+  for (const rule of rules) {
+    if (rule.rule_type !== 'regex' || !rule.pattern) continue;
+    const re = safeCompileRegex(rule.pattern, rule.flags, rule.id);
+    if (re) out.push(re);
+  }
+  return out;
+}

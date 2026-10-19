@@ -1,11 +1,12 @@
 import { Offer, OfferDetails, Merchant, CardEligibility, TransactionRange, InstallmentPlan, ImageInfo, PeriodType } from '@/core/types/offers';
+import { getAddressRejectPatterns } from '@/banks/bank-rules-loader';
 import { parsePeriod } from '@/parsing/period/period-engine';
 import { AddressEngine } from '@/parsing/address/address-engine';
 import { stripHtml } from '@/parsing/text/html';
 import { applyRegexRule, applyKeywordRule, applyTransactionRule } from '@/banks/bank-rules-loader';
 import * as crypto from 'crypto';
 
-const addressEngine = new AddressEngine({ country: 'Sri Lanka' });
+const addressEngine = new AddressEngine({ country: 'Sri Lanka', rejectPatterns: () => getAddressRejectPatterns('hnb') });
 
 export interface HNBDetailResponse {
     id: string;

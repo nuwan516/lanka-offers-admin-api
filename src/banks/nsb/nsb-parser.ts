@@ -7,6 +7,7 @@ import {
   OfferDetails,
   TransactionRange,
 } from '@/core/types/offers';
+import { getAddressRejectPatterns } from '@/banks/bank-rules-loader';
 import { PeriodType } from '@/core/types/offers';
 import { parsePeriod } from '@/parsing/period/period-engine';
 import { AddressEngine } from '@/parsing/address/address-engine';
@@ -37,7 +38,7 @@ export interface NSBRawOffer {
   detail: NSBDetailPage | null;
 }
 
-const addressEngine = new AddressEngine({ country: 'Sri Lanka', fallbackToMerchant: false });
+const addressEngine = new AddressEngine({ country: 'Sri Lanka', fallbackToMerchant: false, rejectPatterns: () => getAddressRejectPatterns('nsb') });
 
 /**
  * NSB offer pages are much looser than the other banks': no labeled

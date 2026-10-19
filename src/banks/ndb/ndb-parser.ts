@@ -7,6 +7,7 @@ import {
   OfferDetails,
   TransactionRange,
 } from '@/core/types/offers';
+import { getAddressRejectPatterns } from '@/banks/bank-rules-loader';
 import { PeriodType } from '@/core/types/offers';
 import { parsePeriod } from '@/parsing/period/period-engine';
 import { AddressEngine } from '@/parsing/address/address-engine';
@@ -35,7 +36,7 @@ export interface NDBRawOffer {
   _sourceUrl?: string;
 }
 
-const addressEngine = new AddressEngine({ country: 'Sri Lanka' });
+const addressEngine = new AddressEngine({ country: 'Sri Lanka', rejectPatterns: () => getAddressRejectPatterns('ndb') });
 
 export function parseNDBOffer(raw: NDBRawOffer): Offer | null {
   const merchantName = stripHtml(raw.merchantName).trim();

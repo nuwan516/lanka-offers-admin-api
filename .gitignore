@@ -77,3 +77,6 @@ Thumbs.db
 *.pem
 *.pfx
 ssh-key*
+
+# local data backups
+backups/

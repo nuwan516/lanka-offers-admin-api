@@ -7,6 +7,7 @@ import {
   OfferDetails,
   TransactionRange,
 } from '@/core/types/offers';
+import { getAddressRejectPatterns } from '@/banks/bank-rules-loader';
 import { PeriodType } from '@/core/types/offers';
 import { parsePeriod } from '@/parsing/period/period-engine';
 import { AddressEngine } from '@/parsing/address/address-engine';
@@ -50,7 +51,7 @@ export interface PeoplesRawOffer {
   detail: PeoplesDetailPage | null;
 }
 
-const addressEngine = new AddressEngine({ country: 'Sri Lanka' });
+const addressEngine = new AddressEngine({ country: 'Sri Lanka', rejectPatterns: () => getAddressRejectPatterns('peoples') });
 
 export function parsePeoplesOffer(raw: PeoplesRawOffer): Offer | null {
   const listing = raw.listing;
