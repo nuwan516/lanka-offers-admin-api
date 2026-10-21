@@ -199,11 +199,12 @@ export function determineLocationScope(input: {
   }
 
   // 4. MULTIPLE EXPLICIT BRANCHES
-  const branchSource = loc || addresses.join(' ; ') || desc;
-  if (
-    addresses.length > 1 ||
-    (branchSource && (branchSource.includes(' / ') || branchSource.includes(';') || (branchSource.match(/\bbranch(?:es)?\b/gi) && branchSource.match(/\bbranch(?:es)?\b/gi)!.length > 1)))
-  ) {
+  const locOrAddr = loc || addresses.join(' ; ');
+  const hasPunctuationBranches = Boolean(locOrAddr && (locOrAddr.includes(' / ') || locOrAddr.includes(';')));
+  const branchCount = (loc || desc).match(/\bbranch(?:es)?\b/gi)?.length ?? 0;
+  const hasMultipleNamedBranches = branchCount > 1;
+
+  if (addresses.length > 1 || hasPunctuationBranches || hasMultipleNamedBranches) {
     return {
       scope: LocationScope.MULTIPLE_BRANCHES,
       rawEvidence: loc || (addresses.length > 0 ? addresses.join(', ') : desc),

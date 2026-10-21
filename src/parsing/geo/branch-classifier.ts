@@ -5,11 +5,18 @@ import { SRI_LANKAN_CITIES } from '@/core/constants/cities';
 
 // ─── Online merchant patterns ─────────────────────────────────────────────────
 
-const ONLINE_PATTERNS = /uber|daraz|pickme|food\s*panda|shopee|lazada/i;
+const ONLINE_PATTERNS = /\b(?:uber(?:\s*eats)?|daraz|pickme(?:\s*food)?|food\s*panda|shopee|lazada)\b/i;
 
 // ─── "All outlets" pattern ────────────────────────────────────────────────────
 
-const ALL_OUTLETS_PATTERN = /all\s+(outlets?|branches)/i;
+const ALL_OUTLETS_PATTERN = /\ball\s+(?:outlets?|branches)\b/i;
+
+function buildChainQuery(merchantName: string, addr: string): string {
+  if (merchantName && !addr.toLowerCase().includes(merchantName.toLowerCase())) {
+    return `${merchantName}, ${addr}`;
+  }
+  return addr;
+}
 
 // ─── Classifier ───────────────────────────────────────────────────────────────
 
@@ -92,7 +99,7 @@ export function classify(locData: LocationData): LocationClassification {
     // Geocoding API only returns the country centroid — Places Text Search
     // is the API that resolves business names.
     if (isVenueNameQuery(addresses[0])) {
-      return { type: LocationType.CHAIN, addresses: [], chainQuery: addresses[0], chainResultLimit: 3, merchantForSearch: name };
+      return { type: LocationType.CHAIN, addresses: [], chainQuery: buildChainQuery(name, addresses[0]), chainResultLimit: 3, merchantForSearch: name };
     }
     return { type: LocationType.SINGLE, addresses, chainQuery: null, merchantForSearch: name };
   }
@@ -104,7 +111,7 @@ export function classify(locData: LocationData): LocationClassification {
   const builtAddr = buildAddress({ merchantName: name, city, location, address });
   if (builtAddr) {
     if (isVenueNameQuery(builtAddr)) {
-      return { type: LocationType.CHAIN, addresses: [], chainQuery: builtAddr, chainResultLimit: 3, merchantForSearch: name };
+      return { type: LocationType.CHAIN, addresses: [], chainQuery: buildChainQuery(name, builtAddr), chainResultLimit: 3, merchantForSearch: name };
     }
     return { type: LocationType.SINGLE, addresses: [builtAddr], chainQuery: null, merchantForSearch: name };
   }
