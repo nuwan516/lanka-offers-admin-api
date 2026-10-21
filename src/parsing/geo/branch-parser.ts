@@ -59,8 +59,21 @@ export function parseAsteriskList(text: string): string[] {
  */
 export function parseConcatenatedBranches(text: string): string[] {
   if (!text) return [];
-  return text
-    .replace(/([a-z])([A-Z])/g, '$1\n$2')
+  const splitText = text.replace(/([a-z])([A-Z])/g, (match, p1, p2, offset, fullStr) => {
+    // Keep Mc/Mac prefixes whole: "McDonald's", "MacDonald"
+    const prefix = fullStr.slice(0, offset + 1);
+    if (/\bM[ca]$/.test(prefix)) {
+      return match;
+    }
+    // Keep "...City Mall" style names whole: "HavelockCity Mall"
+    const rest = fullStr.slice(offset + 1);
+    if (/^City\s*Mall\b/i.test(rest)) {
+      return match;
+    }
+    return `${p1}\n${p2}`;
+  });
+
+  return splitText
     .split('\n')
     .map((s) => s.trim())
     .filter((s) => s && s.length > 3);

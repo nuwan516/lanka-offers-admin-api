@@ -28,8 +28,11 @@ export class SampathGeoAdapter implements IGeoAdapter {
 
     // Detect concatenated multi-branch: "Solar Crab, PamunugamaThe Walden, Nuwara Eliya"
     if (address && address.length > 60 && /[a-z][A-Z]/.test(address)) {
-      branches = parseConcatenatedBranches(address);
-      address = '';
+      const splitBranches = parseConcatenatedBranches(address);
+      if (splitBranches.length > 1) {
+        branches = splitBranches;
+        address = '';
+      }
     }
 
     // Check offer description for "Participating Outlets: ..."
@@ -47,7 +50,7 @@ export class SampathGeoAdapter implements IGeoAdapter {
     const addresses: string[] = [];
     if (branches.length === 0) {
       if (address) {
-        addresses.push(city ? `${address}, ${city}` : address);
+        addresses.push(this.appendCityIfMissing(address, city));
       } else if (city) {
         addresses.push(`${name}, ${city}`);
       }
@@ -64,6 +67,18 @@ export class SampathGeoAdapter implements IGeoAdapter {
       phone: offer.merchant.phone.join(', ') || null,
       promotionDetails: details || null,
     };
+  }
+
+  private appendCityIfMissing(address: string, city: string): string {
+    if (!city || !city.trim()) return address;
+    const c = city.trim();
+    if (address.toLowerCase().includes(c.toLowerCase())) {
+      return address;
+    }
+    if (/,\s*Sri\s+Lanka\s*$/i.test(address)) {
+      return address.replace(/,\s*Sri\s+Lanka\s*$/i, `, ${c}, Sri Lanka`);
+    }
+    return `${address}, ${c}`;
   }
 
   private looksLikeAddress(text: string): boolean {

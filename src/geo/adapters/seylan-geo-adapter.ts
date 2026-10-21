@@ -14,13 +14,14 @@ export class SeylanGeoAdapter implements IGeoAdapter {
 
   extractLocationData(offer: Offer): LocationData {
     const name = offer.merchant.name ?? '';
-    const address = offer.merchant.addresses[0] ?? '';
+    const rawAddresses = (offer.merchant.addresses ?? []).filter((a) => a && a.trim());
+    const firstAddr = rawAddresses[0] ?? '';
     const phone = offer.merchant.phone.join(', ') || null;
 
     const addresses: string[] = [];
-    if (address) {
-      // Combine merchant name + address for a better geocoding query
-      addresses.push(`${name}, ${address}`);
+    for (const addr of rawAddresses) {
+      const trimmed = addr.trim();
+      addresses.push(name ? `${name}, ${trimmed}` : trimmed);
     }
     // If no address, branch-classifier will check known-chains or use name
 
@@ -29,7 +30,7 @@ export class SeylanGeoAdapter implements IGeoAdapter {
       merchantName: name,
       city: null,
       location: null,
-      address: address || null,
+      address: firstAddr || null,
       addresses,
       branches: [],
       phone,

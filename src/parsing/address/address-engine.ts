@@ -53,7 +53,7 @@ const BUILT_IN_MARKERS: RegExp[] = [
     /\bBranch(?:es)?\s*:\s*([^;\n]{3,200})/i,
     /\bOutlet(?:s)?\s*:\s*([^;\n]{3,200})/i,
     /\bShop\s*:\s*([^;\n]{3,200})/i,
-    /\bStore\s*:\s*([^;\n]{3,200})/i,
+    /(?<![-a-zA-Z])Store\s*:\s*([^;\n]{3,200})/i,
     /\bAvailable\s+at\s*:\s*([^;\n]{3,200})/i,
     /\bFind\s+us\s+at\s*:\s*([^;\n]{3,200})/i,
     /\bVisit\s+us\s+at\s*:\s*([^;\n]{3,200})/i,
@@ -68,18 +68,18 @@ const BUILT_IN_MARKERS: RegExp[] = [
 
 const PROSE_PATTERNS: RegExp[] = [
     // "located at No. 5, Main Road"
-    /\b(?:located|situated|available|visit\s+us)\s+at\s+(No\.?\s*\d[^;\n.]{3,120})/i,
+    /\b(?:located|situated|available|visit\s+us)\s+at\s+((?:No\.?\s*)?\d[^;\n]{3,120})/i,
     // "at No. 5, Main Road" (standalone preposition)
-    /\bat\s+(No\.?\s*\d+[^;\n.]{3,80})/i,
+    /\bat\s+(No\.?\s*\d+[^;\n]{3,80})/i,
     // "call or visit <address>" — capture up to end of sentence
-    /\bvisit\s+((?:No\.?\s*)?\d+[^;\n.]{3,80})/i,
+    /\bvisit\s+((?:No\.?\s*)?\d+[^;\n]{3,80})/i,
     // parenthesised address: "(No. 5, Galle Road)"
     /\(([^)]{5,100}(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St)[^)]{0,50})\)/i,
     // "our showroom at <address>"
-    /\bour\s+(?:showroom|branch|store|outlet|hotel|restaurant)\s+at\s+([^;\n.]{5,120})/i,
+    /\bour\s+(?:showroom|branch|store|outlet|hotel|restaurant)\s+at\s+([^;\n]{5,120})/i,
     // venue after "@": "@ Nuga Gama Restaurant, Cinnamon Grand Colombo" (BOC dining)
     // must not be preceded by a word char (that would be an email address)
-    /(?:^|\s)@\s*([A-Za-z][^;\n.|@]{3,100})/,
+    /(?:^|\s)@\s*([A-Za-z][^;\n|@]{3,100})/,
 ];
 
 // ─── Structural segment patterns ──────────────────────────────────────────────
@@ -88,11 +88,14 @@ const PROSE_PATTERNS: RegExp[] = [
 
 const STRUCTURAL_PATTERNS: RegExp[] = [
     /\bNo\.?\s*\d+\b/i,                                             // "No. 5" or "No 45"
-    /\b\d+[A-Z]?\s*[,/]\s*[A-Za-z]/,                              // "12A, Main" or "12/A Main"
+    /\b\d+[A-Z]?\s*[,/]\s*(?!(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b)[A-Za-z]/i, // "12A, Main" or "12/A Main", not "31/Dec"
     /\b\d+\s*,\s*[A-Za-z]/,                                        // "123, Galle"
-    // word boundary before the road word is required — otherwise "caRD" matches Rd
-    /\b[A-Za-z]+\s+(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St)\b/i,
-    /\b\d{5}\b/,                                                    // 5-digit LK postal code
+    // word boundary before the road word is required; "Place" must be capitalised to count as a road word
+    /\b[A-Za-z]+\s+(?:Road|Street|Lane|Avenue|Mawatha|Junction|Rd|St)\b/i,
+    /\b[A-Za-z]+\s+Place\b/,
+    /\b(?:Hotel|Resort|Restaurant|Café|Cafe)\s+[A-Za-z]/i,
+    /\b[A-Za-z]+\s+(?:Hotel|Resort|Restaurant|Café|Cafe)\b/i,
+    /(?<!(?:Rs\.?|LKR)\s*)\b\d{5}\b/i,                              // 5-digit LK postal code, not currency amounts
     /\b\d+(?:st|nd|rd|th)\s+(?:Floor|Lane|Cross)/i,                // "3rd Floor", "2nd Lane"
     /\bFloor\s+\d+\b/i,                                             // "Floor 2"
     /^[A-Za-z][A-Za-z.'\s]{1,40},\s*Sri\s+Lanka\.?$/i,             // "Wadduwa, Sri Lanka" (city-only line)
@@ -105,13 +108,26 @@ const NOISE_PATTERNS: RegExp[] = [
     /^all\s+(?:outlets?|branches?|locations?|stores?|island\s*wide)\b/i, // generic, not geocodable
     /^(?:https?:\/\/)?[\w-]+(?:\.[\w-]+)+\/?$/i, // bare domain/URL in an address field (NDB online stores)
     /^[+\d][\d\s/+-]{5,}$/, // phone number in an address field (Seylan data errors)
-    /valid\s+on/i,
+    /\bvalid\s+(?:on|until|till|through|from)\b/i,
     /click\s+here/i,
     /visit\s+website/i,
     /terms\s+and\s+conditions/i,
     /subject\s+to/i,
     /\b\d+\s*%/,                   // discount percentages
-    /\boff\b/i,
+    /\b\d+\s*off\b/i,              // discount figures e.g. "20 off", "30 off"
+    /\bflat\s+\d+\b/i,             // "Flat 20"
+    /\bup\s+to\s+\d+\s*off\b/i,
+    /\boff\s+(?:the|all|total|your|selected|any|every|storewide|items?|bill|purchases?)\b/i,
+    // "off" is noise UNLESS followed by a road name (e.g. "Off Galle Road", "No 5, Off High Level Road")
+    /\boff\b(?!\s+(?:[A-Za-z0-9.'\s]+\s+)?(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St|Drive|Highway)\b)/i,
+    /\bstreet\s+food\b/i,          // "Enjoy Street food all week"
+    /\bfree\s+delivery\b/i,        // "Free delivery above Rs. 15000"
+    /\bdraw\s+takes\s+place\b/i,   // "Draw takes place in December"
+    /\ball\s+week\b/i,
+    /\bbuy\s+(?:\d+|one)\s+get\s+(?:\d+|one)\b/i, // "Buy one get one free", "Buy 2 get 1 free"
+    /\bget\s+\d+\s+free\b/i,
+    /\bfree\s+on\s+all\b/i,
+    /\bfree\s+on\s+\w+\b/i,
     /\bminimum\s+spend/i,
     /\beligible\b/i,
     /\bcannot\s+be\s+combined/i,
@@ -148,10 +164,10 @@ const NOISE_PATTERNS: RegExp[] = [
 
 function stripContactInfo(text: string): string {
     return text
-        // Labeled contact fields — strip to end of that segment
-        .replace(/(?:Contact|Tel|Phone|Reservations?|Hotline|Call\s+Center|Website|Web|Email)\s*(?:No)?\s*[:-]?\s*.*$/i, '')
-        // Phone numbers: +94 or 0 followed by digits/spaces/hyphens
-        .replace(/(?:\+94|0)[\s-]*\d{2}[\s-]*\d{7}/g, '')
+        // Labeled contact fields — must be whole words followed by ":" / "-" or a number
+        .replace(/(?:[-–—]\s*)?\b(?:Contact|Tel|Telephone|Phone|Reservations?|Hotline|Call\s+Center|Website|Web|Email)\b\s*(?:No\.?)?\s*(?:[:-]|\d).*$/i, '')
+        // Phone numbers: +94 or 0 followed by area code and subscriber digits with spaces/hyphens
+        .replace(/\b(?:\+94[\s-]*|0)\d{2}[\s-]*(?:\d[\s-]*){7}\b/g, '')
         // Remaining long standalone digit runs
         .replace(/\b\d{9,}\b/g, '')
         // URLs
@@ -160,6 +176,16 @@ function stripContactInfo(text: string): string {
         .replace(/[\w.-]+@[\w.-]+\.\w+/g, '')
         .replace(/\s{2,}/g, ' ')
         .trim();
+}
+
+function cutSentenceBoundary(text: string): string {
+    // Cut at sentence boundary (. followed by space and capital or promo keyword),
+    // but not at abbreviation dots (Mt., No., Rd., St., Dr., Ave., Blvd., Ste.)
+    const match = /(?<!\b(?:Mt|No|Rd|St|Dr|Ste|Ave|Blvd))\.\s+(?=[A-Z]|valid\b|terms\b)/i.exec(text);
+    if (match) {
+        return text.slice(0, match.index).trim();
+    }
+    return text;
 }
 
 function stripTrailing(text: string): string {
@@ -286,7 +312,7 @@ export class AddressEngine {
             while ((match = gMarker.exec(text)) !== null) {
                 // No noise pre-check here: lines like "No 33, ... - Contact: 011 269 8161"
                 // must have contact info stripped (inside normalize) before judging noise.
-                const content = match[1].trim();
+                const content = cutSentenceBoundary(match[1].trim());
                 const continuation: string[] = [];
                 const followingLines = text.slice(gMarker.lastIndex).split('\n').slice(1);
                 for (const line of followingLines) {
@@ -325,7 +351,7 @@ export class AddressEngine {
             let match: RegExpExecArray | null;
 
             while ((match = gPattern.exec(text)) !== null) {
-                const candidate = match[1].trim();
+                const candidate = cutSentenceBoundary(match[1].trim());
                 if (!candidate || isNoise(candidate)) continue;
 
                 const normalized = this.normalize(candidate, merchantName);
@@ -365,13 +391,77 @@ export class AddressEngine {
         return [...new Set(results)];
     }
 
+    private isContinuation(prev: string, curr: string): boolean {
+        // Floor / Level / Unit prefix in prev makes next part a continuation
+        if (/^(?:Level|Floor|Unit|Shop|Building)\s+\d+\b/i.test(prev) || /^\d+(?:st|nd|rd|th)\s+(?:Floor|Level)\b/i.test(prev)) {
+            return true;
+        }
+
+        // House number prefix in prev makes next location/road/town a continuation (e.g. "No. 5, Mt. Lavinia")
+        if (/^No\.?\s*\d+\b/i.test(prev) || /^\d+[A-Za-z]?(?:[/,]\d+)?\b/.test(prev)) {
+            return true;
+        }
+
+        // Road part: contains a road keyword
+        if (/\b(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St|Drive|Highway|Way|Mw)\b/i.test(curr)) {
+            return true;
+        }
+
+        // Zone part: "Colombo 03", etc.
+        if (/^Colombo\s+\d{1,2}\b/i.test(curr)) {
+            return true;
+        }
+
+        // Floor / level in curr
+        if (/^(?:Level|Floor|Unit|Shop|Building)\s+\d+\b/i.test(curr) || /^\d+(?:st|nd|rd|th)\s+(?:Floor|Level)\b/i.test(curr)) {
+            return true;
+        }
+
+        // House number in curr
+        if (/^No\.?\s*\d+\b/i.test(curr) || /^\d+[A-Za-z]?(?:[/,]\d+)?\b/.test(curr)) {
+            return true;
+        }
+
+        // Country / postal code
+        if (/^Sri\s+Lanka\b/i.test(curr) || /^\d{5}\b/.test(curr)) {
+            return true;
+        }
+
+        // Single town / city continuation when prev is a venue/hotel/restaurant (e.g. "Dolphin Hotel and Spa, Wadduwa")
+        // and curr is not itself another venue
+        const VENUE_OR_ROAD = /\b(?:Hotel|Spa|Resort|Restaurant|Cafe|Café|Bakery|Kitchen|Bar|Pub|Boutique|Lounge|Road|Street|Lane|Mawatha|Rd|St)\b/i;
+        if (VENUE_OR_ROAD.test(prev) && !VENUE_OR_ROAD.test(curr)) {
+            if (/^[A-Za-z\s.'-]{2,30}$/.test(curr)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private mergeContinuations(parts: string[]): string[] {
+        const merged: string[] = [];
+        for (const part of parts) {
+            const trimmed = part.trim();
+            if (!trimmed) continue;
+            if (merged.length === 0) {
+                merged.push(trimmed);
+            } else {
+                const prev = merged[merged.length - 1];
+                if (this.isContinuation(prev, trimmed)) {
+                    merged[merged.length - 1] = `${prev}, ${trimmed}`;
+                } else {
+                    merged.push(trimmed);
+                }
+            }
+        }
+        return merged;
+    }
+
     /**
      * Split a multi-address string into individual parts.
-     * Handles: "|", "&", "and", newlines, comma-before-capital.
-     *
-     * A segment that starts with a house-number prefix ("No. 5" / "123") is
-     * treated as a single address — we don't split it further on commas because
-     * those commas are internal address punctuation ("No 5, Main St, Colombo").
+     * Handles: "|", "&", "and", newlines, and comma-separated lists while
+     * preserving venue names and address continuations (road, zone, floor).
      */
     private splitMulti(text: string): string[] {
         // " / "-separated branch lists (Seylan): "168, Old Negombo Road, Ja-Ela /
@@ -393,17 +483,42 @@ export class AddressEngine {
                 .filter(p => p.length > 2);
         }
 
-        // If it looks like a single structured address, keep it whole
-        const isSingleAddress =
-            /^No\.?\s*\d+/i.test(text) ||
-            /^\d+[A-Z]?[,/]\s*/i.test(text);
+        // Protect & / and when neighbouring a venue word (Hotel, Spa, Co, Restaurant, Sons, etc.)
+        // Use \uE001 for '&' and \uE002 for 'and'
+        const VENUE_WORDS = /\b(?:Hotel|Spa|Co|Company|Restaurant|Sons|Resort|Bar|Pub|Cafe|Café|Bakery|Kitchen|Boutique|Lounge|Suites|Villas?|Inn|Saloon|Salon|Bistro|Grill)\b/i;
 
-        if (isSingleAddress) return [text.trim()];
+        const shielded = text.replace(/(\S+)\s+(&|and)\s+(\S+)/gi, (match, before, conj, after) => {
+            if (VENUE_WORDS.test(before) || VENUE_WORDS.test(after)) {
+                return `${before} ${conj === '&' ? '\uE001' : '\uE002'} ${after}`;
+            }
+            return match;
+        });
 
-        return text
-            .split(/(?:\s*[|]\s*|\s*&\s*|\s+and\s+|\n|,\s*(?=[A-Z0-9]))/i)
-            .map(p => p.trim())
-            .filter(p => p.length > 2);
+        // Split on explicit separators: pipes, unshielded & / and, newlines
+        const segments = shielded
+            .split(/(?:\s*[|]\s*|\s*&\s*|\s+and\s+|\n)/i)
+            .map(s => s.trim())
+            .filter(s => s.length > 2);
+
+        const results: string[] = [];
+
+        for (const segment of segments) {
+            // Split segment on commas and merge continuations
+            const rawParts = segment.split(/,\s*/);
+            const mergedParts = this.mergeContinuations(rawParts);
+            for (const part of mergedParts) {
+                // Restore placeholders
+                const restored = part
+                    .replace(/\uE001/g, '&')
+                    .replace(/\uE002/g, 'and')
+                    .trim();
+                if (restored.length > 2) {
+                    results.push(restored);
+                }
+            }
+        }
+
+        return results;
     }
 
     private appendCountry(text: string): string {
