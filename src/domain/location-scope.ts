@@ -49,17 +49,22 @@ const STRICT_ONLINE_INDICATORS = [
   /\bapp\s+only\b/i,
   /\bvia\s+(?:the\s+)?(?:website|app|mobile\s+app)\b/i,
   /\bdownload\s+(?:the\s+)?(?:mobile\s+)?app\b/i,
-  /\b(?:daraz|pickme|uber\s*eats|food\s*panda|buyabans\.com|kapruka|glomark\.lk)\b/i,
+  /\b(?:daraz|pickme|uber\s*eats|food\s*panda|buyabans\.com|kapruka|glomark\.lk|foody\.lk|wasi\.lk)\b/i,
+  /\bonline\s+orders?\b/i,
+  /\bonline\s+purchases?\b/i,
+  /\bweb\s+orders?\b/i,
+  /\bvia\s+[a-z0-9-]+\.(?:lk|com)\b/i,
   /\bpromo\s*code\b/i,
   /\buse\s+(?:promo\s+)?code\b/i,
   /\be-?commerce\b/i,
 ];
 
-const KNOWN_ONLINE_MERCHANTS = /^(?:daraz|pickme|uber\s*eats|food\s*panda|buyabans\.com|kapruka|glomark\.lk)$/i;
+const KNOWN_ONLINE_MERCHANTS = /^(?:daraz|pickme|uber\s*eats|food\s*panda|buyabans\.com|kapruka|glomark\.lk|foody\.lk|wasi\.lk)$/i;
 
 const SELECTED_OUTLETS_INDICATORS = [
-  /\bselected\s+(?:outlets?|branches?|stores?|locations?|restaurants?|properties|hotels?)\b/i,
-  /\bparticipating\s+(?:outlets?|branches?|stores?|locations?|restaurants?|properties|hotels?)\b/i,
+  /\bselected\s+(?:outlets?|branches?|stores?|locations?|supermarkets?|restaurants?|properties|hotels?)\b/i,
+  /\bselected\s+[a-z0-9-]+\s+(?:outlets?|branches?|stores?|locations?|supermarkets?|restaurants?|properties|hotels?)\b/i,
+  /\bparticipating\s+(?:outlets?|branches?|stores?|locations?|supermarkets?|restaurants?|properties|hotels?)\b/i,
   /\bavailable\s+at\s+selected\b/i,
   /\bat\s+selected\s+(?:merchant\s+)?outlets?\b/i,
 ];
@@ -77,9 +82,10 @@ const STREET_OR_VENUE_PATTERNS = [
   /\b\d+[A-Z]?\s*[,/]\s*[A-Za-z]/i,
   /\b(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St)\b/i,
   /\b(?:Tower|Mall|Centre|Center|Complex|Plaza|Floor|Showroom|Arcade|Square)\b/i,
-  /\b(?:Hotel|Resort|Villas?|Suites?|Inn|Lodge|Boutique)\b/i,
+  /\b(?:Hotel|Resort|Villas?|Suites?|Inn|Lodge|Boutique|Estate)\b/i,
   /\b(?:Restaurant|Café|Cafe|Bakery|Kitchen|Pub|Bar|Dine|Lounge)\b/i,
-  /\b(?:Hospital|Dental|Clinic|Medicare|Pharmacy)\b/i,
+  /\b(?:Hospital|Dental|Clinic|Medicare|Pharmacy|Ayurveda)\b/i,
+  /\b(?:Cinnamon|Hilton|Marriott|Courtyard|Shangri-La|Jetwing|Heritance|Amaya|Radisson)\b/i,
 ];
 
 function hasPhysicalIndicator(text: string): boolean {
@@ -96,12 +102,19 @@ const norm = (v: string) => v.toLowerCase().replace(/,?\s*sri\s*lanka\s*$/i, '')
 /**
  * An "address" that is only the merchant's own name (e.g. "Daraz, Sri Lanka") is a search hint,
  * not a venue — it must not make an offer look like it has a physical location.
+ * BUT if the merchant itself indicates a concrete physical venue (e.g. "Clove Villa", "Hotel Casamara"),
+ * it represents a genuine physical establishment.
  */
 export function isMerchantOnlyAddress(address: string, merchantName?: string | null): boolean {
   const a = norm(address);
   if (!a) return true;
   const m = norm(merchantName ?? '');
-  if (m && a === m) return true;
+  if (m && a === m) {
+    if (hasPhysicalIndicator(m)) {
+      return false;
+    }
+    return true;
+  }
   return false;
 }
 
@@ -213,7 +226,48 @@ export function determineLocationScope(input: {
     };
   }
 
-  // 5. EXPLICIT SINGLE BRANCH
+  // 5. EXPLICIT SINGLE BRANCH vs DISTRICT_REGION
+  if (addresses.length === 1) {
+    const singleAddr = addresses[0].toLowerCase().replace(/,?\s*sri\s*lanka\s*$/i, '').trim();
+    const isPureDistrictOrCity =
+      SRI_LANKAN_DISTRICTS.includes(singleAddr) || SRI_LANKAN_CITIES.includes(singleAddr);
+    const hasVenueIndicator =
+      STREET_OR_VENUE_PATTERNS.some((p) => p.test(addresses[0]) || p.test(title) || p.test(mName));
+
+    if (isPureDistrictOrCity && !hasVenueIndicator) {
+      const regionName = singleAddr.charAt(0).toUpperCase() + singleAddr.slice(1);
+      return {
+        scope: LocationScope.DISTRICT_REGION,
+        region: regionName,
+        rawEvidence: addresses[0],
+        explanation: `Restricted to ${regionName} region. Specific street address not provided.`,
+        isGeocodableToCoordinates: false,
+      };
+    }
+
+    // If address is simply `<merchant>, <city>, Sri Lanka` without road/venue indicators
+    const normalizedSingle = norm(singleAddr);
+    const normalizedMerchant = norm(mName);
+    const isMerchantCityOnly =
+      mName &&
+      (SRI_LANKAN_CITIES.some((c) => normalizedSingle === `${normalizedMerchant} ${c}`) ||
+       SRI_LANKAN_DISTRICTS.some((d) => normalizedSingle === `${normalizedMerchant} ${d}`));
+    if (isMerchantCityOnly && !hasVenueIndicator) {
+      const matchedCity =
+        SRI_LANKAN_CITIES.find((c) => normalizedSingle.endsWith(c)) ||
+        SRI_LANKAN_DISTRICTS.find((d) => normalizedSingle.endsWith(d)) ||
+        'Region';
+      const regionName = matchedCity.charAt(0).toUpperCase() + matchedCity.slice(1);
+      return {
+        scope: LocationScope.DISTRICT_REGION,
+        region: regionName,
+        rawEvidence: addresses[0],
+        explanation: `Restricted to ${regionName} area for chain merchant. Street address not specified.`,
+        isGeocodableToCoordinates: false,
+      };
+    }
+  }
+
   if (
     addresses.length === 1 ||
     hasGeom ||

@@ -21,7 +21,14 @@ export class SeylanGeoAdapter implements IGeoAdapter {
     const addresses: string[] = [];
     for (const addr of rawAddresses) {
       const trimmed = addr.trim();
-      addresses.push(name ? `${name}, ${trimmed}` : trimmed);
+      if (/terms\s*(?:and|&)\s*conditions|offer\s+valid\s+at/i.test(trimmed)) {
+        continue;
+      }
+      if (!name || trimmed.toLowerCase().includes(name.toLowerCase())) {
+        addresses.push(trimmed);
+      } else {
+        addresses.push(`${name}, ${trimmed}`);
+      }
     }
     // If no address, branch-classifier will check known-chains or use name
 
@@ -32,7 +39,7 @@ export class SeylanGeoAdapter implements IGeoAdapter {
       location: null,
       address: firstAddr || null,
       addresses,
-      branches: [],
+      branches: addresses.length > 1 ? addresses : [],
       phone,
       promotionDetails: offer.offer.description ?? null,
     };

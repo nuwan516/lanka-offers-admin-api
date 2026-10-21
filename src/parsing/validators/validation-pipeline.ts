@@ -8,10 +8,15 @@ import {
 import { OfferValidator } from './offer-validator';
 import { LlmValidator } from './llm-validator';
 import { ConcurrencyPool } from '@/infrastructure/concurrency/concurrency-pool';
+import {
+  UnifiedOfferOrchestrator,
+  UnifiedOfferValidationReport,
+} from './unified-offer-orchestrator';
 
 export interface ValidationPipelineConfig {
   ruleValidator?: OfferValidator;
   llmValidator?: LlmValidator;
+  unifiedOrchestrator?: UnifiedOfferOrchestrator;
   /** Force LLM validation for every offer when available. */
   forceLlm?: boolean;
   /** Deterministic sample percentage for valid-looking offers, 0-100. */
@@ -33,6 +38,8 @@ export interface ValidationPipelineReport extends ValidatorReport {
   llmReason: string | null;
   /** True when llmValidation came from a prior run's stored fingerprint, not a fresh call. */
   llmReused: boolean;
+  /** Comprehensive offer-wide evidence-grounded validation report */
+  unifiedValidation?: UnifiedOfferValidationReport;
 }
 
 function hasWeakExtraction(offer: Offer, ruleValidation: ValidationResult): string | null {
@@ -59,6 +66,7 @@ function deterministicSample(uniqueId: string, sampleRate: number): boolean {
 export class ValidationPipeline {
   private readonly ruleValidator: OfferValidator;
   private readonly llmValidator: LlmValidator | undefined;
+  private readonly unifiedOrchestrator: UnifiedOfferOrchestrator;
   private readonly forceLlm: boolean;
   private readonly sampleRate: number;
   private readonly minimumLlmScore: number;
@@ -67,6 +75,9 @@ export class ValidationPipeline {
   constructor(config: ValidationPipelineConfig = {}) {
     this.ruleValidator = config.ruleValidator ?? new OfferValidator();
     this.llmValidator = config.llmValidator;
+    this.unifiedOrchestrator = config.unifiedOrchestrator ?? new UnifiedOfferOrchestrator({
+      forceLlm: config.forceLlm,
+    });
     this.forceLlm = config.forceLlm ?? false;
     this.sampleRate = config.sampleRate ?? 2;
     this.minimumLlmScore = config.minimumLlmScore ?? 70;
@@ -98,14 +109,29 @@ export class ValidationPipeline {
       }
     }
 
+    // Run unified offer orchestration (evidence indexing, fast-path, tools, post-validation, geo, duplicates)
+    let unifiedValidation: UnifiedOfferValidationReport | undefined;
+    try {
+      unifiedValidation = await this.unifiedOrchestrator.validateOffer(
+        offer,
+        [],
+        null,
+        rawData as any
+      );
+    } catch {
+      // Gracefully preserve pipeline resilience
+      unifiedValidation = undefined;
+    }
+
     return {
       offerId: offer.uniqueId,
       ruleValidation,
       llmValidation,
+      unifiedValidation,
       shouldUseLlm,
       llmReason,
       llmReused,
-      passed: this.computePassed(ruleValidation, llmValidation),
+      passed: this.computePassed(ruleValidation, llmValidation, unifiedValidation),
     };
   }
 
@@ -124,8 +150,10 @@ export class ValidationPipeline {
   private computePassed(
     ruleValidation: ValidationResult,
     llmValidation: LlmValidationResult | null,
+    unifiedValidation?: UnifiedOfferValidationReport
   ): boolean {
     if (!ruleValidation.valid) return false;
+    if (unifiedValidation && unifiedValidation.qualityGate.status === 'INVALID') return false;
     if (!llmValidation) return true;
     if (!llmValidation.isValidOffer) return false;
     return llmValidation.extractionScore >= this.minimumLlmScore || llmValidation.issues.includes('LLM_VALIDATION_FAILED');

@@ -9,7 +9,7 @@ describe('FileCache', () => {
 
     beforeEach(() => {
         tmpDir = mkdtempSync(path.join(tmpdir(), 'cache-test-'));
-        cache = new FileCache(tmpDir, 500); // 500ms default TTL
+        cache = new FileCache(tmpDir, 60_000); // 60s default TTL (immune to test-suite CPU stalls)
     });
 
     afterEach(() => {

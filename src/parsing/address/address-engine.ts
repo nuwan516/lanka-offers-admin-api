@@ -49,7 +49,7 @@ export interface AddressEngineConfig {
 
 const BUILT_IN_MARKERS: RegExp[] = [
     /\bAddress\s*:\s*([^;\n]{3,200})/i,
-    /\bLocations?\s*:\s*([^;\n]{3,200})/i,
+    /\bLocations?(?:\s+details?)?\s*:\s*([^;\n]{3,200})/i,
     /\bBranch(?:es)?\s*:\s*([^;\n]{3,200})/i,
     /\bOutlet(?:s)?\s*:\s*([^;\n]{3,200})/i,
     /\bShop\s*:\s*([^;\n]{3,200})/i,
@@ -74,7 +74,7 @@ const PROSE_PATTERNS: RegExp[] = [
     // "call or visit <address>" — capture up to end of sentence
     /\bvisit\s+((?:No\.?\s*)?\d+[^;\n]{3,80})/i,
     // parenthesised address: "(No. 5, Galle Road)"
-    /\(([^)]{5,100}(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St)[^)]{0,50})\)/i,
+    /\(([^)]{5,100}\b(?:Road|Street|Lane|Place|Avenue|Mawatha|Junction|Rd|St)\b[^)]{0,50})\)/i,
     // "our showroom at <address>"
     /\bour\s+(?:showroom|branch|store|outlet|hotel|restaurant)\s+at\s+([^;\n]{5,120})/i,
     // venue after "@": "@ Nuga Gama Restaurant, Cinnamon Grand Colombo" (BOC dining)
@@ -111,7 +111,7 @@ const NOISE_PATTERNS: RegExp[] = [
     /\bvalid\s+(?:on|until|till|through|from)\b/i,
     /click\s+here/i,
     /visit\s+website/i,
-    /terms\s+and\s+conditions/i,
+    /(?:general\s+)?terms\s*(?:and|&)\s*conditions/i,
     /subject\s+to/i,
     /\b\d+\s*%/,                   // discount percentages
     /\b\d+\s*off\b/i,              // discount figures e.g. "20 off", "30 off"
@@ -190,7 +190,10 @@ function cutSentenceBoundary(text: string): string {
 
 function stripTrailing(text: string): string {
     // trailing "-" is left behind after "... - Contact No: ..." is stripped
-    return text.replace(/[-,.\s]+$/, '').trim();
+    return text
+        .replace(/\s*(?:General\s+)?terms\s*(?:and|&)\s*conditions.*$/i, '')
+        .replace(/[-,.:;()\[\]\s\u200B\uFEFF]+$/, '')
+        .trim();
 }
 
 function isNoise(text: string): boolean {

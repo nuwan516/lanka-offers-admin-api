@@ -82,6 +82,12 @@ router.patch('/offers/:id', async (req: Request, res: Response) => {
     res.status(400).json({ error: `Invalid status. Must be one of: ${LIFECYCLE_STATUSES.join(', ')}` });
     return;
   }
+  if (db_status === 'PUBLISHED') {
+    res.status(400).json({
+      error: 'Direct transition to PUBLISHED via PATCH is prohibited to protect public consumer safety. Use POST /api/sync/:id or POST /api/offers/:id/transition with action PUBLISH to enforce validation and candidate synchronization.',
+    });
+    return;
+  }
   const result = await pool.query(
     `UPDATE offers SET db_status = COALESCE($1, db_status), updated_at = NOW() WHERE id = $2 RETURNING id, db_status`,
     [db_status, req.params.id]

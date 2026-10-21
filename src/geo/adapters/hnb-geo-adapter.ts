@@ -23,13 +23,19 @@ export class HNBGeoAdapter implements IGeoAdapter {
     for (const rawAddr of rawAddresses) {
       let cleaned = rawAddr;
 
+      if (cleaned.includes('@') || /^(?:credit|debit)\s+cards?$/i.test(cleaned.trim())) {
+        continue;
+      }
+
       // Strip promo prefix: "15% off ... at <venue>"
       const atMatch = cleaned.match(/\bat\s+(.+)/i);
       if (atMatch) cleaned = atMatch[1];
 
       // Remove trailing ", Sri Lanka" (re-added by geocoder)
       cleaned = cleaned.replace(/,\s*Sri\s*Lanka\s*$/i, '').trim();
-      if (cleaned) addresses.push(cleaned);
+      if (cleaned && !cleaned.includes('@') && !/special\s+terms/i.test(cleaned)) {
+        addresses.push(cleaned);
+      }
     }
 
     return {
@@ -37,9 +43,9 @@ export class HNBGeoAdapter implements IGeoAdapter {
       merchantName: name,
       city: null,
       location: m.location,
-      address: null,
+      address: addresses[0] || null,
       addresses,
-      branches: [],
+      branches: addresses.length > 1 ? addresses : [],
       phone,
       promotionDetails: offer.offer.description ?? null,
     };

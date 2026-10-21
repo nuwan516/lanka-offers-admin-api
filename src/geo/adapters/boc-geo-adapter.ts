@@ -15,8 +15,11 @@ export class BOCGeoAdapter implements IGeoAdapter {
   extractLocationData(offer: Offer): LocationData {
     const name = offer.merchant.name ?? '';
     const location = offer.merchant.location ?? '';
+    const rawAddresses = (offer.merchant.addresses ?? []).filter((a) => a && a.trim());
 
-    const addresses: string[] = location
+    const addresses: string[] = rawAddresses.length > 0
+      ? rawAddresses
+      : location
       ? [location]
       : name
       ? [name]
@@ -27,9 +30,9 @@ export class BOCGeoAdapter implements IGeoAdapter {
       merchantName: name,
       city: null,
       location: location || null,
-      address: null,
+      address: addresses[0] || null,
       addresses,
-      branches: [],
+      branches: addresses.length > 1 ? addresses : [],
       phone: offer.merchant.phone.join(', ') || null,
       promotionDetails: offer.offer.description ?? null,
     };

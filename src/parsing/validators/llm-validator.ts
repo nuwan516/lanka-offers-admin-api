@@ -261,9 +261,9 @@ function apiKeyFor(provider: LlmProvider): string | undefined {
 }
 
 function defaultModelFor(provider: LlmProvider): string {
-  if (provider === 'deepseek') return 'deepseek-chat';
-  if (provider === 'gemini') return 'gemini-1.5-flash';
-  return 'gpt-4o-mini';
+  if (provider === 'deepseek') return process.env.DEEPSEEK_MODEL || 'deepseek-chat';
+  if (provider === 'gemini') return process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+  return process.env.OPENAI_MODEL || 'gpt-4o-mini';
 }
 
 /**

@@ -46,6 +46,10 @@ export class SampathGeoAdapter implements IGeoAdapter {
       }
     }
 
+    if (!branches.length && offer.merchant.addresses.length > 1) {
+      branches = offer.merchant.addresses;
+    }
+
     // Build final addresses array
     const addresses: string[] = [];
     if (branches.length === 0) {
@@ -70,15 +74,16 @@ export class SampathGeoAdapter implements IGeoAdapter {
   }
 
   private appendCityIfMissing(address: string, city: string): string {
-    if (!city || !city.trim()) return address;
+    let cleaned = address.replace(/,\s*([A-Za-z]+)\s*,\s*\1\s*$/i, ', $1');
+    if (!city || !city.trim()) return cleaned;
     const c = city.trim();
-    if (address.toLowerCase().includes(c.toLowerCase())) {
-      return address;
+    if (cleaned.toLowerCase().includes(c.toLowerCase())) {
+      return cleaned;
     }
-    if (/,\s*Sri\s+Lanka\s*$/i.test(address)) {
-      return address.replace(/,\s*Sri\s+Lanka\s*$/i, `, ${c}, Sri Lanka`);
+    if (/,\s*Sri\s+Lanka\s*$/i.test(cleaned)) {
+      return cleaned.replace(/,\s*Sri\s+Lanka\s*$/i, `, ${c}, Sri Lanka`);
     }
-    return `${address}, ${c}`;
+    return `${cleaned}, ${c}`;
   }
 
   private looksLikeAddress(text: string): boolean {

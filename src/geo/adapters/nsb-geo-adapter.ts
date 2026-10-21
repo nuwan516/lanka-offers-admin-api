@@ -16,14 +16,16 @@ export class NSBGeoAdapter implements IGeoAdapter {
 
   extractLocationData(offer: Offer): LocationData {
     const name = offer.merchant.name ?? '';
-    const addresses = offer.merchant.addresses ?? [];
+    const addresses = (offer.merchant.addresses ?? []).filter(
+      (a) => a && a.trim() && !/\b(?:debit|credit)\s+cards?\b/i.test(a)
+    );
 
     return {
       offerId: offer.uniqueId,
       merchantName: name,
       city: null,
       location: offer.merchant.location ?? null,
-      address: null,
+      address: addresses[0] || null,
       addresses: addresses.length > 0 ? addresses : name ? [name] : [],
       branches: addresses.length > 1 ? addresses : [],
       phone: offer.merchant.phone.join(', ') || null,

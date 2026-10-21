@@ -103,7 +103,7 @@ export function parseSampathOffer(
   const addresses = fullAddress
     ? fullAddress.includes('•')
       ? fullAddress.split('•').map((a) => a.trim()).filter((a) => a.length > 3)
-      : [city ? `${fullAddress}, ${city}` : fullAddress]
+      : [city && !fullAddress.toLowerCase().includes(city.toLowerCase()) ? `${fullAddress}, ${city}` : fullAddress]
     : addressEngine.extract(rawAddressText, merchantName);
 
   const merchant: Merchant = {

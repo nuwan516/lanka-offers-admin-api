@@ -20,8 +20,16 @@ export class NDBGeoAdapter implements IGeoAdapter {
     const location = (offer.merchant.location ?? '').trim();
     const phone = offer.merchant.phone.join(', ') || null;
 
+    const rawAddresses = (offer.merchant.addresses ?? []).filter(
+      (a) => a && a.trim() && a !== '.' && !a.startsWith('http') && !/all\s+outlets/i.test(a)
+    );
+
     const addresses: string[] = [];
-    if (
+    if (rawAddresses.length > 0) {
+      for (const addr of rawAddresses) {
+        addresses.push(addr.toLowerCase().includes(name.toLowerCase()) ? addr : `${name}, ${addr}`);
+      }
+    } else if (
       location &&
       location !== '.' &&
       !location.startsWith('http') &&
@@ -35,9 +43,9 @@ export class NDBGeoAdapter implements IGeoAdapter {
       merchantName: name,
       city: null,
       location: location || null,
-      address: null,
+      address: addresses[0] || null,
       addresses,
-      branches: [],
+      branches: addresses.length > 1 ? addresses : [],
       phone,
       promotionDetails: offer.offer.description ?? null,
     };

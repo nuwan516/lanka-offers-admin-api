@@ -398,19 +398,32 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       for (const offer of offers) {
         try {
           const report = reportsById.get(offer.uniqueId);
-          const quality = decideOfferQuality({
-            ruleValid: report?.ruleValidation.valid ?? true,
-            ruleErrorCount: report?.ruleValidation.errors.length ?? 0,
-            ruleWarningCount: report?.ruleValidation.warnings.length ?? 0,
-            llmScore: report?.llmValidation?.extractionScore ?? null,
-            llmValid: report?.llmValidation?.isValidOffer ?? null,
-            llmStatus: report?.llmValidation?.issues.includes('BUDGET_BLOCKED') ? 'skipped_budget'
-              : report?.llmValidation?.issues.includes('LLM_VALIDATION_FAILED') ? 'review_required'
-              : report?.llmValidation ? 'validated' : null,
-          });
-          const lifecycleStatus: OfferLifecycleStatus =
-            quality === 'AUTO_APPROVE' ? 'APPROVED' :
-            quality === 'REJECT' ? 'REJECTED' : 'REVIEW_REQUIRED';
+          let lifecycleStatus: OfferLifecycleStatus = 'REVIEW_REQUIRED';
+
+          if (report?.unifiedValidation) {
+            const uStatus = report.unifiedValidation.qualityGate.status;
+            if (uStatus === 'VALIDATED') {
+              lifecycleStatus = 'APPROVED';
+            } else if (uStatus === 'INVALID') {
+              lifecycleStatus = 'REJECTED';
+            } else {
+              lifecycleStatus = 'REVIEW_REQUIRED';
+            }
+          } else {
+            const quality = decideOfferQuality({
+              ruleValid: report?.ruleValidation.valid ?? true,
+              ruleErrorCount: report?.ruleValidation.errors.length ?? 0,
+              ruleWarningCount: report?.ruleValidation.warnings.length ?? 0,
+              llmScore: report?.llmValidation?.extractionScore ?? null,
+              llmValid: report?.llmValidation?.isValidOffer ?? null,
+              llmStatus: report?.llmValidation?.issues.includes('BUDGET_BLOCKED') ? 'skipped_budget'
+                : report?.llmValidation?.issues.includes('LLM_VALIDATION_FAILED') ? 'review_required'
+                : report?.llmValidation ? 'validated' : null,
+            });
+            lifecycleStatus =
+              quality === 'AUTO_APPROVE' ? 'APPROVED' :
+              quality === 'REJECT' ? 'REJECTED' : 'REVIEW_REQUIRED';
+          }
 
           const result = await upsertOffer(offer, runId, { lifecycleStatus }, fencingToken);
           if (result.isNew) dbNew++;
