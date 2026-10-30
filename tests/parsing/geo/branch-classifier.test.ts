@@ -53,6 +53,28 @@ describe('classify()', () => {
       expect(result.type).toBe(LocationType.LISTED);
       expect(result.addresses).toHaveLength(3);
     });
+
+    it('returns LISTED when location string contains multiple concatenated cities without commas', () => {
+      const result = classify({
+        ...base(),
+        merchantName: 'Nils Fashion',
+        location: 'Galle Kandy Kurunegala Wattala Panadura Nugegoda Maharagama',
+      });
+      expect(result.type).toBe(LocationType.LISTED);
+      expect(result.addresses.length).toBeGreaterThanOrEqual(5);
+      expect(result.addresses).toContain('Galle, Sri Lanka');
+      expect(result.addresses).toContain('Kandy, Sri Lanka');
+    });
+
+    it('returns SINGLE when address is a recognized town like Wadduwa or Habaraduwa', () => {
+      const result = classify({
+        ...base(),
+        merchantName: 'KK Beach',
+        addresses: ['Habaraduwa, Sri Lanka'],
+      });
+      expect(result.type).toBe(LocationType.SINGLE);
+      expect(result.addresses[0]).toBe('Habaraduwa, Sri Lanka');
+    });
   });
 
   // ── CHAIN ─────────────────────────────────────────────────────────────────

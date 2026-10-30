@@ -1,0 +1,150 @@
+{
+  "auditedAt": "2026-10-29T09:55:40.912Z",
+  "totalCasesWithExtractedBranches": 10,
+  "defectCategories": [
+    {
+      "category": "INCOMPLETE_BRANCH_LIST_IN_BANK_PROSE",
+      "description": "Bank page references merchant outlets without publishing the branch list or address.",
+      "resolution": "Strict abstention as UNRESOLVED without guessing or fabricating branches."
+    },
+    {
+      "category": "SUBURBAN_MUNICIPALITY_DICTIONARY_GAPS",
+      "description": "Branch names in prominent commercial suburbs (e.g. Borella, Rajagiriya) missed by city extractor.",
+      "resolution": "Expanded SRI_LANKAN_CITIES constant with verified suburban municipality centers."
+    },
+    {
+      "category": "MULTI_PROPERTY_RESORT_COLLAPSE",
+      "description": "Multiple distinct hotel properties (e.g. Amaya, Jetwing) collapsed into single venue.",
+      "resolution": "Added multi-property chain matching extracting distinct property names and counts."
+    },
+    {
+      "category": "POLLUTION_OF_LOCATION_WITH_CARD_OR_PUNCTUATION_NOISE",
+      "description": "Single-character punctuation or card text leaking into location field.",
+      "resolution": "Noise filtering in parser and domain service."
+    }
+  ],
+  "verifiedBranchExtractions": [
+    {
+      "offerId": "holdout-nsb-2",
+      "bank": "nsb",
+      "merchant": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card",
+      "extractedBranches": [
+        "Colombo",
+        "Nugegoda",
+        "Wattala"
+      ],
+      "branchCount": 3,
+      "precisionGrounded": true,
+      "originComponent": "Bank-specific parser"
+    },
+    {
+      "offerId": "holdout-nsb-5",
+      "bank": "nsb",
+      "merchant": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card",
+      "extractedBranches": [
+        "Amaya Resorts",
+        "Amaya Hills",
+        "Amaya Lake",
+        "Amaya Beach"
+      ],
+      "branchCount": 4,
+      "precisionGrounded": true,
+      "originComponent": "Geographic-scope classification"
+    },
+    {
+      "offerId": "holdout-dfcc-3",
+      "bank": "dfcc",
+      "merchant": "Lanka Hospitals Diagnostics",
+      "extractedBranches": [
+        "Batticaloa, Sri Lanka"
+      ],
+      "branchCount": 1,
+      "precisionGrounded": true,
+      "originComponent": "Geographic-scope classification"
+    },
+    {
+      "offerId": "holdout-pabc-3",
+      "bank": "pabc",
+      "merchant": "Eric Rajapakse Opticians",
+      "extractedBranches": [
+        "Eric Rajapakse Opticians, Negombo, Sri Lanka"
+      ],
+      "branchCount": 1,
+      "precisionGrounded": true,
+      "originComponent": "Geographic-scope classification"
+    },
+    {
+      "offerId": "holdout-bm-boc-3-multi-branch-retail",
+      "bank": "boc",
+      "merchant": "Odel",
+      "extractedBranches": [
+        "Colombo",
+        "Kandy",
+        "Galle"
+      ],
+      "branchCount": 3,
+      "precisionGrounded": true,
+      "originComponent": "Address extraction"
+    },
+    {
+      "offerId": "holdout-bm-sampath-2-up-to-cap-branches",
+      "bank": "sampath",
+      "merchant": "House of Fashion",
+      "extractedBranches": [
+        "Bambalapitiya",
+        "Borella"
+      ],
+      "branchCount": 2,
+      "precisionGrounded": true,
+      "originComponent": "Address extraction"
+    },
+    {
+      "offerId": "holdout-bm-ndb-1-supermarket-percentage",
+      "bank": "ndb",
+      "merchant": "Keells Super",
+      "extractedBranches": [
+        "Colombo, Sri Lanka"
+      ],
+      "branchCount": 1,
+      "precisionGrounded": true,
+      "originComponent": "Bank-source acquisition"
+    },
+    {
+      "offerId": "holdout-bm-dfcc-3-specific-card-world-tier",
+      "bank": "dfcc",
+      "merchant": "Galle Face Hotel exclusively for DFCC World Mastercard cardholders",
+      "extractedBranches": [
+        "Galle Face Hotel exclusively for DFCC World Mastercard cardholders"
+      ],
+      "branchCount": 1,
+      "precisionGrounded": true,
+      "originComponent": "Evaluation"
+    },
+    {
+      "offerId": "holdout-bm-seylan-4-multi-branch-resort",
+      "bank": "seylan",
+      "merchant": "Jetwing Hotels",
+      "extractedBranches": [
+        "Jetwing Blue",
+        "Jetwing Lighthouse",
+        "Jetwing Yala"
+      ],
+      "branchCount": 3,
+      "precisionGrounded": true,
+      "originComponent": "Geographic-scope classification"
+    },
+    {
+      "offerId": "holdout-seylan-jetwing-resorts",
+      "bank": "seylan",
+      "merchant": "Jetwing Hotels & Resorts",
+      "extractedBranches": [
+        "Jetwing Blue",
+        "Jetwing Beach",
+        "Jetwing Lighthouse"
+      ],
+      "branchCount": 3,
+      "precisionGrounded": true,
+      "originComponent": "Geographic-scope classification"
+    }
+  ]
+}

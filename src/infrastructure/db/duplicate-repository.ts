@@ -20,11 +20,28 @@ export { WorkflowError, FencingToken };
 
 // ─── Candidate lookup (Part 7 — narrow, cheap prefilter) ─────────────────────
 
-interface CandidateOfferRow {
+export interface CandidateOfferRow {
   id: string;
   bank: string;
   raw_offer: Offer;
   content_hash: string | null;
+}
+
+export async function loadBankCandidates(
+  bank: string,
+  limit = 200,
+  maxStaleDays = 30
+): Promise<CandidateOfferRow[]> {
+  const res = await pool.query<CandidateOfferRow>(
+    `SELECT id, bank, raw_offer, content_hash FROM offers
+     WHERE bank = $1
+       AND db_status NOT IN ('REJECTED', 'DISABLED')
+       AND (valid_to IS NULL OR valid_to >= CURRENT_DATE - ($2 || ' days')::interval)
+     ORDER BY updated_at DESC
+     LIMIT $3`,
+    [bank, String(maxStaleDays), limit]
+  );
+  return res.rows;
 }
 
 async function findCandidateOffers(
@@ -94,28 +111,42 @@ export async function detectAndRecordDuplicates(
   offerId: string,
   offer: Offer,
   bank: string,
-  fencingToken?: FencingToken
+  fencingToken?: FencingToken,
+  preloadedCandidates?: CandidateOfferRow[]
 ): Promise<DuplicateDetectionResult> {
   if (fencingToken) {
     await assertActiveLease(pool, fencingToken);
   }
   const policy = getDuplicatePolicyConfig();
-  const candidates = await findCandidateOffers(bank, offerId, policy.candidateSearchLimit, policy.candidateMaxStaleDays);
+  const candidates = preloadedCandidates
+    ? preloadedCandidates.filter((c) => c.id !== offerId)
+    : await findCandidateOffers(bank, offerId, policy.candidateSearchLimit, policy.candidateMaxStaleDays);
 
   let flagged = false;
   let top: DuplicateDetectionResult['topCandidate'];
+  const matchingPairs: Array<{ candidateOfferId: string; score: number; classification: DuplicateClassification; reasons: string[] }> = [];
 
   for (const row of candidates) {
     const result = scoreDuplicateCandidate(offer, row.raw_offer);
     if (result.classification !== 'LIKELY_DUPLICATE' && result.classification !== 'EXACT_DUPLICATE') continue;
 
-    await upsertDuplicateCandidatePair(offerId, row.id, result.score, result.classification, result.reasons);
+    matchingPairs.push({
+      candidateOfferId: row.id,
+      score: result.score,
+      classification: result.classification,
+      reasons: result.reasons,
+    });
 
     const triggersReview = result.classification === 'EXACT_DUPLICATE' || result.score >= policy.reviewTriggerThreshold;
     if (triggersReview && (!top || result.score > top.score)) {
       flagged = true;
       top = { candidateOfferId: row.id, score: result.score, classification: result.classification };
     }
+  }
+
+  matchingPairs.sort((a, b) => b.score - a.score);
+  for (const pair of matchingPairs.slice(0, 3)) {
+    await upsertDuplicateCandidatePair(offerId, pair.candidateOfferId, pair.score, pair.classification, pair.reasons);
   }
 
   return { flagged, topCandidate: top, scoredCount: candidates.length };

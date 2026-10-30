@@ -1,0 +1,89 @@
+{
+  "auditedAt": "2026-10-29T13:19:52.097Z",
+  "contractName": "geo_locations JSONB projection contract",
+  "serializationMethod": "BranchParticipationService.toGeoLocationsJson(branches)",
+  "schemaDefinition": {
+    "requiredFields": [
+      "name",
+      "address",
+      "lat",
+      "lng"
+    ],
+    "extendedFields": [
+      "city",
+      "district",
+      "participation_status",
+      "coordinate_status",
+      "confidence"
+    ]
+  },
+  "compatibilityMatrix": {
+    "adminApiStaging": {
+      "status": "COMPATIBLE",
+      "details": "Stores extended fields in JSONB array without requiring PostgreSQL DDL changes."
+    },
+    "backendApiSpatialQueries": {
+      "status": "COMPATIBLE",
+      "details": "Query extracts (loc->>'lat')::float and (loc->>'lng')::float; handles both legacy and extended JSONB elements."
+    },
+    "flutterMobileConsumer": {
+      "status": "COMPATIBLE",
+      "details": "Flutter _parseLocations() reads lat/lng, name, address, city, district; gracefully defaults missing fields without throwing."
+    },
+    "nextJsWebConsumer": {
+      "status": "COMPATIBLE",
+      "details": "Next.js getValidGeoLocations() and getConfirmedBranches() filter on numeric lat/lng and address tokens, retaining full functionality."
+    },
+    "legacyRecordCompatibility": {
+      "status": "COMPATIBLE",
+      "details": "Legacy database rows lacking participation_status or city parse cleanly on all clients."
+    }
+  },
+  "roundTripVerification": {
+    "sourceBranch": {
+      "merchantId": "amante",
+      "branchName": "Racecourse Mall",
+      "sourceAddress": "Shop GS06, Racecourse Mall, Colombo 7",
+      "city": "Colombo",
+      "district": "Colombo",
+      "participationEvidenceIds": [
+        "evidence-01"
+      ],
+      "participationStatus": "SOURCE_VERIFIED",
+      "coordinateStatus": "VERIFIED",
+      "latitude": 6.9044,
+      "longitude": 79.8654,
+      "provenance": {
+        "provider": "cache",
+        "retrievedAt": "2026-10-29T12:00:00.000Z",
+        "granularity": "EXACT_PREMISE",
+        "confidenceScore": 0.95,
+        "matchedVenueName": "Racecourse Mall",
+        "formattedAddress": "Racecourse Mall, Colombo 7, Sri Lanka"
+      }
+    },
+    "serializedJsonb": {
+      "name": "Racecourse Mall",
+      "address": "Shop GS06, Racecourse Mall, Colombo 7",
+      "city": "Colombo",
+      "district": "Colombo",
+      "lat": 6.9044,
+      "lng": 79.8654,
+      "participation_status": "SOURCE_VERIFIED",
+      "coordinate_status": "VERIFIED",
+      "confidence": 0.95
+    },
+    "parsedByNextJs": {
+      "name": "Racecourse Mall",
+      "lat": 6.9044,
+      "lng": 79.8654
+    },
+    "parsedByFlutter": {
+      "name": "Racecourse Mall",
+      "latitude": 6.9044,
+      "longitude": 79.8654,
+      "city": "Colombo"
+    }
+  },
+  "overallVerdict": "100% BACKWARD AND FORWARD COMPATIBLE"
+}

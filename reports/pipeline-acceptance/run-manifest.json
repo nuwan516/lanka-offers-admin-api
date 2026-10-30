@@ -1,0 +1,27 @@
+{
+  "pipelineVersion": "1.2.0",
+  "timestamp": "2026-10-29T00:47:02.936Z",
+  "gitCommit": "72d06650687dcbce832091258ee864f2442d8791",
+  "environment": {
+    "nodeVersion": "v24.14.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "datasetProvenance": {
+    "total": 50,
+    "realScrapedSnapshots": 35,
+    "curatedRealSourceFixtures": 15,
+    "syntheticFixtures": 0,
+    "mockOffers": 0,
+    "generatedExamples": 0,
+    "sha256": "0960827838ba742dc29df73502ab8f3aa2b8b9ab3bba3a6cfd606111fb7a58bf"
+  },
+  "resourceBudgets": {
+    "maxAttemptsPerOffer": 3,
+    "maxToolCallsPerAttempt": 5,
+    "maxToolCallsPerOffer": 15,
+    "sharedWithGeo": true,
+    "failClosedOnBudgetExhaustion": true
+  },
+  "acceptanceOutcome": "READY_FOR_CONTROLLED_STAGING"
+}

@@ -1,0 +1,124 @@
+{
+  "auditTimestamp": "2026-10-30T06:59:17.246Z",
+  "pdfExtractionAudit": {
+    "pdfParseAvailable": true,
+    "validPdfExtraction": {
+      "success": true,
+      "pageCount": 1,
+      "textExtracted": "NDB Credit Card Special Offer: 25% discount at Cinnamon Hotels"
+    },
+    "errorHandling": {
+      "corruptBufferGraceful": true,
+      "networkErrorGraceful": true
+    },
+    "bankScraperIntegration": {
+      "ndb": {
+        "termsExtractionSupported": true,
+        "termsAndConditionsPdfUrlFlow": "Enriches rawText and generalTerms",
+        "verification": {
+          "generalTermsExtracted": 3,
+          "bookingRequired": true,
+          "cardTypes": [
+            "Credit Card"
+          ],
+          "sampleTerm": "Term 1: Valid only for NDB Visa Signature & Platinum."
+        }
+      },
+      "dfcc": {
+        "termsExtractionSupported": true,
+        "termsAndConditionsPdfUrlFlow": "Enriches rawText when detail page available",
+        "verification": {
+          "rawHtmlIncludesPdfTerms": true,
+          "title": "Keells Supermarket Promotion",
+          "discount": 20
+        }
+      },
+      "peoples": {
+        "termsExtractionSupported": true,
+        "termsLinkFound": "a.terms-link / href endsWith .pdf mapped to raw.termsUrl"
+      }
+    }
+  },
+  "imageResilienceAudit": {
+    "ssrfSecurity": {
+      "passed": true,
+      "testCases": {
+        "Localhost": {
+          "safe": false,
+          "reason": "BLOCKED_LOCAL_HOSTNAME: localhost"
+        },
+        "Loopback 127.0.0.1": {
+          "safe": false,
+          "reason": "BLOCKED_LOCAL_HOSTNAME: 127.0.0.1"
+        },
+        "AWS Cloud Metadata": {
+          "safe": false,
+          "reason": "RESTRICTED_IP_ADDRESS: 169.254.169.254"
+        },
+        "Private RFC1918 10.0.0.1": {
+          "safe": false,
+          "reason": "RESTRICTED_IP_ADDRESS: 10.0.0.1"
+        },
+        "Private RFC1918 192.168.1.1": {
+          "safe": false,
+          "reason": "RESTRICTED_IP_ADDRESS: 192.168.1.1"
+        },
+        "Unsupported Protocol FTP": {
+          "safe": false,
+          "reason": "UNSUPPORTED_PROTOCOL: ftp:"
+        },
+        "Valid Public Host": {
+          "safe": true
+        }
+      }
+    },
+    "magicBytesVerification": {
+      "jpegDetected": true,
+      "pngDetected": true,
+      "webpDetected": true,
+      "svgDetected": true,
+      "htmlRejected": true
+    },
+    "fallbacksConfiguredForAll10Banks": true,
+    "bankPlaceholders": {
+      "hnb": "/static/placeholders/banks/hnb-card-placeholder.png",
+      "boc": "/static/placeholders/banks/boc-card-placeholder.png",
+      "peoples": "/static/placeholders/banks/peoples-card-placeholder.png",
+      "nsb": "/static/placeholders/banks/nsb-card-placeholder.png",
+      "sampath": "/static/placeholders/banks/sampath-card-placeholder.png",
+      "seylan": "/static/placeholders/banks/seylan-card-placeholder.png",
+      "ndb": "/static/placeholders/banks/ndb-card-placeholder.png",
+      "dfcc": "/static/placeholders/banks/dfcc-card-placeholder.png",
+      "pabc": "/static/placeholders/banks/pabc-card-placeholder.png",
+      "combank": "/static/placeholders/banks/combank-card-placeholder.png"
+    },
+    "liveDownloadsTested": [
+      {
+        "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9464/media-261029124956.jpg",
+        "status": "DOWNLOADED",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 374777,
+        "hash": "765db65e3adb94dfa5efc7cd66f5bd481cf1f865770728b3821001000662e98a"
+      },
+      {
+        "url": "https://www.nsb.lk/wp-content/themes/nsb-theme/images/logo.png",
+        "status": "FAILED",
+        "mimeType": "",
+        "sizeBytes": 0,
+        "hash": ""
+      },
+      {
+        "url": "https://www.peoplesbank.lk/assets/images/logo.png",
+        "status": "FAILED",
+        "mimeType": "",
+        "sizeBytes": 0,
+        "hash": ""
+      }
+    ]
+  },
+  "summaryVerdict": {
+    "pdfExtractionOperational": true,
+    "imageResilienceOperational": true,
+    "dataIntegrityGuaranteesPreserved": true
+  }
+}

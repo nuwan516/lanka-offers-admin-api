@@ -23,4 +23,15 @@ router.get('/runs/:id', async (req: Request, res: Response) => {
   res.json({ run, offers });
 });
 
+router.post('/runs/:id/rollback', async (req: Request, res: Response) => {
+  const { actor = 'admin:rollback', reason } = req.body ?? {};
+  const { rollbackScrapeRun } = await import('@/infrastructure/db/rollback-operations');
+  const result = await rollbackScrapeRun(String(req.params.id), { actor, reason });
+  if (result.outcome === 'not_found') {
+    res.status(404).json(result);
+    return;
+  }
+  res.json(result);
+});
+
 export const runRoutes = router;

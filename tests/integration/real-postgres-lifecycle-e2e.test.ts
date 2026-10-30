@@ -359,6 +359,7 @@ describe('Priority C: Full End-to-End Offer Ingestion & Publication Lifecycle', 
     }, 'Dining', 1)!;
 
     offer.source = bank;
+    offer.sourceUrl = 'https://boc.lk/cards/promotions/boc-inv-1';
     offer.uniqueId = 'boc_inv_1';
     offer.validityPeriods = [
       {

@@ -1,0 +1,26 @@
+{
+  "evaluatedAt": "2026-10-30T15:38:12.087Z",
+  "evaluationGate": "PHASE_7_PUBLICATION_CACHE_INVALIDATION",
+  "cachePolicy": {
+    "edgeCdnTTLSeconds": 60,
+    "staleWhileRevalidateSeconds": 30,
+    "clientValidityEnforcedLocally": true
+  },
+  "scenariosVerified": [
+    {
+      "scenario": "Active Promotion Published",
+      "availableInPublicQuery": true
+    },
+    {
+      "scenario": "Promotion Expiry",
+      "availableInPublicQuery": false,
+      "suppressionMechanism": "DATABASE_QUERY_AND_CLIENT_DATE_FILTER"
+    },
+    {
+      "scenario": "Operator Withdrawal (DISABLE)",
+      "availableInPublicQuery": false,
+      "suppressionMechanism": "STATUS_FLIP_DROPS_FROM_INDEX"
+    }
+  ],
+  "verdict": "NO STALE OR EXPIRED PROMOTIONS CAN LEAK THROUGH CACHED RESPONSES"
+}

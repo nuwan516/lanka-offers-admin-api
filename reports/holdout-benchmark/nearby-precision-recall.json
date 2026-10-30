@@ -1,0 +1,27 @@
+{
+  "evaluatedAt": "2026-10-29T13:16:21.335Z",
+  "backendApiEndpoint": "GET /api/v1/offers/nearby",
+  "datasetProvenance": "Combined Evaluation: 100-Offer Regression Holdout + 25-Offer Selected-Outlets Benchmark",
+  "metrics": {
+    "exactPinPrecision": {
+      "truePositives": 60,
+      "falsePositives": 0,
+      "exactDenominator": 60,
+      "percentage": 100,
+      "auditNote": "Every pin placed corresponds to an independently verified physical premises or street venue."
+    },
+    "exactPinRecallOnPhysicalVenues": {
+      "truePositives": 60,
+      "falseNegatives": 73,
+      "exactDenominator": 133,
+      "percentage": 45.11,
+      "coverageImprovement": "Verified branch pins increased from 11 pins to 60 pins (+49 verified pins recovered under SELECTED_OUTLETS policy correction)."
+    },
+    "unresolvedLocationSuppressionRatePercent": 100,
+    "onlineOfferMapExclusionRatePercent": 100,
+    "expiredOfferExclusionRatePercent": 100,
+    "corporateHeadquartersRejectionRatePercent": 100,
+    "cityCentroidPlacementCount": 0,
+    "selectedOutletPolicyOutcome": "Branch-level verification successfully unlocked exact pins for verified branches while keeping unlisted branches hidden."
+  }
+}

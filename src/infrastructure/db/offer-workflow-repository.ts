@@ -14,6 +14,9 @@ import {
   type OfferLifecycleStatus,
   type OfferReviewAction,
 } from '@/domain/offer-lifecycle';
+import { validateSourceProvenance } from '@/domain/source-provenance';
+import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
+import { determineLocationScope } from '@/domain/location-scope';
 import { type FencingToken, assertActiveLease } from './offer-repository';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -203,6 +206,14 @@ export async function transitionOffer(
       await client.query(`UPDATE offers SET manual_override = $2, updated_at = NOW() WHERE id = $1`, [offerId, JSON.stringify(mergedOverride)]);
     }
 
+    if (action === 'APPROVE' || action === 'APPROVE_WITH_CORRECTIONS') {
+      const candidate = row.pending_candidate ?? row.raw_offer;
+      const prov = validateSourceProvenance(candidate, row.raw_offer);
+      if (!prov.valid) {
+        throw new WorkflowError(`Cannot ${action} offer: failed server-side provenance validation (${prov.reason})`);
+      }
+    }
+
     // PUBLISH must never be a bare status flip — it has to go through the
     // same merge + re-validate logic as the dedicated sync endpoint, or a
     // direct PUBLISH call would mark an offer live without ever writing its
@@ -287,6 +298,13 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
   }
 
   const candidate = row.pending_candidate ?? row.raw_offer;
+  const prov = validateSourceProvenance(candidate, row.raw_offer);
+  if (!prov.valid) {
+    await logHistory(client, offerId, 'sync_failed', row.db_status, row.db_status,
+      { provenanceError: prov.reason }, 'server-side provenance validation failed before publish');
+    return { offerId, outcome: 'failed', reason: prov.reason ?? 'SYNTHETIC_PROVENANCE_REJECTED' };
+  }
+
   const effective = computeEffectiveOffer(candidate, row.manual_override);
   const ruleResult = new OfferValidator().validate(effective);
 
@@ -298,13 +316,42 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
     return { offerId, outcome: 'failed', reason: 'final validation failed' };
   }
 
+  const merchantName = effective.merchant?.name ?? effective.title;
+  const canonicalRes = resolveCanonicalMerchant(merchantName);
+  const scopeRes = determineLocationScope({
+    location: effective.merchant?.location,
+    title: effective.title,
+    description: effective.offer?.description,
+    merchantName,
+    addresses: effective.merchant?.addresses,
+    geoLocations: effective.merchant?.geocodedLocations,
+    terms: effective.offer?.generalTerms,
+  });
+  const merchantPhone = effective.merchant?.phone?.[0] ?? null;
+  const imageUrl = effective.images?.images?.[0]?.url ?? effective.images?.logo?.url ?? null;
+  const validity = effective.validityPeriods?.[0];
+  const termsText = (effective.offer as any)?.terms ?? (effective.offer?.generalTerms?.length ? effective.offer.generalTerms.join('\n') : null);
+
   const cols = {
     discount: effective.offer?.discountPercentage?.toString() ?? null,
-    validFrom: effective.validityPeriods?.[0]?.validFrom ?? null,
-    validTo: effective.validityPeriods?.[0]?.validTo ?? null,
+    validFrom: validity?.validFrom ?? null,
+    validTo: validity?.validTo ?? null,
     cardEligibility: JSON.stringify(effective.cardEligibility ?? {}),
     geoLocations: JSON.stringify(effective.merchant?.geocodedLocations ?? row.geo_locations ?? []),
     rawOffer: JSON.stringify(effective),
+    canonicalMerchant: canonicalRes.canonicalName,
+    locationScope: scopeRes.scope,
+    description: effective.offer?.description ?? null,
+    terms: termsText,
+    minSpend: effective.transactionRange?.min ?? null,
+    maxDiscount: (effective.transactionRange as any)?.maxDiscount ?? null,
+    maxBillValue: (effective.transactionRange as any)?.maxBillValue ?? (effective.transactionRange?.max ?? null),
+    installmentPlans: JSON.stringify(effective.installmentPlans ?? []),
+    recurrence: JSON.stringify((validity as any)?.recurrence ?? {}),
+    bookingRequired: Boolean(effective.offer?.bookingRequired),
+    bookingPhone: merchantPhone,
+    pdfTermsUrl: (effective.offer as any)?.termsPdfUrl ?? null,
+    imageUrl: imageUrl,
   };
 
   await client.query(
@@ -313,6 +360,9 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
        discount_percentage = $7, valid_from = $8, valid_to = $9, card_eligibility = $10,
        raw_offer = $11, content_hash = COALESCE(pending_candidate->>'contentHash', content_hash),
        db_status = 'PUBLISHED', change_status = COALESCE(pending_change_status, change_status),
+       canonical_merchant = $12, location_scope = $13, description = $14, terms = $15,
+       min_spend = $16, max_discount = $17, max_bill_value = $18, installment_plans = $19,
+       recurrence = $20, booking_required = $21, booking_phone = $22, pdf_terms_url = $23, image_url = $24,
        pending_candidate = NULL, pending_lifecycle_status = NULL, pending_change_status = NULL,
        published_at = NOW(), updated_at = NOW()
      WHERE id = $1`,
@@ -320,6 +370,9 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
       offerId, effective.title, effective.category, effective.cardType,
       effective.merchant?.name, effective.merchant?.location,
       cols.discount, cols.validFrom, cols.validTo, cols.cardEligibility, cols.rawOffer,
+      cols.canonicalMerchant, cols.locationScope, cols.description, cols.terms,
+      cols.minSpend, cols.maxDiscount, cols.maxBillValue, cols.installmentPlans,
+      cols.recurrence, cols.bookingRequired, cols.bookingPhone, cols.pdfTermsUrl, cols.imageUrl,
     ]
   );
 

@@ -8,6 +8,8 @@ import type { Offer, GeoLocation } from '@/core/types/offers';
 import type { ValidatorReport } from '@/core/types/validation';
 import type { OfferLifecycleStatus, OfferChangeStatus } from '@/domain/offer-lifecycle';
 import { classifyScraperFailure } from '@/domain/failure-classifier';
+import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
+import { determineLocationScope } from '@/domain/location-scope';
 
 // ─── Scrape Runs & Fencing ───────────────────────────────────────────────────
 
@@ -201,15 +203,44 @@ export interface OfferLifecycleDecision {
 const NEW_CHANGE_STATUS: OfferChangeStatus = 'NEW';
 const CHANGED_CHANGE_STATUS: OfferChangeStatus = 'CHANGED';
 
-function offerColumnValues(offer: Offer) {
+function offerColumnValues(offer: Offer, rawOfferSource?: Offer) {
   const validity = offer.validityPeriods?.[0];
+  const merchantName = offer.merchant?.name ?? offer.title;
+  const canonicalRes = resolveCanonicalMerchant(merchantName);
+  const scopeRes = determineLocationScope({
+    location: offer.merchant?.location,
+    title: offer.title,
+    description: offer.offer?.description,
+    merchantName,
+    addresses: offer.merchant?.addresses,
+    geoLocations: offer.merchant?.geocodedLocations,
+    terms: offer.offer?.generalTerms,
+  });
+  const merchantPhone = offer.merchant?.phone?.[0] ?? null;
+  const imageUrl = offer.images?.images?.[0]?.url ?? offer.images?.logo?.url ?? null;
+  const termsText = (offer.offer as any)?.terms ?? (offer.offer?.generalTerms?.length ? offer.offer.generalTerms.join('\n') : null);
+
   return {
     validFrom: validity?.validFrom ?? null,
     validTo: validity?.validTo ?? null,
     discount: offer.offer?.discountPercentage?.toString() ?? null,
     cardEligibility: JSON.stringify(offer.cardEligibility ?? {}),
     geoLocations: JSON.stringify(offer.merchant?.geocodedLocations ?? []),
-    rawOffer: JSON.stringify(offer),
+    rawOffer: JSON.stringify(rawOfferSource ?? offer),
+    candidateJson: JSON.stringify(offer),
+    canonicalMerchant: canonicalRes.canonicalName,
+    locationScope: scopeRes.scope,
+    description: offer.offer?.description ?? null,
+    terms: termsText,
+    minSpend: offer.transactionRange?.min ?? null,
+    maxDiscount: (offer.transactionRange as any)?.maxDiscount ?? null,
+    maxBillValue: (offer.transactionRange as any)?.maxBillValue ?? (offer.transactionRange?.max ?? null),
+    installmentPlans: JSON.stringify(offer.installmentPlans ?? []),
+    recurrence: JSON.stringify((validity as any)?.recurrence ?? {}),
+    bookingRequired: Boolean(offer.offer?.bookingRequired),
+    bookingPhone: merchantPhone,
+    pdfTermsUrl: (offer.offer as any)?.termsPdfUrl ?? null,
+    imageUrl: imageUrl,
   };
 }
 
@@ -220,6 +251,7 @@ function offerColumnValues(offer: Offer) {
  *  - Same `unique_id` + same `content_hash` → NO WRITE at all (zero-cost
  *    control invariant — not even `updated_at` bumps).
  *  - New identity → inserted directly with the caller's quality decision.
+ *    Stores effective offer in columns, preserving rawOfferSource in `raw_offer`.
  *  - Changed identity, currently PUBLISHED → the live published columns are
  *    left untouched; the new candidate is staged into `pending_candidate`
  *    for review/approval instead of silently going live.
@@ -235,7 +267,8 @@ export async function upsertOffer(
   offer: Offer,
   runId: string,
   decision: OfferLifecycleDecision,
-  fencingToken?: FencingToken
+  fencingToken?: FencingToken,
+  rawOffer?: Offer
 ): Promise<UpsertResult> {
   return withTransaction(async (client) => {
     if (fencingToken) {
@@ -246,7 +279,7 @@ export async function upsertOffer(
       [offer.uniqueId]
     );
     const existing = existingRes.rows[0];
-    const cols = offerColumnValues(offer);
+    const cols = offerColumnValues(offer, rawOffer);
 
     if (!existing) {
       const insertRes = await client.query<{ id: string }>(
@@ -254,14 +287,23 @@ export async function upsertOffer(
            unique_id, bank, source_url, title, category, card_type,
            merchant_name, merchant_location, discount_percentage,
            valid_from, valid_to, card_eligibility, geo_locations,
-           raw_offer, content_hash, scrape_run_id, db_status, change_status
-         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+           raw_offer, content_hash, scrape_run_id, db_status, change_status,
+           canonical_merchant, location_scope, description, terms,
+           min_spend, max_discount, max_bill_value, installment_plans,
+           recurrence, booking_required, booking_phone, pdf_terms_url, image_url
+         ) VALUES (
+           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,
+           $19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31
+         )
          RETURNING id`,
         [
           offer.uniqueId, offer.source, offer.sourceUrl, offer.title, offer.category, offer.cardType,
           offer.merchant?.name, offer.merchant?.location, cols.discount,
           cols.validFrom, cols.validTo, cols.cardEligibility, cols.geoLocations,
           cols.rawOffer, offer.contentHash, runId, decision.lifecycleStatus, NEW_CHANGE_STATUS,
+          cols.canonicalMerchant, cols.locationScope, cols.description, cols.terms,
+          cols.minSpend, cols.maxDiscount, cols.maxBillValue, cols.installmentPlans,
+          cols.recurrence, cols.bookingRequired, cols.bookingPhone, cols.pdfTermsUrl, cols.imageUrl,
         ]
       );
       return { id: insertRes.rows[0].id, isNew: true, isChanged: false, isUnchanged: false, status: 'NEW', staged: false };
@@ -278,7 +320,7 @@ export async function upsertOffer(
          SET pending_candidate = $2, pending_lifecycle_status = $3, pending_change_status = 'CHANGED',
              scrape_run_id = $4, updated_at = NOW()
          WHERE id = $1`,
-        [existing.id, cols.rawOffer, decision.lifecycleStatus, runId]
+        [existing.id, cols.candidateJson, decision.lifecycleStatus, runId]
       );
       return { id: existing.id, isNew: false, isChanged: true, isUnchanged: false, status: 'CHANGED', staged: true };
     }
@@ -289,13 +331,19 @@ export async function upsertOffer(
          title = $2, category = $3, card_type = $4, merchant_name = $5, merchant_location = $6,
          discount_percentage = $7, valid_from = $8, valid_to = $9, card_eligibility = $10,
          geo_locations = $11, raw_offer = $12, content_hash = $13, scrape_run_id = $14,
-         db_status = $15, change_status = $16, pending_candidate = NULL,
-         pending_lifecycle_status = NULL, pending_change_status = NULL, updated_at = NOW()
+         db_status = $15, change_status = $16,
+         canonical_merchant = $17, location_scope = $18, description = $19, terms = $20,
+         min_spend = $21, max_discount = $22, max_bill_value = $23, installment_plans = $24,
+         recurrence = $25, booking_required = $26, booking_phone = $27, pdf_terms_url = $28, image_url = $29,
+         pending_candidate = NULL, pending_lifecycle_status = NULL, pending_change_status = NULL, updated_at = NOW()
        WHERE id = $1`,
       [
         existing.id, offer.title, offer.category, offer.cardType, offer.merchant?.name, offer.merchant?.location,
         cols.discount, cols.validFrom, cols.validTo, cols.cardEligibility, cols.geoLocations, cols.rawOffer,
         offer.contentHash, runId, decision.lifecycleStatus, CHANGED_CHANGE_STATUS,
+        cols.canonicalMerchant, cols.locationScope, cols.description, cols.terms,
+        cols.minSpend, cols.maxDiscount, cols.maxBillValue, cols.installmentPlans,
+        cols.recurrence, cols.bookingRequired, cols.bookingPhone, cols.pdfTermsUrl, cols.imageUrl,
       ]
     );
     return { id: existing.id, isNew: false, isChanged: true, isUnchanged: false, status: 'CHANGED', staged: false };

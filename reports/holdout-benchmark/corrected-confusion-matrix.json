@@ -1,0 +1,119 @@
+{
+  "evaluatedAt": "2026-10-29T11:47:05.469Z",
+  "dataset": "100-holdout-offers.json",
+  "totalEvaluated": 100,
+  "overallMetrics": {
+    "overallAccuracyPercent": 95,
+    "macroPrecisionPercent": 95.32,
+    "macroRecallPercent": 92.42,
+    "macroF1Percent": 93.59,
+    "weightedF1Percent": 94.89,
+    "abstentionCount": 25,
+    "abstentionRatePercent": 25,
+    "coveragePercent": 75,
+    "selectiveAccuracyPercent": 97.33,
+    "falsePinCount": 0
+  },
+  "contingencyTable": {
+    "description": "Rows represent Actual Ground Truth (audited labels); Columns represent Predicted Scope.",
+    "matrix": {
+      "ONLINE": {
+        "ONLINE": 14,
+        "SINGLE_BRANCH": 0,
+        "MULTI_BRANCH": 0,
+        "NATIONWIDE": 0,
+        "UNRESOLVED": 0
+      },
+      "SINGLE_BRANCH": {
+        "ONLINE": 0,
+        "SINGLE_BRANCH": 42,
+        "MULTI_BRANCH": 0,
+        "NATIONWIDE": 0,
+        "UNRESOLVED": 1
+      },
+      "MULTI_BRANCH": {
+        "ONLINE": 0,
+        "SINGLE_BRANCH": 1,
+        "MULTI_BRANCH": 10,
+        "NATIONWIDE": 0,
+        "UNRESOLVED": 2
+      },
+      "NATIONWIDE": {
+        "ONLINE": 0,
+        "SINGLE_BRANCH": 0,
+        "MULTI_BRANCH": 1,
+        "NATIONWIDE": 7,
+        "UNRESOLVED": 0
+      },
+      "UNRESOLVED": {
+        "ONLINE": 0,
+        "SINGLE_BRANCH": 0,
+        "MULTI_BRANCH": 0,
+        "NATIONWIDE": 0,
+        "UNRESOLVED": 22
+      }
+    }
+  },
+  "perClassMetrics": {
+    "ONLINE": {
+      "support": 14,
+      "truePositives": 14,
+      "falsePositives": 0,
+      "falseNegatives": 0,
+      "trueNegatives": 86,
+      "precision": 100,
+      "recall": 100,
+      "f1Score": 100
+    },
+    "SINGLE_BRANCH": {
+      "support": 43,
+      "truePositives": 42,
+      "falsePositives": 1,
+      "falseNegatives": 1,
+      "trueNegatives": 56,
+      "precision": 97.67,
+      "recall": 97.67,
+      "f1Score": 97.67
+    },
+    "MULTI_BRANCH": {
+      "support": 13,
+      "truePositives": 10,
+      "falsePositives": 1,
+      "falseNegatives": 3,
+      "trueNegatives": 86,
+      "precision": 90.91,
+      "recall": 76.92,
+      "f1Score": 83.33
+    },
+    "NATIONWIDE": {
+      "support": 8,
+      "truePositives": 7,
+      "falsePositives": 0,
+      "falseNegatives": 1,
+      "trueNegatives": 92,
+      "precision": 100,
+      "recall": 87.5,
+      "f1Score": 93.33
+    },
+    "UNRESOLVED": {
+      "support": 22,
+      "truePositives": 22,
+      "falsePositives": 3,
+      "falseNegatives": 0,
+      "trueNegatives": 75,
+      "precision": 88,
+      "recall": 100,
+      "f1Score": 93.62
+    }
+  },
+  "statisticalInvariants": {
+    "totalSumMatchesN": true,
+    "sumFPMatchesSumFN": true,
+    "sumFPMatchesMisclassifications": true,
+    "allPrecisionsBounded": true,
+    "allRecallsBounded": true,
+    "allF1sBounded": true,
+    "accuracyMatchesDiagonalSum": true,
+    "overallStatus": "ALL_STATISTICAL_INVARIANTS_SATISFIED"
+  }
+}

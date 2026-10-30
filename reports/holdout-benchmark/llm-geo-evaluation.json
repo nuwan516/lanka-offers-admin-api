@@ -1,0 +1,34 @@
+{
+  "evaluatedAt": "2026-10-29T12:28:55.195Z",
+  "pipelineComparison": {
+    "deterministicBaseline": {
+      "pipeline": "Deterministic Engine (determineLocationScope)",
+      "accuracyPercent": 95,
+      "realModelRequests": 0,
+      "totalToolCalls": 0,
+      "tokenCostUsd": 0,
+      "averageLatencyMs": 0.12,
+      "safeAbstentions": 22,
+      "reviewRequiredEscalations": 0,
+      "unsupportedAcceptedClaims": 0
+    },
+    "selectiveLlmValidation": {
+      "pipeline": "Deterministic + Unified Validator (LLM Gated via Content Hash)",
+      "accuracyPercent": 96,
+      "realModelRequests": 4,
+      "totalToolCalls": 8,
+      "tokenCostUsd": 0.0034,
+      "averageLatencyMs": 1420,
+      "sourceGroundedCorrectCorrections": 1,
+      "incorrectCorrections": 0,
+      "safeAbstentions": 22,
+      "reviewRequiredEscalations": 4,
+      "unsupportedAcceptedClaims": 0
+    }
+  },
+  "architecturalRecommendation": {
+    "selectedProductionPathway": "DETERMINISTIC_FIRST_WITH_HUMAN_REVIEW_GATE",
+    "rationale": "Deterministic processing achieves 95% accuracy with 0ms latency and $0 cost. LLM validation adds marginal gain (+1 offer) at significant latency and API cost. Invariant #6 (Zero-cost LLM gate) is strictly enforced: LLM is invoked only when content hash changes and confidence is low.",
+    "humanReviewRouting": "Ambiguous retail cases lacking branch details (e.g., Softlogic Max, Everton Holidays) are safely routed to admin dashboard review rather than prompting expensive or speculative LLM inference."
+  }
+}

@@ -1,0 +1,2209 @@
+[
+  {
+    "id": "new-holdout-hnb-hilton-restaurants",
+    "bank": "hnb",
+    "bankName": "Hatton National Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/hnb/hnb-modal-formats.test.ts#HiltonColombo",
+    "merchantCategory": "HOTEL",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "Merchant: Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo). Offer: 25% off on food and beverages. Period: 06th to 31st July 2026. Location: 2 Sir Chittampalam A Gardiner Mawatha, Colombo 02"
+    },
+    "candidateOffer": {
+      "uniqueId": "hnb_new-hnb-101",
+      "source": "hnb",
+      "sourceId": "new-hnb-101",
+      "sourceUrl": "https://venus.hnb.lk/api/get_web_card_promo?id=new-hnb-101",
+      "title": "25% off at Hilton Colombo restaurants",
+      "category": "Dining",
+      "categoryId": 3,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.120Z",
+      "merchant": {
+        "name": "Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo)",
+        "location": "2 Sir Chittampalam A Gardiner Mawatha, Colombo 02",
+        "addresses": [
+          "2 Sir Chittampalam A Gardiner Mawatha, Colombo 02, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "25% off on food and beverages",
+        "discountPercentage": 25,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-07-06",
+          "validTo": "2026-07-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "25% off on food and beverages Period: 06th to 31st July 2026 Location: 2 Sir Chittampalam A Gardiner Mawatha, Colombo 02"
+        }
+      ],
+      "contentHash": "bfb1077090a8cb3af0f5ac889e5cefbeae94067a7f19cf7cee1680880c3a2620",
+      "rawHtml": "<p>Merchant: Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo)</p><p>Offer: 25% off on food and beverages</p><p>Period: 06th to 31st July 2026</p><p>Location: 2 Sir Chittampalam A Gardiner Mawatha, Colombo 02</p>"
+    },
+    "referenceLabels": {
+      "merchantName": "Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo)",
+      "bank": "hnb",
+      "discountPercentage": 25,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": "2026-07-06",
+      "validTo": "2026-07-31",
+      "isExpired": true,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": []
+    }
+  },
+  {
+    "id": "new-holdout-hnb-aminra-jewellers",
+    "bank": "hnb",
+    "bankName": "Hatton National Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/hnb/hnb-modal-formats.test.ts#AminraJewellers",
+    "merchantCategory": "SMALL_REGIONAL",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "Merchant: Aminra Jewellers. Offer: 20% off on gold jewellery. Offer Period: Till 31st August 2026. Location: Galle Road, Mount Lavinia"
+    },
+    "candidateOffer": {
+      "uniqueId": "hnb_new-hnb-102",
+      "source": "hnb",
+      "sourceId": "new-hnb-102",
+      "sourceUrl": "https://venus.hnb.lk/api/get_web_card_promo?id=new-hnb-102",
+      "title": "20% off at Aminra Jewellers",
+      "category": "Shopping",
+      "categoryId": 2,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.126Z",
+      "merchant": {
+        "name": "Aminra Jewellers",
+        "location": "Galle Road, Mount Lavinia",
+        "addresses": [
+          "Galle Road, Mount Lavinia, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "20% off on gold jewellery Offer",
+        "discountPercentage": 20,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-07-01",
+          "validTo": "2026-08-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Till 31st August 2026 Location: Galle Road, Mount Lavinia"
+        }
+      ],
+      "contentHash": "4643c95a7684f754f3d715895331021b46e900b66891ee57b9ac74e8953cc138",
+      "rawHtml": "<p>Merchant: Aminra Jewellers</p><p>Offer: 20% off on gold jewellery</p><p>Offer Period: Till 31st August 2026</p><p>Location: Galle Road, Mount Lavinia</p>"
+    },
+    "referenceLabels": {
+      "merchantName": "Aminra Jewellers",
+      "bank": "hnb",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": "2026-07-01",
+      "validTo": "2026-08-31",
+      "isExpired": true,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": []
+    }
+  },
+  {
+    "id": "new-holdout-combank-fashion-bug-malls",
+    "bank": "combank",
+    "bankName": "Commercial Bank of Ceylon",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/combank/combank-parser.test.ts#FashionBugMalls",
+    "merchantCategory": "SHOPPING_MALL",
+    "locationScopeExpected": "MULTIPLE_BRANCHES",
+    "branchCountExpected": 2,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "25% off on total bill with ComBank Mastercard Credit Cards. Valid at Level 3, One Galle Face Mall and 1st Floor, Majestic City, Colombo 04 branches. Minimum spend of Rs. 7,500 applies. Valid until 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "combank_3ba93c1def87",
+      "source": "combank",
+      "sourceId": "3ba93c1def87",
+      "sourceUrl": "https://www.combank.lk/fashion-bug",
+      "title": "25% Savings at Fashion Bug One Galle Face & Majestic City branches",
+      "category": "Shopping",
+      "categoryId": 2,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.130Z",
+      "merchant": {
+        "name": "Fashion Bug One Galle Face & Majestic City branches",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": {
+          "url": "https://cdn.combank.lk/fashionbug.jpg",
+          "alt": "25% Savings at Fashion Bug One Galle Face & Majestic City branches",
+          "type": "logo"
+        }
+      },
+      "offer": {
+        "description": "25% Off 25% off on total bill with ComBank Mastercard Credit Cards Valid at Level 3, One Galle Face Mall and 1st Floor, Majestic City, Colombo 04 branches Minimum spend of Rs. 7,500 applies",
+        "discountPercentage": 25,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": [
+          "25% off on total bill with ComBank Mastercard Credit Cards",
+          "Valid at Level 3, One Galle Face Mall and 1st Floor, Majestic City, Colombo 04 branches",
+          "Minimum spend of Rs. 7,500 applies"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 7500,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [
+          "Mastercard"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": {
+          "url": "https://cdn.combank.lk/fashionbug.jpg",
+          "alt": "25% Savings at Fashion Bug One Galle Face & Majestic City branches",
+          "type": "logo"
+        },
+        "gallery": [],
+        "images": [
+          {
+            "url": "https://cdn.combank.lk/fashionbug.jpg",
+            "alt": "25% Savings at Fashion Bug One Galle Face & Majestic City branches",
+            "type": "logo"
+          }
+        ]
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid until 31st December 2026"
+        }
+      ],
+      "contentHash": "226c0887fdd1910a45f464767070cff2d2aa64393d092e4cba92e341439828c6",
+      "rawHtml": "Valid until 31st December 2026\n\n25% Off 25% off on total bill with ComBank Mastercard Credit Cards Valid at Level 3, One Galle Face Mall and 1st Floor, Majestic City, Colombo 04 branches Minimum spend of Rs. 7,500 applies"
+    },
+    "referenceLabels": {
+      "merchantName": "Fashion Bug",
+      "bank": "combank",
+      "discountPercentage": 25,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 7500,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "MASTERCARD"
+      ],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "MULTI_BRANCH",
+      "branchCount": 2,
+      "termsAndRestrictions": [
+        "Minimum spend of Rs. 7,500 applies"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-combank-pickme-food-online",
+    "bank": "combank",
+    "bankName": "Commercial Bank of Ceylon",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/combank/combank-parser.test.ts#PickMeFood",
+    "merchantCategory": "ONLINE",
+    "locationScopeExpected": "ONLINE",
+    "branchCountExpected": 0,
+    "isPhysicalVenueExpected": false,
+    "rawEvidence": {
+      "rawText": "Rs. 500 off on PickMe Food with ComBank Visa Cards. Valid only for orders placed via the PickMe mobile app. Use promo code COMBANK500 at checkout. Minimum order value Rs. 2,000. Valid until 30th November 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "combank_cd71a9a47bbb",
+      "source": "combank",
+      "sourceId": "cd71a9a47bbb",
+      "sourceUrl": "https://www.combank.lk/pickme-food",
+      "title": "Rs. 500 off on PickMe Food with ComBank Visa Cards",
+      "category": "Online",
+      "categoryId": 5,
+      "cardType": "",
+      "scrapedAt": "2026-10-29T08:44:18.134Z",
+      "merchant": {
+        "name": "PickMe Food",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": {
+          "url": "https://cdn.combank.lk/pickme.jpg",
+          "alt": "Rs. 500 off on PickMe Food with ComBank Visa Cards",
+          "type": "logo"
+        }
+      },
+      "offer": {
+        "description": "Rs. 500 Off Valid only for orders placed via the PickMe mobile app Use promo code COMBANK500 at checkout Minimum order value Rs. 2,000",
+        "discountPercentage": null,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": [
+          "Valid only for orders placed via the PickMe mobile app",
+          "Use promo code COMBANK500 at checkout",
+          "Minimum order value Rs. 2,000"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 2000,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [],
+        "networks": [
+          "Visa"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": {
+          "url": "https://cdn.combank.lk/pickme.jpg",
+          "alt": "Rs. 500 off on PickMe Food with ComBank Visa Cards",
+          "type": "logo"
+        },
+        "gallery": [],
+        "images": [
+          {
+            "url": "https://cdn.combank.lk/pickme.jpg",
+            "alt": "Rs. 500 off on PickMe Food with ComBank Visa Cards",
+            "type": "logo"
+          }
+        ]
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-11-30",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid until 30th November 2026"
+        }
+      ],
+      "contentHash": "4ce7cf3d4b91ed0cd9c8a28907715149bfe092e0b20b91a872a5d26941611ddf",
+      "rawHtml": "Valid until 30th November 2026\n\nRs. 500 Off Valid only for orders placed via the PickMe mobile app Use promo code COMBANK500 at checkout Minimum order value Rs. 2,000"
+    },
+    "referenceLabels": {
+      "merchantName": "PickMe Food",
+      "bank": "combank",
+      "discountPercentage": null,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 2000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT",
+        "DEBIT"
+      ],
+      "cardNetworks": [
+        "VISA"
+      ],
+      "validFrom": null,
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "ONLINE",
+      "branchCount": 0,
+      "termsAndRestrictions": [
+        "Valid only for orders placed via the PickMe mobile app",
+        "Use promo code COMBANK500"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-boc-dolphin-hotel-wadduwa",
+    "bank": "boc",
+    "bankName": "Bank of Ceylon",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#DolphinHotel",
+    "merchantCategory": "HOTEL",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "30% savings on Full Board basis at Dolphin Hotel and Spa, Wadduwa for BOC Credit Cards. Minimum stay 2 nights. Expiration date : 31 Dec 2026"
+    },
+    "candidateOffer": {
+      "uniqueId": "boc_234286a75d932170",
+      "source": "boc",
+      "sourceId": "boc_234286a75d932170",
+      "sourceUrl": "https://www.boc.lk/offers/leisure/dolphin-hotel-spa",
+      "title": "Dolphin Hotel and Spa, Wadduwa",
+      "category": "General",
+      "categoryId": null,
+      "cardType": "",
+      "scrapedAt": "2026-10-29T08:44:18.136Z",
+      "merchant": {
+        "name": "Dolphin Hotel and Spa, Wadduwa",
+        "location": null,
+        "addresses": [
+          "Dolphin Hotel and Spa, Wadduwa, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "",
+        "discountPercentage": null,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Till 31 Dec 2026"
+        }
+      ],
+      "contentHash": "922d746ad27e1c2bf33321e87987ca5bcfd03f66684330a908f484e4b83a5fc7",
+      "rawHtml": "Expiration date : 31 Dec 2026"
+    },
+    "referenceLabels": {
+      "merchantName": "Dolphin Hotel and Spa, Wadduwa",
+      "bank": "boc",
+      "discountPercentage": 30,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Minimum stay 2 nights"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-boc-barefoot-colombo",
+    "bank": "boc",
+    "bankName": "Bank of Ceylon",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#BarefootCo",
+    "merchantCategory": "SINGLE_LOCATION",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "15% discount on handloom and apparel at Barefoot & Co, 704 Galle Road, Colombo 03 with BOC Cards. Minimum purchase Rs. 5,000. Expiration date : 30 Nov 2026"
+    },
+    "candidateOffer": {
+      "uniqueId": "boc_662c49ba933d3b14",
+      "source": "boc",
+      "sourceId": "boc_662c49ba933d3b14",
+      "sourceUrl": "https://www.boc.lk/offers/shopping/barefoot",
+      "title": "Barefoot & Co, Colombo 03",
+      "category": "General",
+      "categoryId": null,
+      "cardType": "",
+      "scrapedAt": "2026-10-29T08:44:18.136Z",
+      "merchant": {
+        "name": "Barefoot & Co, Colombo 03",
+        "location": "704 Galle Road",
+        "addresses": [
+          "704 Galle Road, Colombo 03, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "",
+        "discountPercentage": null,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-11-30",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Till 30 Nov 2026"
+        }
+      ],
+      "contentHash": "4386da8b3607deba70a4865a0cb3f49a7335a6740bd929589032ec4e501813ac",
+      "rawHtml": "Expiration date : 30 Nov 2026"
+    },
+    "referenceLabels": {
+      "merchantName": "Barefoot & Co",
+      "bank": "boc",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 5000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT",
+        "DEBIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": null,
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Minimum purchase Rs. 5,000"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-sampath-solar-crab-pamunugama",
+    "bank": "sampath",
+    "bankName": "Sampath Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/geo/branch-parser.test.ts#SolarCrab",
+    "merchantCategory": "SINGLE_LOCATION",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "20% discount on total food bill at Solar Crab, Pamunugama for Sampath Premium Cardholders. Minimum bill Rs. 6,000. Valid until 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "sampath_501",
+      "source": "sampath",
+      "sourceId": "501",
+      "sourceUrl": null,
+      "title": "20% off at Solar Crab Pamunugama",
+      "category": "General",
+      "categoryId": null,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.139Z",
+      "merchant": {
+        "name": "Solar Crab",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "20% discount on total food bill at Solar Crab, Pamunugama for Sampath Premium Cardholders. Minimum bill Rs. 6,000.",
+        "discountPercentage": 20,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 6000,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [
+          "Visa Signature",
+          "Visa Platinum",
+          "Mastercard World"
+        ],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid until 31st December 2026"
+        }
+      ],
+      "contentHash": "300c19121aed0092f765e4d68f414f6f3a83d751daa647f401daa3f5c8a58b3e",
+      "rawHtml": "List item: {\"id\":501,\"title\":\"20% off at Solar Crab Pamunugama\",\"company_name\":\"Solar Crab\",\"short_discount\":\"20% Off\",\"eligible_cards\":[\"Visa Signature\",\"Visa Platinum\",\"Mastercard World\"],\"promotion_period\":\"Valid until 31st December 2026\",\"promotion_details\":\"20% discount on total food bill at Solar Crab, Pamunugama for Sampath Premium Cardholders. Minimum bill Rs. 6,000.\"}"
+    },
+    "referenceLabels": {
+      "merchantName": "Solar Crab",
+      "bank": "sampath",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 6000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "VISA",
+        "MASTERCARD"
+      ],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Minimum bill Rs. 6,000"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-sampath-walden-nuwara-eliya",
+    "bank": "sampath",
+    "bankName": "Sampath Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/geo/branch-parser.test.ts#TheWalden",
+    "merchantCategory": "HOTEL",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "25% savings on luxury stays at The Walden, Nuwara Eliya. Valid on Bed & Breakfast and Half Board. Valid until 30th November 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "sampath_502",
+      "source": "sampath",
+      "sourceId": "502",
+      "sourceUrl": null,
+      "title": "25% Savings at The Walden Nuwara Eliya",
+      "category": "General",
+      "categoryId": null,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.141Z",
+      "merchant": {
+        "name": "The Walden",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "25% savings on luxury stays at The Walden, Nuwara Eliya. Valid on Bed & Breakfast and Half Board.",
+        "discountPercentage": 25,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [
+          "Mastercard World",
+          "Visa Signature"
+        ],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-11-30",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid until 30th November 2026"
+        }
+      ],
+      "contentHash": "ebccc18d10c97aefff63596ee97222a890fae855d1d5f07cdafbe3264deadee9",
+      "rawHtml": "List item: {\"id\":502,\"title\":\"25% Savings at The Walden Nuwara Eliya\",\"company_name\":\"The Walden\",\"short_discount\":\"25% Off\",\"eligible_cards\":[\"Mastercard World\",\"Visa Signature\"],\"promotion_period\":\"Valid until 30th November 2026\",\"promotion_details\":\"25% savings on luxury stays at The Walden, Nuwara Eliya. Valid on Bed & Breakfast and Half Board.\"}"
+    },
+    "referenceLabels": {
+      "merchantName": "The Walden",
+      "bank": "sampath",
+      "discountPercentage": 25,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "VISA",
+        "MASTERCARD"
+      ],
+      "validFrom": null,
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": []
+    }
+  },
+  {
+    "id": "new-holdout-seylan-jucies-tri-branch",
+    "bank": "seylan",
+    "bankName": "Seylan Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/geo/branch-parser.test.ts#JuciesTriBranch",
+    "merchantCategory": "SMALL_REGIONAL",
+    "locationScopeExpected": "MULTIPLE_BRANCHES",
+    "branchCountExpected": 3,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "15% savings with Seylan Credit Cards. Participating Outlets: Rajagiriya, Mount Lavinia & Havelock City Mall. 01st October 2026 to 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "seylan_jucies",
+      "source": "seylan",
+      "sourceId": "jucies",
+      "sourceUrl": "https://www.seylan.lk/promotions/jucies",
+      "title": "Jucies Outlets",
+      "category": "Dining",
+      "categoryId": 1,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.142Z",
+      "merchant": {
+        "name": "Jucies Outlets",
+        "location": "Rajagiriya, Mount Lavinia, Havelock City Mall",
+        "addresses": [],
+        "phone": [
+          "011 2789123"
+        ],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "15% savings with Seylan Credit Cards. Participating Outlets: Rajagiriya, Mount Lavinia & Havelock City Mall.",
+        "discountPercentage": 15,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": [
+          "Offer valid at listed participating outlets only"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-01",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "01st October 2026 to 31st December 2026"
+        }
+      ],
+      "contentHash": "7a7a9af80e2b20b1d5957711f6396b37df5ced310c4c1fe512654a75a40623a1",
+      "rawHtml": ""
+    },
+    "referenceLabels": {
+      "merchantName": "Jucies Outlets",
+      "bank": "seylan",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": "2026-10-01",
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "MULTI_BRANCH",
+      "branchCount": 3,
+      "termsAndRestrictions": [
+        "Offer valid at listed participating outlets only"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-seylan-hotel-janaki-matale",
+    "bank": "seylan",
+    "bankName": "Seylan Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#HotelJanaki",
+    "merchantCategory": "HOTEL",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "20% discount on accommodation at Hotel Janaki, Matale for all Seylan Credit Cardholders. Prior booking required. 01st August 2026 to 30th November 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "seylan_hotel-janaki",
+      "source": "seylan",
+      "sourceId": "hotel-janaki",
+      "sourceUrl": "https://www.seylan.lk/promotions/hotel-janaki",
+      "title": "Hotel Janaki Matale",
+      "category": "Leisure",
+      "categoryId": 2,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.144Z",
+      "merchant": {
+        "name": "Hotel Janaki Matale",
+        "location": "Hotel Janaki",
+        "addresses": [
+          "Hotel Janaki, Matale, Sri Lanka"
+        ],
+        "phone": [
+          "066 2223456"
+        ],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "20% discount on accommodation at Hotel Janaki, Matale for all Seylan Credit Cardholders.",
+        "discountPercentage": 20,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": true,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": [
+          "Prior booking required"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-08-01",
+          "validTo": "2026-11-30",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "01st August 2026 to 30th November 2026"
+        }
+      ],
+      "contentHash": "d7bd17a6204341f3473aadfdd2ec2eefc7e264dd1232c66d1e285fe8ad1bad1e",
+      "rawHtml": ""
+    },
+    "referenceLabels": {
+      "merchantName": "Hotel Janaki Matale",
+      "bank": "seylan",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": "2026-08-01",
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Prior booking required"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-dfcc-webb-place-colombo7",
+    "bank": "dfcc",
+    "bankName": "DFCC Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#WebbPlace",
+    "merchantCategory": "SINGLE_LOCATION",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "20% discount at Webb Place, Colombo 07 for DFCC Visa Signature and Infinite Cards. Valid till 31 December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "dfcc_webb-place",
+      "source": "dfcc",
+      "sourceId": "webb-place",
+      "sourceUrl": "https://www.dfcc.lk/webb-place",
+      "title": "Webb Place Cafe",
+      "category": "Dining",
+      "categoryId": 1,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.146Z",
+      "merchant": {
+        "name": "Webb Place, Colombo 07 for DFCC Visa Signature and Infinite Cards",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "20% discount at Webb Place, Colombo 07 for DFCC Visa Signature and Infinite Cards.",
+        "discountPercentage": 20,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [
+          "Credit Card"
+        ],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [
+          "Visa"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid till 31 December 2026"
+        }
+      ],
+      "contentHash": "866974d734808b63571dd175557ea01b4e068db0b7f185057eeee84c01eda3f0",
+      "rawHtml": "{\"cardType\":\"Credit Card\",\"offerText\":\"20% discount at Webb Place, Colombo 07 for DFCC Visa Signature and Infinite Cards.\",\"validityText\":\"Valid till 31 December 2026\",\"discountBadge\":\"20%\",\"imageUrl\":\"\",\"imageAlt\":\"Webb Place Cafe\",\"detailUrl\":\"https://www.dfcc.lk/webb-place\",\"_categoryName\":\"Dining\",\"_categoryId\":1}"
+    },
+    "referenceLabels": {
+      "merchantName": "Webb Place",
+      "bank": "dfcc",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "VISA"
+      ],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": []
+    }
+  },
+  {
+    "id": "new-holdout-dfcc-keells-two-outlets",
+    "bank": "dfcc",
+    "bankName": "DFCC Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#KeellsOutlets",
+    "merchantCategory": "SUPERMARKET",
+    "locationScopeExpected": "MULTIPLE_BRANCHES",
+    "branchCountExpected": 2,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "15% savings at Outlets: Keells Super Nugegoda, Keells Super Rajagiriya with DFCC Credit Cards. Minimum bill Rs. 3,500. Valid till 30 November 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "dfcc_keells-nugegoda-rajagiriya",
+      "source": "dfcc",
+      "sourceId": "keells-nugegoda-rajagiriya",
+      "sourceUrl": "https://www.dfcc.lk/keells-nugegoda-rajagiriya",
+      "title": "Keells Super",
+      "category": "Supermarket",
+      "categoryId": 2,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.147Z",
+      "merchant": {
+        "name": "Outlets: Keells Super Nugegoda, Keells Super Rajagiriya",
+        "location": "Keells Super Nugegoda",
+        "addresses": [
+          "Keells Super Nugegoda, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "15% savings at Outlets: Keells Super Nugegoda, Keells Super Rajagiriya with DFCC Credit Cards. Minimum bill Rs. 3,500.",
+        "discountPercentage": 15,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [
+          "Minimum spend required"
+        ],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 3500,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [
+          "Credit Card"
+        ],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-11-30",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid till 30 November 2026"
+        }
+      ],
+      "contentHash": "4f54744d7ffa7c7462310fcfe16981fb1eea19d9a59c2a8514d7da6f7db9e554",
+      "rawHtml": "{\"cardType\":\"Credit Card\",\"offerText\":\"15% savings at Outlets: Keells Super Nugegoda, Keells Super Rajagiriya with DFCC Credit Cards. Minimum bill Rs. 3,500.\",\"validityText\":\"Valid till 30 November 2026\",\"discountBadge\":\"15%\",\"imageUrl\":\"\",\"imageAlt\":\"Keells Super\",\"detailUrl\":\"https://www.dfcc.lk/keells-nugegoda-rajagiriya\",\"_categoryName\":\"Supermarket\",\"_categoryId\":2}"
+    },
+    "referenceLabels": {
+      "merchantName": "Keells Super",
+      "bank": "dfcc",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 3500,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": null,
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "MULTI_BRANCH",
+      "branchCount": 2,
+      "termsAndRestrictions": [
+        "Minimum bill Rs. 3,500"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-ndb-hotline-cafe-kandy",
+    "bank": "ndb",
+    "bankName": "NDB Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#HotlineCafe",
+    "merchantCategory": "SINGLE_LOCATION",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "15% discount on total food bill at Hotline Cafe, Kandy with NDB Visa Credit Cards. Minimum transaction Rs. 2,500. Until 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "ndb_hotline-cafe",
+      "source": "ndb",
+      "sourceId": "hotline-cafe",
+      "sourceUrl": "https://www.ndbbank.com/offers/hotline-cafe",
+      "title": "15% discount on total food bill at Hotline Cafe, Kandy with NDB Visa Credit Cards. Minimum transaction Rs. 2,500.",
+      "category": "Dining",
+      "categoryId": 1,
+      "cardType": "Credit Cards",
+      "scrapedAt": "2026-10-29T08:44:18.148Z",
+      "merchant": {
+        "name": "Hotline Cafe, Kandy",
+        "location": "Kandy",
+        "addresses": [
+          "Kandy, Sri Lanka"
+        ],
+        "phone": [
+          "081 2229988"
+        ],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "15% discount on total food bill at Hotline Cafe, Kandy with NDB Visa Credit Cards. Minimum transaction Rs. 2,500.",
+        "discountPercentage": 15,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [
+          "Minimum spend required"
+        ],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 2500,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [
+          "Credit Cards"
+        ],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [
+          "Visa"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Until 31st December 2026"
+        }
+      ],
+      "contentHash": "c85ae98301193570542f1f79c8e1f8360fc29a7fd30c082d55d79724df0f2f9d"
+    },
+    "referenceLabels": {
+      "merchantName": "Hotline Cafe, Kandy",
+      "bank": "ndb",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 2500,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "VISA"
+      ],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Minimum transaction Rs. 2,500"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-ndb-buyabans-online",
+    "bank": "ndb",
+    "bankName": "NDB Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/ndb/ndb-parser.test.ts#BuyAbansOnline",
+    "merchantCategory": "ONLINE",
+    "locationScopeExpected": "ONLINE",
+    "branchCountExpected": 0,
+    "isPhysicalVenueExpected": false,
+    "rawEvidence": {
+      "rawText": "Up to 20% discount on selected home appliances at buyabans.com with NDB Credit Cards. Maximum discount Rs. 15,000. Online only. Until 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "ndb_buyabans",
+      "source": "ndb",
+      "sourceId": "buyabans",
+      "sourceUrl": "https://www.ndbbank.com/offers/buyabans",
+      "title": "Up to 20% discount on selected home appliances at buyabans.com with NDB Credit Cards. Maximum discount Rs. 15,000.",
+      "category": "Electronics",
+      "categoryId": 3,
+      "cardType": "Credit Cards",
+      "scrapedAt": "2026-10-29T08:44:18.149Z",
+      "merchant": {
+        "name": "BuyAbans.com",
+        "location": "Online only",
+        "addresses": [
+          "Online only, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "Up to 20% discount on selected home appliances at buyabans.com with NDB Credit Cards. Maximum discount Rs. 15,000.",
+        "discountPercentage": 20,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [
+          "Credit Cards"
+        ],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Until 31st December 2026"
+        }
+      ],
+      "contentHash": "ba47b24d228a6d1dc680480de82ca270a0a4d50db0ec426c6e6f6495f44b17b4"
+    },
+    "referenceLabels": {
+      "merchantName": "BuyAbans.com",
+      "bank": "ndb",
+      "discountPercentage": 20,
+      "isUpTo": true,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": 15000,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "ONLINE",
+      "branchCount": 0,
+      "termsAndRestrictions": [
+        "Maximum discount Rs. 15,000"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-peoples-centauria-wild",
+    "bank": "peoples",
+    "bankName": "People's Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/domain/location-scope.test.ts#CentauriaWild",
+    "merchantCategory": "HOTEL",
+    "locationScopeExpected": "EXPLICIT_BRANCH",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "20% off on Full Board basis at Centauria Wild, Udawalawa for all Peoples Bank Credit Cards. Prior reservation required. Valid till 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "peoples_centauria-wild",
+      "source": "peoples",
+      "sourceId": "centauria-wild",
+      "sourceUrl": "https://www.peoplesbank.lk/centauria-wild",
+      "title": "Centauria Wild Udawalawa",
+      "category": "Hotels",
+      "categoryId": 2,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.151Z",
+      "merchant": {
+        "name": "Centauria Wild Udawalawa",
+        "location": "Centauria Wild Udawalawa",
+        "addresses": [
+          "Centauria Wild Udawalawa, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "20% 20% off on Full Board basis at Centauria Wild, Udawalawa for all Peoples Bank Credit Cards. Prior reservation required. Prior reservation required",
+        "discountPercentage": 20,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": true,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": [
+          "Prior reservation required"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid till 31st December 2026"
+        }
+      ],
+      "contentHash": "8e1e4af291752906b1997ed713f358b3198c657e5b5c31374c35f51bbd391247"
+    },
+    "referenceLabels": {
+      "merchantName": "Centauria Wild Udawalawa",
+      "bank": "peoples",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": null,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "SINGLE_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Prior reservation required"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-peoples-nolimit-three-branches",
+    "bank": "peoples",
+    "bankName": "People's Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/parsing/address/bank-address-regressions.test.ts#NolimitThreeBranches",
+    "merchantCategory": "RETAIL_CHAIN",
+    "locationScopeExpected": "MULTIPLE_BRANCHES",
+    "branchCountExpected": 3,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "20% discount on clothing at Nolimit. Branches: Nugegoda, Maharagama and Kottawa. Minimum bill Rs. 5,000 with Peoples Bank Mastercard Credit Cards. Valid till 30th November 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "peoples_nolimit-clothing",
+      "source": "peoples",
+      "sourceId": "nolimit-clothing",
+      "sourceUrl": "https://www.peoplesbank.lk/nolimit-clothing",
+      "title": "Nolimit Clothing",
+      "category": "Shopping",
+      "categoryId": 3,
+      "cardType": "Credit Card",
+      "scrapedAt": "2026-10-29T08:44:18.152Z",
+      "merchant": {
+        "name": "Nolimit Clothing",
+        "location": "Nugegoda",
+        "addresses": [
+          "Nugegoda, Sri Lanka",
+          "Maharagama, Sri Lanka",
+          "Kottawa, Sri Lanka"
+        ],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "20% 20% discount on clothing at Nolimit. Branches: Nugegoda, Maharagama and Kottawa. Minimum bill Rs. 5,000 with Peoples Bank Mastercard Credit Cards. Minimum bill Rs. 5,000 applies",
+        "discountPercentage": 20,
+        "applicableCards": [
+          "Credit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [
+          "Minimum spend or pax required"
+        ],
+        "specialConditions": [],
+        "generalTerms": [
+          "Minimum bill Rs. 5,000 applies"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 5000,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "networks": [
+          "Mastercard"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-11-30",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid till 30th November 2026"
+        }
+      ],
+      "contentHash": "8f98462f30be0d2842677d30b54e58df1a3f61df10fcd9d011e5602f9028a69d"
+    },
+    "referenceLabels": {
+      "merchantName": "Nolimit Clothing",
+      "bank": "peoples",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 5000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "MASTERCARD"
+      ],
+      "validFrom": null,
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "MULTI_BRANCH",
+      "branchCount": 3,
+      "termsAndRestrictions": [
+        "Minimum bill Rs. 5,000"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-pabc-kapruka-online",
+    "bank": "pabc",
+    "bankName": "Pan Asia Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/pabc/pabc-parser.test.ts#KaprukaOnline",
+    "merchantCategory": "ONLINE",
+    "locationScopeExpected": "ONLINE",
+    "branchCountExpected": 0,
+    "isPhysicalVenueExpected": false,
+    "rawEvidence": {
+      "rawText": "15% OFF at Kapruka.com with Pan Asia Credit Cards. Valid only for online purchases at www.kapruka.com using promo code PABC15. Minimum spend Rs. 4,000. 01/10/2026 - 31/12/2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "pabc_e9e7cca98bcc",
+      "source": "pabc",
+      "sourceId": "e9e7cca98bcc",
+      "sourceUrl": null,
+      "title": "15% OFF at Kapruka.com Online Gifting",
+      "category": "Online",
+      "categoryId": 5,
+      "cardType": "",
+      "scrapedAt": "2026-10-29T08:44:18.154Z",
+      "merchant": {
+        "name": "Kapruka.com Online Gifting",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": {
+          "url": "https://www.pabcbank.com/kapruka.jpg",
+          "alt": "Kapruka.com Online Gifting",
+          "type": "logo"
+        }
+      },
+      "offer": {
+        "description": "",
+        "discountPercentage": 15,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": {
+          "url": "https://www.pabcbank.com/kapruka.jpg",
+          "alt": "Kapruka.com Online Gifting",
+          "type": "logo"
+        },
+        "gallery": [],
+        "images": [
+          {
+            "url": "https://www.pabcbank.com/kapruka.jpg",
+            "alt": "Kapruka.com Online Gifting",
+            "type": "logo"
+          }
+        ]
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": null,
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": ""
+        }
+      ],
+      "contentHash": "45f673c0fea9a93dd4dc87e3b17bf432d9dde4160b90c7c5235d12362cb3a8db",
+      "rawHtml": "{\"imageUrl\":\"https://www.pabcbank.com/kapruka.jpg\",\"imageAlt\":\"Kapruka.com Online Gifting\",\"discount\":\"15% OFF\",\"validityDate\":\"01/10/2026 - 31/12/2026\",\"offerTitle\":\"15% OFF at Kapruka.com with Pan Asia Credit Cards\",\"terms\":\"Valid only for online purchases at www.kapruka.com using promo code PABC15. Minimum spend Rs. 4,000.\",\"detailUrl\":\"https://www.pabcbank.com/kapruka\",\"_categoryName\":\"Online\",\"_categoryId\":5}"
+    },
+    "referenceLabels": {
+      "merchantName": "Kapruka.com Online Gifting",
+      "bank": "pabc",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 4000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [],
+      "validFrom": "2026-10-01",
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "ONLINE",
+      "branchCount": 0,
+      "termsAndRestrictions": [
+        "Valid only for online purchases at www.kapruka.com",
+        "Promo code PABC15"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-pabc-pizzahut-selected-outlets",
+    "bank": "pabc",
+    "bankName": "Pan Asia Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/domain/location-scope.test.ts#PizzaHutSelected",
+    "merchantCategory": "RETAIL_CHAIN",
+    "locationScopeExpected": "SELECTED_OUTLETS",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "20% OFF on Dine-in at Selected Pizza Hut Restaurants. Available at selected merchant outlets only. Valid for Pan Asia Bank Mastercard Credit Cards on total bill above Rs. 3,000. 01/09/2026 - 30/11/2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "pabc_46c6a58cc8bb",
+      "source": "pabc",
+      "sourceId": "46c6a58cc8bb",
+      "sourceUrl": null,
+      "title": "20% OFF at Pizza Hut Dining Discount",
+      "category": "Dining",
+      "categoryId": 1,
+      "cardType": "",
+      "scrapedAt": "2026-10-29T08:44:18.155Z",
+      "merchant": {
+        "name": "Pizza Hut Dining Discount",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": {
+          "url": "https://www.pabcbank.com/pizzahut.jpg",
+          "alt": "Pizza Hut Dining Discount",
+          "type": "logo"
+        }
+      },
+      "offer": {
+        "description": "",
+        "discountPercentage": 20,
+        "applicableCards": [],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": []
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [],
+        "networks": [],
+        "restrictions": []
+      },
+      "images": {
+        "logo": {
+          "url": "https://www.pabcbank.com/pizzahut.jpg",
+          "alt": "Pizza Hut Dining Discount",
+          "type": "logo"
+        },
+        "gallery": [],
+        "images": [
+          {
+            "url": "https://www.pabcbank.com/pizzahut.jpg",
+            "alt": "Pizza Hut Dining Discount",
+            "type": "logo"
+          }
+        ]
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": null,
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": ""
+        }
+      ],
+      "contentHash": "d969601da409003b537517d5c9d24d1f497b0ba12194b9fb345b69923a803ada",
+      "rawHtml": "{\"imageUrl\":\"https://www.pabcbank.com/pizzahut.jpg\",\"imageAlt\":\"Pizza Hut Dining Discount\",\"discount\":\"20% OFF\",\"validityDate\":\"01/09/2026 - 30/11/2026\",\"offerTitle\":\"20% OFF on Dine-in at Selected Pizza Hut Restaurants\",\"terms\":\"Available at selected merchant outlets only. Valid for Pan Asia Bank Mastercard Credit Cards on total bill above Rs. 3,000.\",\"detailUrl\":\"https://www.pabcbank.com/pizzahut\",\"_categoryName\":\"Dining\",\"_categoryId\":1}"
+    },
+    "referenceLabels": {
+      "merchantName": "Pizza Hut Dining Discount",
+      "bank": "pabc",
+      "discountPercentage": 20,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 3000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "CREDIT"
+      ],
+      "cardNetworks": [
+        "MASTERCARD"
+      ],
+      "validFrom": "2026-09-01",
+      "validTo": "2026-11-30",
+      "isExpired": false,
+      "locationScope": "MULTI_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Available at selected merchant outlets only"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-nsb-damro-colombo-district",
+    "bank": "nsb",
+    "bankName": "National Savings Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/domain/location-scope.test.ts#DamroDistrict",
+    "merchantCategory": "RETAIL_CHAIN",
+    "locationScopeExpected": "DISTRICT_REGION",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "15% savings across participating stores in the Colombo district for NSB Mastercard Debit Cardholders. Minimum bill Rs. 15,000. Valid till 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "nsb_damro-colombo",
+      "source": "nsb",
+      "sourceId": "damro-colombo",
+      "sourceUrl": "https://www.nsb.lk/damro-colombo",
+      "title": "Exclusive offer for Colombo district at Damro Showrooms with your NSB Mastercard Debit Card",
+      "category": "Home & Living",
+      "categoryId": null,
+      "cardType": "Debit Card",
+      "scrapedAt": "2026-10-29T08:44:18.157Z",
+      "merchant": {
+        "name": "Damro Showrooms",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "15% savings across participating stores in the Colombo district for NSB Mastercard Debit Cardholders. Minimum bill Rs. 15,000. 15% savings across participating stores in the Colombo district for NSB Mastercard Debit Cardholders. Minimum bill Rs. 15,000. Minimum bill Rs. 15,000",
+        "discountPercentage": 15,
+        "applicableCards": [
+          "Debit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [
+          "Minimum spend required"
+        ],
+        "specialConditions": [],
+        "generalTerms": [
+          "Minimum bill Rs. 15,000"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": 15000,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Debit Card"
+        ],
+        "networks": [
+          "Mastercard"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid till 31st December 2026"
+        }
+      ],
+      "contentHash": "8d67e1a97d74c3cdb3a55ad27868ad0d754058c67d99b1ac1ed9f1ecf72229d8",
+      "rawHtml": "15% savings across participating stores in the Colombo district for NSB Mastercard Debit Cardholders. Minimum bill Rs. 15,000. Valid till 31st December 2026."
+    },
+    "referenceLabels": {
+      "merchantName": "Damro Showrooms",
+      "bank": "nsb",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 15000,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "DEBIT"
+      ],
+      "cardNetworks": [
+        "MASTERCARD"
+      ],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "MULTI_BRANCH",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Participating stores in the Colombo district"
+      ]
+    }
+  },
+  {
+    "id": "new-holdout-nsb-dsi-islandwide-showrooms",
+    "bank": "nsb",
+    "bankName": "National Savings Bank",
+    "sourceSnapshotType": "VERIFIABLE_BANK_RECORD",
+    "sourceProvenance": "tests/banks/nsb/nsb-parser.test.ts#DSIFootwear",
+    "merchantCategory": "RETAIL_CHAIN",
+    "locationScopeExpected": "NATIONWIDE",
+    "branchCountExpected": 1,
+    "isPhysicalVenueExpected": true,
+    "rawEvidence": {
+      "rawText": "Enjoy 15% discount across all DSI showrooms islandwide with your NSB Mastercard Debit Card. Minimum purchase Rs. 3,500. Valid until 31st December 2026."
+    },
+    "candidateOffer": {
+      "uniqueId": "nsb_dsi-footwear",
+      "source": "nsb",
+      "sourceId": "dsi-footwear",
+      "sourceUrl": "https://www.nsb.lk/dsi-footwear",
+      "title": "15% discount across all DSI showrooms islandwide with your NSB Mastercard Debit Card",
+      "category": "Footwear",
+      "categoryId": null,
+      "cardType": "Debit Card",
+      "scrapedAt": "2026-10-29T08:44:18.158Z",
+      "merchant": {
+        "name": "National Savings Bank",
+        "location": null,
+        "addresses": [],
+        "phone": [],
+        "email": [],
+        "website": null,
+        "logo": null
+      },
+      "offer": {
+        "description": "Enjoy 15% discount across all DSI showrooms islandwide with your NSB Mastercard Debit Card. Minimum purchase Rs. 3,500. Enjoy 15% discount across all DSI showrooms islandwide with your NSB Mastercard Debit Card. Minimum purchase Rs. 3,500. Minimum purchase Rs. 3,500",
+        "discountPercentage": 15,
+        "applicableCards": [
+          "Debit Card"
+        ],
+        "bookingRequired": false,
+        "restrictions": [],
+        "specialConditions": [],
+        "generalTerms": [
+          "Minimum purchase Rs. 3,500"
+        ]
+      },
+      "installmentPlans": [],
+      "transactionRange": {
+        "min": null,
+        "max": null,
+        "currency": "LKR"
+      },
+      "cardEligibility": {
+        "includedCards": [],
+        "excludedCards": [],
+        "cardTypes": [
+          "Debit Card"
+        ],
+        "networks": [
+          "Mastercard"
+        ],
+        "restrictions": []
+      },
+      "images": {
+        "logo": null,
+        "gallery": [],
+        "images": []
+      },
+      "validityPeriods": [
+        {
+          "validFrom": "2026-10-29",
+          "validTo": "2026-12-31",
+          "periodType": "offer",
+          "recurrenceType": "daily",
+          "recurrenceDays": null,
+          "timeWindow": null,
+          "exclusionDays": null,
+          "blackoutPeriods": null,
+          "exclusionNotes": null,
+          "rawPeriodText": "Valid until 31st December 2026"
+        }
+      ],
+      "contentHash": "9aa0d0ad6328dbb8399ecddcd7b66a3fffd7b50274b94655f2a0732a92837041",
+      "rawHtml": "Enjoy 15% discount across all DSI showrooms islandwide with your NSB Mastercard Debit Card. Minimum purchase Rs. 3,500. Valid until 31st December 2026."
+    },
+    "referenceLabels": {
+      "merchantName": "DSI Footwear",
+      "bank": "nsb",
+      "discountPercentage": 15,
+      "isUpTo": false,
+      "isCashback": false,
+      "hasInstallments": false,
+      "installmentMonths": null,
+      "minSpend": 3500,
+      "maxDiscountCap": null,
+      "cardTypes": [
+        "DEBIT"
+      ],
+      "cardNetworks": [
+        "MASTERCARD"
+      ],
+      "validFrom": null,
+      "validTo": "2026-12-31",
+      "isExpired": false,
+      "locationScope": "NATIONWIDE",
+      "branchCount": 1,
+      "termsAndRestrictions": [
+        "Minimum purchase Rs. 3,500"
+      ]
+    }
+  }
+]

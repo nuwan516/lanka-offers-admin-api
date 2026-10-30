@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "2.0.0",
+  "description": "Unambiguous, single source-of-truth mapping between conceptual geographic scopes, internal engine enums, database persistence representations, public consumer API representations, and benchmark evaluation classes.",
+  "publicApiBreakingChange": false,
+  "backwardCompatibilityGuarantee": "Public API preserves location_scope as a string DTO field compatible with OpenAPI contract. No client breakage.",
+  "taxonomyMatrix": [
+    {
+      "conceptualClass": "ONLINE",
+      "internalEnum": "LocationScope.ONLINE",
+      "persistenceValue": "ONLINE",
+      "publicApiRepresentation": "ONLINE",
+      "evaluationLabel": "ONLINE",
+      "branchCompleteness": "ALL_OUTLETS_APPLICABLE",
+      "isGeocodable": false,
+      "nearbyMapPinEligible": false,
+      "definition": "Digital transaction executed on a website, mobile application, or digital portal. No physical presence required.",
+      "consumerExperience": "Displayed with \"Online Only\" badge. Strictly excluded from Nearby map view and distance filters."
+    },
+    {
+      "conceptualClass": "SINGLE_BRANCH",
+      "internalEnum": "LocationScope.EXPLICIT_BRANCH",
+      "persistenceValue": "EXPLICIT_BRANCH",
+      "publicApiRepresentation": "EXPLICIT_BRANCH",
+      "evaluationLabel": "SINGLE_BRANCH",
+      "branchCompleteness": "COMPLETE_BRANCH_LIST",
+      "isGeocodable": true,
+      "nearbyMapPinEligible": true,
+      "definition": "Single concrete physical establishment explicitly named with venue name or street address in source evidence.",
+      "consumerExperience": "Pin placed at verified venue coordinates. Eligible for Nearby radial distance search."
+    },
+    {
+      "conceptualClass": "MULTIPLE_BRANCHES",
+      "internalEnum": "LocationScope.MULTIPLE_BRANCHES",
+      "persistenceValue": "MULTIPLE_BRANCHES",
+      "publicApiRepresentation": "MULTIPLE_BRANCHES",
+      "evaluationLabel": "MULTIPLE_BRANCHES",
+      "branchCompleteness": "COMPLETE_BRANCH_LIST",
+      "isGeocodable": true,
+      "nearbyMapPinEligible": true,
+      "definition": "Multiple specific branches/venues enumerated in the bank source evidence.",
+      "consumerExperience": "Multiple pins placed at each verified branch location. Included in Nearby search for all participating branches."
+    },
+    {
+      "conceptualClass": "SELECTED_OUTLETS",
+      "internalEnum": "LocationScope.SELECTED_OUTLETS",
+      "persistenceValue": "SELECTED_OUTLETS",
+      "publicApiRepresentation": "SELECTED_OUTLETS",
+      "evaluationLabel": "SELECTED_OUTLETS",
+      "branchCompleteness": "INCOMPLETE_RESTRICTION",
+      "isGeocodable": false,
+      "nearbyMapPinEligible": false,
+      "definition": "Offer is explicitly restricted to selected merchant outlets, but the bank source omits or fails to enumerate the complete branch list.",
+      "consumerExperience": "Displayed with \"Selected Outlets Only — Check Terms\" notice. Suppressed from map pins to prevent false attendance."
+    },
+    {
+      "conceptualClass": "DISTRICT_REGION",
+      "internalEnum": "LocationScope.DISTRICT_REGION",
+      "persistenceValue": "DISTRICT_REGION",
+      "publicApiRepresentation": "DISTRICT_REGION",
+      "evaluationLabel": "SELECTED_OUTLETS",
+      "branchCompleteness": "INCOMPLETE_RESTRICTION",
+      "isGeocodable": false,
+      "nearbyMapPinEligible": false,
+      "definition": "Offer is restricted to a specific administrative district, province, or suburban cluster (e.g. \"Selected Colombo outlets\") without exact street addresses.",
+      "consumerExperience": "Searchable via area/district filters (e.g. Colombo). Zero false centroid pins on map."
+    },
+    {
+      "conceptualClass": "NATIONWIDE",
+      "internalEnum": "LocationScope.NATIONWIDE",
+      "persistenceValue": "NATIONWIDE",
+      "publicApiRepresentation": "NATIONWIDE",
+      "evaluationLabel": "NATIONWIDE",
+      "branchCompleteness": "ALL_OUTLETS_APPLICABLE",
+      "isGeocodable": false,
+      "nearbyMapPinEligible": false,
+      "definition": "Offer explicitly applies across all merchant outlets islandwide or has no outlet restriction.",
+      "consumerExperience": "Displayed with \"All Outlets / Islandwide\" badge. Excluded from strict radial map pins; included when consumer selects \"Include Nationwide\"."
+    },
+    {
+      "conceptualClass": "UNRESOLVED",
+      "internalEnum": "LocationScope.UNRESOLVED",
+      "persistenceValue": "UNRESOLVED",
+      "publicApiRepresentation": "UNRESOLVED",
+      "evaluationLabel": "UNRESOLVED",
+      "branchCompleteness": "INSUFFICIENT_EVIDENCE",
+      "isGeocodable": false,
+      "nearbyMapPinEligible": false,
+      "definition": "Source evidence contains insufficient geographic data to establish branch applicability or restriction.",
+      "consumerExperience": "Suppressed from map pins. Flagged in admin review console. Preserves consumer safety through conservative abstention."
+    }
+  ],
+  "branchCompletenessDefinitions": {
+    "ALL_OUTLETS_APPLICABLE": "Source explicitly states all outlets participate, or the promotion is inherently islandwide/digital.",
+    "COMPLETE_BRANCH_LIST": "Source enumerates all participating branches with names or addresses.",
+    "INCOMPLETE_RESTRICTION": "Source asserts an outlet restriction (e.g. \"selected outlets only\"), but omits the complete list.",
+    "INSUFFICIENT_EVIDENCE": "Source contains no geographic or branch information."
+  }
+}

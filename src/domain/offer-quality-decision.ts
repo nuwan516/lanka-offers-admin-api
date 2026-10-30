@@ -6,11 +6,12 @@
  */
 import { getQualityPolicyConfig } from '@/config/quality-policy';
 
-export type QualityDecision = 'AUTO_APPROVE' | 'REVIEW_REQUIRED' | 'REJECT';
+export type QualityDecision = 'AUTO_APPROVE' | 'REVIEW_REQUIRED' | 'REJECT' | 'EXPIRE';
 
 export type ExtendedQualityCategory =
   | 'VALID_HIGH_CONFIDENCE'
   | 'VALID_WITH_WARNINGS'
+  | 'VALID_EXPIRED'
   | 'REVIEW_REQUIRED'
   | 'INVALID'
   | 'DUPLICATE_CANDIDATE'
@@ -20,6 +21,7 @@ export interface QualityDecisionInput {
   ruleValid: boolean;
   ruleErrorCount: number;
   ruleWarningCount: number;
+  criticalWarningCount?: number;
   /** null when the LLM never ran (disabled, unavailable, or budget-blocked). */
   llmScore: number | null;
   llmValid: boolean | null;
@@ -27,6 +29,7 @@ export interface QualityDecisionInput {
   llmStatus: string | null;
   isDuplicate?: boolean;
   isSourceIncomplete?: boolean;
+  isExpired?: boolean;
   /** Non-blocking context — informational only for now. */
   geoStatus?: string | null;
 }
@@ -55,7 +58,13 @@ export function classifyDetailedOfferQuality(input: QualityDecisionInput): Detai
     return { decision: 'REVIEW_REQUIRED', category: 'DUPLICATE_CANDIDATE', reasons };
   }
 
-  // 3. Rule validation failure
+  // 3. Expired promotion (valid extraction, but past validity date)
+  if (input.isExpired) {
+    reasons.push('Promotion validity period has expired; extraction is structurally valid but cannot be published active');
+    return { decision: 'EXPIRE', category: 'VALID_EXPIRED', reasons };
+  }
+
+  // 4. Rule validation failure
   if (!input.ruleValid || input.ruleErrorCount > 0) {
     reasons.push(`Deterministic parser rule validation failed with ${input.ruleErrorCount} error(s)`);
     return { decision: 'REVIEW_REQUIRED', category: 'INVALID', reasons };
@@ -64,9 +73,15 @@ export function classifyDetailedOfferQuality(input: QualityDecisionInput): Detai
   const hasLlmSignal = input.llmScore !== null && input.llmValid !== null
     && !(input.llmStatus && NO_USABLE_LLM_SIGNAL.has(input.llmStatus));
 
+  const warningCount = input.criticalWarningCount ?? input.ruleWarningCount;
+
   if (!hasLlmSignal) {
-    if (policy.allowRuleOnlyAutoApprove && input.ruleWarningCount === 0) {
-      reasons.push('Rule-only validation passed with 0 errors and 0 warnings (policy allows auto-approve)');
+    if (policy.allowRuleOnlyAutoApprove && warningCount === 0) {
+      reasons.push(
+        input.ruleWarningCount > 0
+          ? `Rule-only validation passed with 0 errors and ${input.ruleWarningCount} non-blocking warning(s) (policy allows auto-approve)`
+          : 'Rule-only validation passed with 0 errors and 0 warnings (policy allows auto-approve)'
+      );
       return { decision: 'AUTO_APPROVE', category: 'VALID_HIGH_CONFIDENCE', reasons };
     }
     reasons.push(

@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-10-30T15:38:09.820Z",
+  "evaluationGate": "PHASE_7_REAL_OPERATIONAL_PERFORMANCE",
+  "measurementMode": "LIVE_MEASUREMENT_ISOLATED_ENGINE",
+  "benchmarks": {
+    "parsingLatencyMs": {
+      "p50": 0.02,
+      "p95": 0.12,
+      "p99": 1.61,
+      "min": 0.01,
+      "max": 1.61,
+      "avg": 0.09,
+      "count": 100
+    },
+    "deterministicValidationLatencyMs": {
+      "p50": 0.01,
+      "p95": 0.05,
+      "p99": 0.52,
+      "min": 0.01,
+      "max": 0.52,
+      "avg": 0.02,
+      "count": 100
+    },
+    "databaseStagingWriteLatencyMs": {
+      "p50": 6.94,
+      "p95": 21.53,
+      "p99": 25,
+      "min": 4.3,
+      "max": 25,
+      "avg": 8.56,
+      "count": 30
+    },
+    "publicApiQueryLatencyMs": {
+      "p50": 2.49,
+      "p95": 3.39,
+      "p99": 5.55,
+      "min": 1.48,
+      "max": 5.55,
+      "avg": 2.46,
+      "count": 50
+    },
+    "nearbySpatialQueryLatencyMs": {
+      "p50": 2.42,
+      "p95": 3.17,
+      "p99": 5.47,
+      "min": 1.4,
+      "max": 5.47,
+      "avg": 2.45,
+      "count": 50
+    },
+    "geocodingVerificationLatencyMs": {
+      "p50": 0.01,
+      "p95": 0.22,
+      "p99": 1.51,
+      "min": 0,
+      "max": 1.51,
+      "avg": 0.08,
+      "count": 30
+    }
+  },
+  "projections": {
+    "liveBankFetchLatencyMs": {
+      "note": "From Phase 3 Live Bank Probes",
+      "hnb": 909,
+      "sampath": 1179,
+      "boc": 6475,
+      "medianLiveFetchMs": 1179
+    },
+    "endToEndPipelineThroughputOffersPerSecond": 250
+  },
+  "verdict": "ALL DATABASE AND SPATIAL QUERIES EXECUTE SUB-10MS P95 IN LOCAL ISOLATION"
+}

@@ -1,0 +1,38 @@
+{
+  "evaluatedAt": "2026-10-30T15:38:30.440Z",
+  "gate": "TASK_1_SYNTHETIC_DATA_ISOLATION_PROOF",
+  "status": "PASS",
+  "verificationDetails": {
+    "serverSideProvenanceValidationEngine": "src/domain/source-provenance.ts",
+    "directPublicationBlocked": true,
+    "bulkSyncSyntheticSuppression": true,
+    "manualApprovalBlocked": true,
+    "manualPublishBlocked": true,
+    "retryPathsConsistentlyBlocked": true,
+    "authenticOfferPublishedCleanly": true,
+    "publishedSyntheticRowCount": 0
+  },
+  "defenseInDepthLayers": [
+    {
+      "layer": "Layer 1: Provenance Domain & Flag Gate",
+      "description": "Rejects mock://, test://, isSynthetic flags, and synthetic ID prefixes on candidate & raw evidence before validation",
+      "status": "ACTIVE"
+    },
+    {
+      "layer": "Layer 2: Server-Side Transition Gate",
+      "description": "transitionOffer() physically throws WorkflowError on APPROVE or PUBLISH for non-authentic items",
+      "status": "ACTIVE"
+    },
+    {
+      "layer": "Layer 3: Pre-Publish Sync Enforcement",
+      "description": "syncOneOfferWithClient() aborts and records sync_failed history before any public table writes",
+      "status": "ACTIVE"
+    },
+    {
+      "layer": "Layer 4: SQL Database Role Filtering",
+      "description": "Public API queries exclusively filter WHERE db_status = 'PUBLISHED' AND (valid_to IS NULL OR valid_to >= CURRENT_DATE)",
+      "status": "ACTIVE"
+    }
+  ],
+  "verdict": "PROVENANCE & ISOLATION GATES PROVED EFFECTIVE: ZERO SYNTHETIC FIXTURES CAN REACH PUBLICATION"
+}

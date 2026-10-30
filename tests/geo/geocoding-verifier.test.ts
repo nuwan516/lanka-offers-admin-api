@@ -131,4 +131,52 @@ describe('Coordinate & Geocoding Verifier', () => {
     expect(warnings.length).toBe(2);
     expect(warnings[0].warning).toContain('Collapsed into same coordinates');
   });
+
+  it('allows verified exact pins for specific outlets under SELECTED_OUTLETS scope', () => {
+    const geoResult: GeoResult = {
+      success: true,
+      searchAddress: 'Shop GS06, Racecourse Mall, Colombo 7, Sri Lanka',
+      formattedAddress: 'Racecourse Mall, Philip Gunewardena Mawatha, Colombo 00700, Sri Lanka',
+      latitude: 6.9044,
+      longitude: 79.8654,
+      types: ['premise', 'shopping_mall', 'establishment'],
+      timestamp: new Date().toISOString(),
+      source: 'geocoding_api',
+    };
+
+    const verification = GeocodingVerifier.verifyResult(
+      geoResult,
+      'Shop GS06, Racecourse Mall, Colombo 7, Sri Lanka',
+      'EXACT_ADDRESS',
+      LocationScope.SELECTED_OUTLETS
+    );
+
+    expect(verification.isVerifiedExactPin).toBe(true);
+    expect(verification.isVerifiedAreaCentroid).toBe(false);
+    expect(verification.granularity).toBe('EXACT_PREMISE');
+    expect(verification.confidenceScore).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it('rejects corporate headquarters results when searching for a branch outlet', () => {
+    const geoResult: GeoResult = {
+      success: true,
+      searchAddress: 'Keells Super, Battaramulla',
+      formattedAddress: 'John Keells Holdings Head Office, 117 Sir Chittampalam A Gardiner Mawatha, Colombo',
+      latitude: 6.9271,
+      longitude: 79.8512,
+      types: ['establishment', 'point_of_interest'],
+      timestamp: new Date().toISOString(),
+      source: 'geocoding_api',
+    };
+
+    const verification = GeocodingVerifier.verifyResult(
+      geoResult,
+      'Keells Super, Battaramulla',
+      'BRANCH_OR_VENUE_NAME',
+      LocationScope.EXPLICIT_BRANCH
+    );
+
+    expect(verification.isVerifiedExactPin).toBe(false);
+    expect(verification.rejectionReason).toContain('corporate headquarters');
+  });
 });

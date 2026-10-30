@@ -1,0 +1,525 @@
+{
+  "generatedAt": "2026-10-30T05:40:18.399Z",
+  "auditScope": "Raw offer address extraction and location scope (offline/local, zero Google Geocoding calls)",
+  "totalOffersAudited": 2208,
+  "summary": {
+    "totalOnlineOffers": 34,
+    "onlineZeroAddressAccuracyPct": 100,
+    "totalSingleVenueExplicit": 833,
+    "totalMultiBranchChains": 195,
+    "multiBranchSplitAccuracyPct": 100,
+    "totalSelectedOutletsUncertaintyPreserved": 5,
+    "totalNationwideAllOutlets": 38,
+    "totalUnresolvedScope": 1103,
+    "totalPhysicalAddressesExtracted": 1159,
+    "noiseLeakageRatePct": 0.17
+  },
+  "bankBreakdown": [
+    {
+      "bank": "hnb",
+      "totalOffers": 994,
+      "online": {
+        "total": 11,
+        "zeroAddressClean": 11,
+        "falseAddresses": 0
+      },
+      "singleVenue": 373,
+      "multiBranchChains": {
+        "total": 151,
+        "splitProperly": 151
+      },
+      "selectedOutlets": 0,
+      "nationwide": 10,
+      "unresolved": 449,
+      "physicalAddressesExtracted": 647,
+      "offersWithAddresses": 512,
+      "noiseLeaks": 2,
+      "sampleSingle": {
+        "id": "hnb_2401",
+        "title": "35% off on FB & HB basis at Wattura Resort & Spa  ",
+        "merchant": "Wattura Resort & Spa",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Waikkala, Sri Lanka"
+        ],
+        "rawLocation": "Waikkala"
+      },
+      "sampleMulti": {
+        "id": "hnb_4326",
+        "title": "30% off on BB, HB & FB basis at Pullman Bentota Resort & Spa",
+        "merchant": "Pullman Bentota Resort & Spa",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 3,
+        "branches": [
+          "Aluthgama, Sri Lanka",
+          "discounts, Sri Lanka",
+          "or offers, Sri Lanka"
+        ]
+      },
+      "sampleOnline": {
+        "id": "hnb_4169",
+        "title": "20% off at Foody.lk by Softlogic (Every Friday)",
+        "merchant": "Foody.lk by Softlogic",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": null
+    },
+    {
+      "bank": "boc",
+      "totalOffers": 85,
+      "online": {
+        "total": 1,
+        "zeroAddressClean": 1,
+        "falseAddresses": 0
+      },
+      "singleVenue": 34,
+      "multiBranchChains": {
+        "total": 4,
+        "splitProperly": 4
+      },
+      "selectedOutlets": 0,
+      "nationwide": 1,
+      "unresolved": 45,
+      "physicalAddressesExtracted": 42,
+      "offersWithAddresses": 37,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "boc_amaya-beach",
+        "title": "Amaya Beach",
+        "merchant": "Amaya Beach",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Amaya Beach, Sri Lanka"
+        ],
+        "rawLocation": ""
+      },
+      "sampleMulti": {
+        "id": "boc_rv-fashion-1",
+        "title": "RV Fashion",
+        "merchant": "RV Fashion",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 2,
+        "branches": [
+          "Negombo",
+          "Battaramulla"
+        ]
+      },
+      "sampleOnline": {
+        "id": "boc_findmyfare",
+        "title": "Findmyfare",
+        "merchant": "Findmyfare",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": null
+    },
+    {
+      "bank": "peoples",
+      "totalOffers": 201,
+      "online": {
+        "total": 7,
+        "zeroAddressClean": 7,
+        "falseAddresses": 0
+      },
+      "singleVenue": 71,
+      "multiBranchChains": {
+        "total": 1,
+        "splitProperly": 1
+      },
+      "selectedOutlets": 0,
+      "nationwide": 2,
+      "unresolved": 120,
+      "physicalAddressesExtracted": 72,
+      "offersWithAddresses": 72,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "peoples_siddhalepa-ayurveda-hospital-30-off-credit",
+        "title": "Siddhalepa Ayurveda Hospital – 20% Off – Credit",
+        "merchant": "Siddhalepa Ayurveda Hospital",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Siddhalepa Ayurveda Hospital, Sri Lanka"
+        ],
+        "rawLocation": "Siddhalepa Ayurveda Hospital"
+      },
+      "sampleMulti": {
+        "id": "peoples_chinese-dragon-cafe-20-off-credit",
+        "title": "Chinese Dragon Cafe – 25% off – Credit",
+        "merchant": "Chinese Dragon Cafe",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 8,
+        "branches": [
+          "Galle",
+          "Jaffna",
+          "Mount lavinia",
+          "Nugegoda",
+          "Kaduwela"
+        ]
+      },
+      "sampleOnline": {
+        "id": "peoples_vision-care-20-off-credit",
+        "title": "Vision Care – 15% off – Credit",
+        "merchant": "Vision Care",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": null
+    },
+    {
+      "bank": "nsb",
+      "totalOffers": 22,
+      "online": {
+        "total": 3,
+        "zeroAddressClean": 3,
+        "falseAddresses": 0
+      },
+      "singleVenue": 1,
+      "multiBranchChains": {
+        "total": 2,
+        "splitProperly": 2
+      },
+      "selectedOutlets": 0,
+      "nationwide": 1,
+      "unresolved": 15,
+      "physicalAddressesExtracted": 4,
+      "offersWithAddresses": 1,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "nsb_enjoy-a-10-off-at-taru-villas-levita-taru-villas",
+        "title": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card!",
+        "merchant": "Taru Villas Levita & Taru Villas Kandy",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Taru Villas Levita & Taru Villas Kandy"
+        ],
+        "rawLocation": ""
+      },
+      "sampleMulti": {
+        "id": "nsb_enjoy-a-20-off-at-kelly-felder-with-your-nsb-mas",
+        "title": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card!",
+        "merchant": "Kelly Felder",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 3,
+        "branches": [
+          "Colombo",
+          "Nugegoda",
+          "Wattala"
+        ]
+      },
+      "sampleOnline": {
+        "id": "nsb_spend-and-win-with-your-nsb-mastercard-debit-car",
+        "title": "Spend and Win with your NSB Mastercard Debit Card!",
+        "merchant": "National Savings Bank",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": null
+    },
+    {
+      "bank": "seylan",
+      "totalOffers": 321,
+      "online": {
+        "total": 4,
+        "zeroAddressClean": 4,
+        "falseAddresses": 0
+      },
+      "singleVenue": 149,
+      "multiBranchChains": {
+        "total": 23,
+        "splitProperly": 23
+      },
+      "selectedOutlets": 1,
+      "nationwide": 8,
+      "unresolved": 136,
+      "physicalAddressesExtracted": 200,
+      "offersWithAddresses": 164,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "seylan_sunimals-1",
+        "title": "SUNIMALS",
+        "merchant": "SUNIMALS",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "13 King's Street , Kandy, Sri Lanka"
+        ],
+        "rawLocation": "13 King's Street"
+      },
+      "sampleMulti": {
+        "id": "seylan_galis-1",
+        "title": "GALIS",
+        "merchant": "GALIS",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 3,
+        "branches": [
+          "Pelawatta - 773, Pannipitiya Road, Pelawatta ,Battaramulla, Sri Lanka",
+          "Nugegoda- 132, High Level Road, Nugegoda, Sri Lanka",
+          "Kandy- 497, Peradeniya Road, Kandy, Sri Lanka"
+        ]
+      },
+      "sampleOnline": {
+        "id": "seylan_softlogic-brands-special-promo-1",
+        "title": "SOFTLOGIC BRANDS",
+        "merchant": "SOFTLOGIC BRANDS",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": {
+        "id": "seylan_amante-1",
+        "title": "AMANTE",
+        "merchant": "AMANTE",
+        "scope": "SELECTED_OUTLETS",
+        "explanation": "Available at selected merchant outlets. The bank does not publish the participating branch list."
+      }
+    },
+    {
+      "bank": "combank",
+      "totalOffers": 66,
+      "online": {
+        "total": 1,
+        "zeroAddressClean": 1,
+        "falseAddresses": 0
+      },
+      "singleVenue": 11,
+      "multiBranchChains": {
+        "total": 1,
+        "splitProperly": 1
+      },
+      "selectedOutlets": 1,
+      "nationwide": 0,
+      "unresolved": 52,
+      "physicalAddressesExtracted": 7,
+      "offersWithAddresses": 1,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "combank_70264eb81fd6",
+        "title": "Enjoy the art of dining at Via Torino Colombo with ComBank Credit and Debit Cards",
+        "merchant": "Via Torino Colombo",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Via Torino Colombo"
+        ],
+        "rawLocation": ""
+      },
+      "sampleMulti": {
+        "id": "combank_38332dde69a3",
+        "title": "Experience seamless worldwide delivery at DHL with ComBank Credit and Debit Cards",
+        "merchant": "DHL",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 16,
+        "branches": [
+          "Colombo",
+          "Kandy",
+          "Galle",
+          "Negombo",
+          "Kurunegala"
+        ]
+      },
+      "sampleOnline": {
+        "id": "combank_8f3b8649b606",
+        "title": "Visit your favourite holiday destination with Find My Fare using ComBank Credit and Debit Cards",
+        "merchant": "Find My Fare",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": {
+        "id": "combank_a7a144f590ec",
+        "title": "Get 10% Cashback at selected Supermarkets with LankaPay JCB Credit and Debit Cards",
+        "merchant": "Commercial Bank",
+        "scope": "SELECTED_OUTLETS",
+        "explanation": "Available at selected merchant outlets. The bank does not publish the participating branch list."
+      }
+    },
+    {
+      "bank": "pabc",
+      "totalOffers": 34,
+      "online": {
+        "total": 0,
+        "zeroAddressClean": 0,
+        "falseAddresses": 0
+      },
+      "singleVenue": 7,
+      "multiBranchChains": {
+        "total": 0,
+        "splitProperly": 0
+      },
+      "selectedOutlets": 0,
+      "nationwide": 0,
+      "unresolved": 27,
+      "physicalAddressesExtracted": 1,
+      "offersWithAddresses": 1,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "pabc_70c85aa43c6c",
+        "title": "20% OFF at participating Waters Edge restaurants when you pay",
+        "merchant": "participating Waters Edge restaurants when you pay",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "participating Waters Edge restaurants when you pay"
+        ],
+        "rawLocation": ""
+      },
+      "sampleMulti": null,
+      "sampleOnline": null,
+      "sampleSelected": null
+    },
+    {
+      "bank": "sampath",
+      "totalOffers": 127,
+      "online": {
+        "total": 4,
+        "zeroAddressClean": 4,
+        "falseAddresses": 0
+      },
+      "singleVenue": 76,
+      "multiBranchChains": {
+        "total": 11,
+        "splitProperly": 11
+      },
+      "selectedOutlets": 2,
+      "nationwide": 15,
+      "unresolved": 19,
+      "physicalAddressesExtracted": 96,
+      "offersWithAddresses": 96,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "sampath_3450",
+        "title": "Amaara Hotels",
+        "merchant": "Amaara Sky Hotel",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "A B Damunupola Mawatha, Kandy"
+        ],
+        "rawLocation": "A B Damunupola Mawatha, Kandy"
+      },
+      "sampleMulti": {
+        "id": "sampath_3449",
+        "title": "Amaara Hotels",
+        "merchant": "Amaara Forest Hotel",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 2,
+        "branches": [
+          "Sigiriya",
+          "Dambulla"
+        ]
+      },
+      "sampleOnline": {
+        "id": "sampath_3461",
+        "title": "Ting",
+        "merchant": "Ting",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": {
+        "id": "sampath_2724",
+        "title": "Jetwing Hotels Ltd",
+        "merchant": "Jetwing Vil Uyana, Lighthouse, Saman Villas, Wahawa Walauwa, Lagoon Wellness",
+        "scope": "SELECTED_OUTLETS",
+        "explanation": "Available at selected merchant outlets. The bank does not publish the participating branch list."
+      }
+    },
+    {
+      "bank": "ndb",
+      "totalOffers": 124,
+      "online": {
+        "total": 2,
+        "zeroAddressClean": 2,
+        "falseAddresses": 0
+      },
+      "singleVenue": 88,
+      "multiBranchChains": {
+        "total": 2,
+        "splitProperly": 2
+      },
+      "selectedOutlets": 0,
+      "nationwide": 1,
+      "unresolved": 31,
+      "physicalAddressesExtracted": 90,
+      "offersWithAddresses": 90,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "ndb_213",
+        "title": "Up to 12 months 0% Installment Plans",
+        "merchant": "CIB Curtains",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Maharagama, Sri Lanka"
+        ],
+        "rawLocation": "Maharagama"
+      },
+      "sampleMulti": {
+        "id": "ndb_88",
+        "title": "Up to 60 months 0% Installment plans",
+        "merchant": "Softlogic Furniture & Electronics / Softlogic Max",
+        "scope": "MULTIPLE_BRANCHES",
+        "branchCount": 2,
+        "branches": [
+          "Softlogic Furniture & Electronics",
+          "Softlogic Max"
+        ]
+      },
+      "sampleOnline": {
+        "id": "ndb_324",
+        "title": "100% Cashback on PickMe Pass Monthly Subscription",
+        "merchant": "PickMe Pass",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": null
+    },
+    {
+      "bank": "dfcc",
+      "totalOffers": 234,
+      "online": {
+        "total": 1,
+        "zeroAddressClean": 1,
+        "falseAddresses": 0
+      },
+      "singleVenue": 23,
+      "multiBranchChains": {
+        "total": 0,
+        "splitProperly": 0
+      },
+      "selectedOutlets": 1,
+      "nationwide": 0,
+      "unresolved": 209,
+      "physicalAddressesExtracted": 0,
+      "offersWithAddresses": 0,
+      "noiseLeaks": 0,
+      "sampleSingle": {
+        "id": "dfcc_central-restaurant-shangri-la-colombo-2",
+        "title": "20% Savings on the lunch and dinner buffet at Central Restaurant - Shangri-La Colombo. Offer valid on DFCC Visa Signature, Visa Infinite Credit Cards and Standard Chartered Visa Infinite Credit Cards now serviced by DFCC Bank.",
+        "merchant": "Central Restaurant - Shangri-La Colombo",
+        "scope": "EXPLICIT_BRANCH",
+        "extractedAddresses": [
+          "Central Restaurant - Shangri-La Colombo"
+        ],
+        "rawLocation": ""
+      },
+      "sampleMulti": null,
+      "sampleOnline": {
+        "id": "dfcc_www-buyabans-com",
+        "title": "12 & 24 Months 0% Easy Payment Plans at www.buyabans.com. Offer valid on DFCC Credit Cards and Standard Chartered Credit Cards now serviced by DFCC Bank.",
+        "merchant": "www",
+        "scope": "ONLINE",
+        "explanation": "Digital transaction — purchase on website or mobile app; no physical venue required.",
+        "addresses": []
+      },
+      "sampleSelected": {
+        "id": "dfcc_dine-and-save-with-visa",
+        "title": "Up to 20% off total bill* when you pay with your Visa Card and quote \"Dine and Save with Visa - up to 20% off\" at any participating restaurants. Offer valid on DFCC Visa Credit Cards and Standard Chartered Visa Credit Cards now serviced by DFCC Bank.",
+        "merchant": "any participating restaurants",
+        "scope": "SELECTED_OUTLETS",
+        "explanation": "Available at selected merchant outlets. The bank does not publish the participating branch list."
+      }
+    }
+  ]
+}

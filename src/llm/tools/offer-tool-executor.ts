@@ -3,6 +3,9 @@ import {
   EvidenceSnippet,
   FullOfferValidationProposal,
   FullOfferValidationProposalSchema,
+  ValidationDecision,
+  ValidationDecisionSchema,
+  toFullOfferValidationProposal,
 } from '@/llm/schemas/offer-validation.schema';
 import {
   buildOfferEvidenceSnippets,
@@ -16,6 +19,8 @@ import { EDITABLE_FIELD_PATHS } from '@/domain/effective-offer';
 import { scoreDuplicateCandidate } from '@/domain/duplicate-detector';
 import { OfferValidator } from '@/parsing/validators/offer-validator';
 import { classifyDetailedOfferQuality } from '@/domain/offer-quality-decision';
+import { determineLocationScope } from '@/domain/location-scope';
+import { parseOutletList } from '@/parsing/geo/branch-parser';
 
 export interface ToolCallBudget {
   maxToolCallsPerAttempt: number;
@@ -46,6 +51,7 @@ export class OfferToolExecutor {
   private totalCalls: number = 0;
   private readonly executionHistory: ToolExecutionRecord[] = [];
   private submittedProposal: FullOfferValidationProposal | null = null;
+  private submittedDecision: ValidationDecision | null = null;
 
   constructor(
     offer: Offer,
@@ -74,6 +80,10 @@ export class OfferToolExecutor {
     return this.submittedProposal;
   }
 
+  public getSubmittedDecision(): ValidationDecision | null {
+    return this.submittedDecision;
+  }
+
   public getEvidenceSnippets(): EvidenceSnippet[] {
     return this.evidenceSnippets;
   }
@@ -83,9 +93,17 @@ export class OfferToolExecutor {
     args: Record<string, unknown>
   ): Promise<{ success: boolean; data?: unknown; error?: string }> {
     const startTime = Date.now();
+    const isSubmission = toolName === 'submit_validation_decision' || toolName === 'submit_offer_validation_proposal';
 
     // 1. Quota & Budget Enforcement
-    if (this.callsThisAttempt >= this.budget.maxToolCallsPerAttempt) {
+    if (isSubmission && this.submittedProposal !== null) {
+      const err = 'Validation proposal has already been submitted for this session';
+      this.recordExecution(toolName, args, null, Date.now() - startTime, err);
+      return { success: false, error: err };
+    }
+
+    // Submission tools are exempt from the inspection attempt limit
+    if (!isSubmission && this.callsThisAttempt >= this.budget.maxToolCallsPerAttempt) {
       const err = `Tool call limit exceeded for this attempt (max ${this.budget.maxToolCallsPerAttempt})`;
       this.recordExecution(toolName, args, null, Date.now() - startTime, err);
       return { success: false, error: err };
@@ -97,7 +115,9 @@ export class OfferToolExecutor {
       return { success: false, error: err };
     }
 
-    this.callsThisAttempt++;
+    if (!isSubmission) {
+      this.callsThisAttempt++;
+    }
     this.totalCalls++;
 
     try {
@@ -149,7 +169,11 @@ export class OfferToolExecutor {
       }
 
       case 'get_source_section': {
-        const section = String(args.section ?? 'all');
+        const allowedSections = ['title', 'description', 'terms', 'validity', 'merchant', 'raw_html'];
+        const section = String(args.section ?? '');
+        if (!allowedSections.includes(section)) {
+          throw new Error(`Invalid section "${section}". Expected one of: ${allowedSections.join(', ')}`);
+        }
         const match = this.evidenceSnippets.filter((s) => {
           if (section === 'title') return s.sourceField === 'title';
           if (section === 'description') return s.sourceField === 'description';
@@ -159,12 +183,20 @@ export class OfferToolExecutor {
           if (section === 'raw_html') return s.sourceField === 'rawText' || s.sourceField === 'rawHtml';
           return true;
         });
-        return { section, count: match.length, snippets: match };
+        return {
+          section,
+          count: match.length,
+          snippets: match.map((s) => ({
+            id: s.id,
+            sourceField: s.sourceField,
+            text: s.text.length > 400 ? s.text.slice(0, 400) + '... [truncated]' : s.text,
+          })),
+        };
       }
 
       case 'search_source_evidence': {
         const query = String(args.query ?? '').toLowerCase().trim();
-        if (!query) return { query, matches: [] };
+        if (!query) throw new Error('Search query parameter "query" is required');
         const matches = this.evidenceSnippets.filter((s) => s.text.toLowerCase().includes(query));
         return {
           query,
@@ -384,6 +416,43 @@ export class OfferToolExecutor {
         return { classification: 'NOT_DUPLICATE' };
       }
 
+      // ─── Geographic Scope tools ──────────────────────────────────────────────
+      case 'resolve_geographic_scope': {
+        const text = String(args.text ?? `${this.offer.title} ${this.offer.offer?.description ?? ''}`);
+        const mName = String(args.merchantName ?? this.offer.merchant?.name ?? '');
+        const loc = String(args.locationString ?? this.offer.merchant?.location ?? '');
+        const res = determineLocationScope({
+          title: this.offer.title,
+          description: text,
+          merchantName: mName,
+          location: loc,
+          addresses: this.offer.merchant?.addresses,
+          terms: [...(this.offer.offer?.generalTerms ?? []), ...(this.offer.offer?.restrictions ?? [])],
+        });
+        return {
+          scope: res.scope,
+          venueIdentity: res.venueIdentity,
+          addressPrecision: res.addressPrecision,
+          coordinateConfidence: res.coordinateConfidence,
+          isGeocodableToCoordinates: res.isGeocodableToCoordinates,
+          participatingBranches: res.participatingBranches ?? [],
+          participatingBranchesCount: res.participatingBranchesCount ?? null,
+          rawEvidence: res.rawEvidence,
+          explanation: res.explanation,
+        };
+      }
+
+      case 'extract_participating_branches': {
+        const text = String(args.text ?? `${this.offer.offer?.description ?? ''} ${(this.offer.offer?.generalTerms ?? []).join(' ')}`);
+        const mName = String(args.merchantName ?? this.offer.merchant?.name ?? '');
+        const parsed = parseOutletList(text, mName);
+        return {
+          branchCount: parsed.length,
+          branches: parsed,
+          evidence: text.slice(0, 200),
+        };
+      }
+
       // ─── Validation tools ────────────────────────────────────────────────────
       case 'validate_offer_schema': {
         const validator = new OfferValidator();
@@ -431,6 +500,68 @@ export class OfferToolExecutor {
         const parsed = FullOfferValidationProposalSchema.parse(rawJson);
         this.submittedProposal = parsed;
         return { accepted: true, offerId: parsed.offerId, status: parsed.qualityGate.status };
+      }
+
+      case 'submit_validation_decision': {
+        let rawObj: any = args;
+        if (typeof args.decisionData === 'string') {
+          try { rawObj = JSON.parse(args.decisionData); } catch {}
+        }
+        const parsed = ValidationDecisionSchema.parse(rawObj);
+        this.submittedDecision = parsed;
+        this.submittedProposal = toFullOfferValidationProposal(parsed, this.offer);
+        return {
+          accepted: true,
+          decision: parsed.decision,
+          overallScore: parsed.overallScore,
+          correctionsCount: parsed.corrections.length,
+          unresolvedIssuesCount: parsed.unresolvedIssues.length,
+        };
+      }
+
+      case 'lookup_merchant_catalog': {
+        const query = String(args.query ?? '').toLowerCase().trim();
+        if (!query) throw new Error('Merchant search query parameter "query" is required');
+        const matches = this.existingOffers
+          .map((o) => o.merchant?.name)
+          .filter(Boolean)
+          .filter((name) => (name as string).toLowerCase().includes(query));
+        const normalized = normalizeMerchantName(query);
+        return {
+          query,
+          normalized,
+          matches: Array.from(new Set(matches)).slice(0, 5),
+        };
+      }
+
+      case 'query_bank_rules': {
+        const bankCode = String(args.bankCode ?? this.offer.source ?? '').toLowerCase().trim();
+        if (!bankCode) throw new Error('Bank code parameter "bankCode" is required');
+        const topic = String(args.topic ?? 'all');
+        return {
+          bankCode,
+          topic,
+          rules: {
+            allowedCardTypes: ['Credit Card', 'Debit Card'],
+            supportedNetworks: ['Visa', 'Mastercard', 'Amex'],
+            supportsInstallments: true,
+            note: 'Debit card eligibility must be explicitly stated in the source text; otherwise assume Credit Card only. 0% installment plans are payment plans, not price discounts.',
+          },
+        };
+      }
+
+      case 'check_potential_duplicate': {
+        const simOffers = this.existingOffers.slice(0, 5).map((o) => {
+          const score = scoreDuplicateCandidate(this.offer, o);
+          return {
+            id: o.uniqueId,
+            title: o.title,
+            merchant: o.merchant?.name,
+            score: score.score,
+            relationship: score.classification,
+          };
+        });
+        return { count: simOffers.length, candidates: simOffers };
       }
 
       default:

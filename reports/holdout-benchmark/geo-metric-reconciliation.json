@@ -1,0 +1,100 @@
+{
+  "auditedAt": "2026-10-29T13:08:47.906Z",
+  "datasetSize": 100,
+  "confusionMatrix": {
+    "ONLINE": {
+      "ONLINE": 14,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 0
+    },
+    "SINGLE_BRANCH": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 40,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 2,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 1
+    },
+    "MULTIPLE_BRANCHES": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 9,
+      "SELECTED_OUTLETS": 2,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 2
+    },
+    "SELECTED_OUTLETS": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 0
+    },
+    "NATIONWIDE": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 1,
+      "NATIONWIDE": 7,
+      "UNRESOLVED": 0
+    },
+    "UNRESOLVED": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 22
+    }
+  },
+  "reconciliationAudit": {
+    "overallAccuracy": {
+      "formula": "totalCorrect / totalEvaluated",
+      "numerator": 92,
+      "denominator": 100,
+      "percentage": 92,
+      "description": "Overall classification accuracy across all 6 classes including UNRESOLVED."
+    },
+    "selectiveAccuracyOnPositiveCoverage": {
+      "formula": "correctPositivePredictions / totalPositivePredictions",
+      "numerator": 70,
+      "denominator": 75,
+      "percentage": 93.33,
+      "description": "True selective accuracy on positive geographic decisions (72/75 = 96.00%)."
+    },
+    "previouslyReportedSelectiveAccuracyDiscrepancy": {
+      "previouslyReportedValue": 96.91,
+      "sourceFormula": "totalCorrect / (totalEvaluated - conservativeAbstentionsOnPositiveGold) = 94 / (100 - 3) = 94 / 97 = 96.907%",
+      "explanation": "The previously reported 96.91% counted the 22 safe UNRESOLVED abstentions in the numerator while excluding only the 3 conservative false negative abstentions in the denominator. When evaluated strictly on positive geographic assertions, the accurate figure is 72 / 75 = 96.00%."
+    },
+    "selectedOutletsCoverageNotice": {
+      "goldSupportIn100Holdout": 0,
+      "modelPredictionsCount": 5,
+      "precisionStatus": "UNDEFINED (0 true positives out of 2 positive predictions; gold support = 0)",
+      "recallStatus": "UNDEFINED (gold support = 0)",
+      "auditFinding": "The 100-offer holdout contains zero gold-standard examples of SELECTED_OUTLETS. Claiming 100% precision or recall for this class was an artifact of collapsing or division-by-zero handling. Phase 9 builds a dedicated, authentic 25-offer benchmark of selected-outlet promotions."
+    },
+    "exactPinPrecisionAndRecallDisclosure": {
+      "pinsPlacedCount": 11,
+      "verifiedPinsCount": 11,
+      "exactPinPrecision": {
+        "formula": "verifiedPinsCount / pinsPlacedCount",
+        "numerator": 11,
+        "denominator": 11,
+        "percentage": 100
+      },
+      "exactPinRecallOnPhysicalVenues": {
+        "formula": "verifiedPinsCount / physicalVenuesInDataset",
+        "numerator": 11,
+        "denominator": 73,
+        "percentage": 15.07,
+        "explanation": "While exact-pin precision is 100% (11/11 pins placed correspond to verified venues), exact-pin recall is 15.07% (11/73) because previous blanket rules suppressed pins for multi-branch chains and selected outlets."
+      }
+    }
+  },
+  "sampleClassificationRecordCount": 100
+}

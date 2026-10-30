@@ -125,6 +125,7 @@ export const PEOPLES_CATEGORIES: BankCategory[] = [
   peoplesCategory(10, 'Visa', 'visa', 'credit'),
   peoplesCategory(11, 'Clothing', 'clothing', 'credit'),
   peoplesCategory(12, 'Others', 'others', 'credit'),
+  peoplesCategory(13, 'Book Store', 'book-store', 'both'),
 ];
 
 // ─── Seylan ───────────────────────────────────────────────────────────────────
@@ -154,6 +155,8 @@ export const SEYLAN_CATEGORIES: BankCategory[] = [
   { id: 22, name: 'Jewelry', slug: 'jewelry', url: 'https://www.seylan.lk/promotions/cards/jewelry', sourceType: 'html', detailRequired: true },
   { id: 23, name: 'Affinity Cards', slug: 'affinity-cards', url: 'https://www.seylan.lk/promotions/cards/affinity-cards', sourceType: 'html', detailRequired: true },
   { id: 24, name: 'Harasara', slug: 'harasara', url: 'https://www.seylan.lk/promotions/cards/harasara', sourceType: 'html', detailRequired: true },
+  { id: 25, name: 'Banquets & Events', slug: 'banquets-events', url: 'https://www.seylan.lk/promotions/cards/banquets-events', sourceType: 'html', detailRequired: true },
+  { id: 26, name: 'Shoes & Accessories', slug: 'shoes-accessories', url: 'https://www.seylan.lk/promotions/cards/shoes-accessories', sourceType: 'html', detailRequired: true },
   // Catch-all LAST: the hub paginates through every offer, so offers in
   // removed/renamed categories are still captured. Dedupe keeps categorized
   // copies because Seylan uniqueIds derive from the detail-page slug.
@@ -190,38 +193,23 @@ export const NDB_CATEGORIES: BankCategory[] = [
 // ─── DFCC ─────────────────────────────────────────────────────────────────────
 
 export const DFCC_CATEGORIES: BankCategory[] = [
-  { id: 1, name: 'Supermarkets', slug: 'supermarket', url: 'https://www.dfcc.lk/promotions-categories/supermarket/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 2, name: 'Dining', slug: 'dining', url: 'https://www.dfcc.lk/promotions-categories/dining/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 3, name: '0% Easy Payment Plans', slug: '0-easy-payment-plans', url: 'https://www.dfcc.lk/promotions-categories/0-easy-payment-plans/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 4, name: 'Pinnacle', slug: 'pinnacle', url: 'https://www.dfcc.lk/pinnacle-2', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 5, name: 'Online', slug: 'online', url: 'https://www.dfcc.lk/promotions-categories/online/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 6, name: 'Utility', slug: 'utility', url: 'https://www.dfcc.lk/promotions-categories/utility/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 7, name: 'Clothing and Retail', slug: 'clothing__retail', url: 'https://www.dfcc.lk/promotions-categories/clothing__retail/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 8, name: 'Hotels', slug: 'hotels', url: 'https://www.dfcc.lk/promotions-categories/hotels/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 9, name: 'Home Appliances', slug: 'home-appliances', url: 'https://www.dfcc.lk/promotions-categories/home-appliances/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 10, name: 'Autocare', slug: 'autocare', url: 'https://www.dfcc.lk/autocare-promotion', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 11, name: 'Travel', slug: 'travel', url: 'https://www.dfcc.lk/travel-promotion', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 12, name: 'Healthcare & Insurance', slug: 'healthcare-insurance', url: 'https://www.dfcc.lk/promotions-categories/healthcare-insurance/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 13, name: 'Jewellery', slug: 'jewellery', url: 'https://www.dfcc.lk/promotions-categories/jewellery/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 14, name: 'Footwear', slug: 'footwear', url: 'https://www.dfcc.lk/promotions-categories/footwear/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 15, name: 'VISA Offers', slug: 'visa-offers', url: 'https://www.dfcc.lk/promotions-categories/visa-offers/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 16, name: 'Mastercard Offers', slug: 'mastercard-offers', url: 'https://www.dfcc.lk/promotions-categories/mastercard-offers/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 17, name: 'Opticians', slug: 'opticians', url: 'https://www.dfcc.lk/promotions-categories/opticians/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 18, name: 'Aloka Offers', slug: 'aloka', url: 'https://www.dfcc.lk/promotions-categories/aloka/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 19, name: 'Holidays', slug: 'holidays', url: 'https://www.dfcc.lk/promotions-categories/holidays/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 20, name: 'Gifts & Wellness', slug: 'gift_wellness', url: 'https://www.dfcc.lk/promotions-categories/gift_wellness/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 21, name: 'Education', slug: 'education', url: 'https://www.dfcc.lk/promotions-categories/education/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 22, name: 'Entertainment', slug: 'entertainment', url: 'https://www.dfcc.lk/promotions-categories/entertainment/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 23, name: 'Solar Offers', slug: 'solar-offers', url: 'https://www.dfcc.lk/promotions-categories/solar-offers/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  { id: 24, name: 'Other', slug: 'other', url: 'https://www.dfcc.lk/promotions-categories/other/', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
-  // Catch-all LAST: several /promotions-categories/<slug>/ URLs 404 (site
-  // migrated some categories to standalone slugs like /pinnacle-2,
-  // /autocare-promotion, /travel-promotion — those three were corrected
-  // above; the rest may just be empty right now). This "today's promotions"
-  // page is confirmed live and renders a.cardd, so it catches offers whose
-  // category page has drifted without needing to guess every slug.
-  { id: 99, name: 'All', slug: '', url: 'https://www.dfcc.lk/dfcc-card-offers/today-promotions', sourceType: 'headless-browser', browserRequired: true, pdfRequired: true },
+  { id: 1, name: 'Dining', slug: 'dining-promotion-credit', url: 'https://www.dfcc.lk/cards/cards-promotions/dining-promotion-credit', sourceType: 'html', detailRequired: false },
+  { id: 2, name: '0% Easy Payment Plans', slug: '0-easy-payment-plans-promotion', url: 'https://www.dfcc.lk/cards/cards-promotions/0-easy-payment-plans-promotion', sourceType: 'html', detailRequired: false },
+  { id: 3, name: 'Online', slug: 'online-promotion', url: 'https://www.dfcc.lk/cards/cards-promotions/online-promotion', sourceType: 'html', detailRequired: false },
+  { id: 4, name: 'Home Appliances', slug: 'home-appliances-promotion-2', url: 'https://www.dfcc.lk/cards/cards-promotions/home-appliances-promotion-2', sourceType: 'html', detailRequired: false },
+  { id: 5, name: 'Opticians', slug: 'opticians-promotion', url: 'https://www.dfcc.lk/cards/cards-promotions/opticians-promotion', sourceType: 'html', detailRequired: false },
+  { id: 6, name: 'Travel', slug: 'travel-promotion', url: 'https://www.dfcc.lk/cards/cards-promotions/travel-promotion', sourceType: 'html', detailRequired: false },
+  { id: 7, name: 'Autocare', slug: 'autocare-promotion', url: 'https://www.dfcc.lk/cards/cards-promotions/autocare-promotion', sourceType: 'html', detailRequired: false },
+  { id: 8, name: 'Hotels', slug: 'hotels', url: 'https://www.dfcc.lk/cards/cards-promotions/hotels', sourceType: 'html', detailRequired: false },
+  { id: 9, name: 'Jewellery', slug: 'jewellery', url: 'https://www.dfcc.lk/cards/cards-promotions/jewellery', sourceType: 'html', detailRequired: false },
+  { id: 10, name: 'Supermarkets', slug: 'supermarket', url: 'https://www.dfcc.lk/cards/cards-promotions/supermarket', sourceType: 'html', detailRequired: false },
+  { id: 11, name: 'Entertainment', slug: 'entertainment', url: 'https://www.dfcc.lk/cards/cards-promotions/entertainment', sourceType: 'html', detailRequired: false },
+  { id: 12, name: 'Pinnacle', slug: 'pinnacle-2', url: 'https://www.dfcc.lk/cards/cards-promotions/pinnacle-2', sourceType: 'html', detailRequired: false },
+  { id: 13, name: 'Visa Offers', slug: 'visa-offers', url: 'https://www.dfcc.lk/cards/cards-promotions/visa-offers', sourceType: 'html', detailRequired: false },
+  { id: 14, name: 'Mastercard Offers', slug: 'mastercard-offers', url: 'https://www.dfcc.lk/cards/cards-promotions/mastercard-offers', sourceType: 'html', detailRequired: false },
+  { id: 15, name: 'Debit Card Visa Offers', slug: 'visa-offers-debit', url: 'https://www.dfcc.lk/cards/cards-promotions/visa-offers-debit', sourceType: 'html', detailRequired: false },
 ];
+
 
 // ─── Pan Asia ─────────────────────────────────────────────────────────────────
 
@@ -332,9 +320,9 @@ export const BANK_CONFIGS: Record<BankName, BankConfig> = {
     displayName: 'DFCC',
     categories: DFCC_CATEGORIES,
     outputPrefix: 'dfcc',
-    sourceType: 'headless-browser',
+    sourceType: 'mixed',
     activeBaseScript: 'dfcc.js',
-    notes: 'Rendered card layout with browser automation and optional PDF extraction.',
+    notes: 'HTML card promotion listings with Cheerio fast extraction, browser automation fallback, and optional PDF terms.',
     capabilities: { scrape: true, geocode: true, llmValidation: true },
   },
   pabc: {

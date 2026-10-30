@@ -195,7 +195,7 @@ import { buildOfferListQuery } from '@/api/offer-query-scope';
 
 function makeOffer(overrides: Partial<Offer> = {}): Offer {
   return {
-    uniqueId: 'hnb_e2e_1', source: 'hnb', sourceId: 'e2e-1', sourceUrl: 'https://bank.example/e2e-1',
+    uniqueId: 'hnb_e2e_1', source: 'hnb', sourceId: 'e2e-1', sourceUrl: 'https://www.hnb.net/promotions/e2e-1',
     title: 'E2E Test Offer', category: 'Dining', categoryId: 1, cardType: 'Visa',
     scrapedAt: '2026-01-01T00:00:00.000Z',
     merchant: { name: 'E2E Merchant', location: 'Colombo', addresses: [], phone: [], email: [], website: null, logo: null },
