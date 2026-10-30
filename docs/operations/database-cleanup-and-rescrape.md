@@ -143,8 +143,8 @@ Fresh scrapes were executed through the full ingestion pipeline (capture → par
 | **PABC** | 34 | 0 | 34 | 34 | 0 | 100.0% | 28.1 s |
 | **Sampath** | 254 | 127 | 127 | 120 | 7 | 94.49% | 303.6 s |
 | **NDB** | 166 | 42 | 124 | 123 | 1 | 99.19% | 657.1 s |
-| **DFCC** | 4 | 0 | 4 | 1 | 3 | 25.00% | 1106.5 s |
-| **Total** | **3,190** | **1,214** | **1,976** | **1,924** | **52** | **97.37%** | **2,935.4 s** |
+| **DFCC** | 257 | 23 | 234 | 227 | 7 | 97.01% | 12.0 s |
+| **Total** | **3,443** | **1,237** | **2,206** | **2,150** | **56** | **97.46%** | **1,840.9 s** |
 
 - **HNB**: 2,039 raw offers scraped across 14 categories. 1,045 cross-category duplicates removed. **994 normalized offers**, **976 passed validation**, 18 expired/invalid. Artifacts exported to `output/dry-runs/hnb/`.
 - **BOC**: 85 raw offers scraped across 13 categories. **85 normalized offers**, **85 passed validation (100% pass rate)**. Artifacts exported to `output/dry-runs/boc/`.
@@ -155,7 +155,7 @@ Fresh scrapes were executed through the full ingestion pipeline (capture → par
 - **Pan Asia Bank (PABC)**: 34 raw offers scraped. **34 normalized offers**, **34 passed validation (100% pass rate)**. Artifacts exported to `output/dry-runs/pabc/`.
 - **Sampath Bank**: 254 raw offers scraped across 13 categories. 127 category catch-all duplicates removed. **127 normalized offers**, **120 passed validation**, 7 expired. Artifacts exported to `output/dry-runs/sampath/`.
 - **NDB Bank**: 166 raw offers scraped across 18 categories. 42 cross-category duplicates removed. **124 normalized offers**, **123 passed validation**, 1 expired. Artifacts exported to `output/dry-runs/ndb/`.
-- **DFCC Bank**: 4 active offers extracted from rendered promo hubs. **4 normalized offers**, **1 passed validation**, 3 past-due expired. Artifacts exported to `output/dry-runs/dfcc/`.
+- **DFCC Bank**: 257 raw offers scraped across 15 verified live categories. 23 cross-category duplicates removed. **234 normalized offers**, **227 passed validation (97.01% pass rate)**, 7 past-due expired. Artifacts exported to `output/dry-runs/dfcc/`.
 
 ---
 

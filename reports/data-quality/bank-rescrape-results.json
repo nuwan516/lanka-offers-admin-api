@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-30T03:35:00.000Z",
+  "generatedAt": "2026-10-30T04:42:00.000Z",
   "banksAudited": 10,
   "overallPipeline": "Deterministic-first validation, SHA-256 deduplication, zero-cost LLM gate, isolated dry-run exports",
   "summary": {
-    "totalRawOffersFound": 3190,
-    "totalDuplicatesRemoved": 1214,
-    "totalNormalizedOffers": 1976,
-    "totalValidatedOffers": 1924,
-    "totalExpiredOffers": 52,
+    "totalRawOffersFound": 3443,
+    "totalDuplicatesRemoved": 1237,
+    "totalNormalizedOffers": 2206,
+    "totalValidatedOffers": 2150,
+    "totalExpiredOffers": 56,
     "totalInvalidOffers": 0,
-    "overallValidationPassRatePct": 97.37,
-    "totalDurationSeconds": 2935.44
+    "overallValidationPassRatePct": 97.46,
+    "totalDurationSeconds": 1840.9
   },
   "banks": {
     "hnb": {
@@ -159,18 +159,18 @@
     },
     "dfcc": {
       "displayName": "DFCC Bank",
-      "sourceType": "headless-browser",
+      "sourceType": "mixed",
       "captureType": "LIVE_CAPTURE",
       "httpStatus": 200,
-      "rawOffersFound": 4,
-      "duplicatesRemoved": 0,
-      "normalizedOffers": 4,
-      "validatedOffers": 1,
-      "expiredOffers": 3,
+      "rawOffersFound": 257,
+      "duplicatesRemoved": 23,
+      "normalizedOffers": 234,
+      "validatedOffers": 227,
+      "expiredOffers": 7,
       "invalidOffers": 0,
-      "validationPassRatePct": 25.0,
-      "durationSeconds": 1106.52,
-      "imageAuthenticity": "DFCC card offers portal images",
+      "validationPassRatePct": 97.01,
+      "durationSeconds": 11.98,
+      "imageAuthenticity": "DFCC official card offers portal media (15 verified live categories)",
       "status": "SUCCESS"
     }
   }

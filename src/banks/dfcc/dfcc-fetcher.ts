@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as cheerio from 'cheerio';
 import { BankCategory } from '@/config/banks';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import { HttpClient } from '@/infrastructure/http/http-client';
@@ -7,44 +8,63 @@ import { DFCCDetailPage, DFCCListItem, DFCCRawOffer } from './dfcc-parser';
 
 export class DFCCFetcher {
   private readonly pdfExtractor: PdfTextExtractor | null;
+  private readonly http?: HttpClient;
 
   constructor(
-    private readonly browser: BrowserClient,
+    private readonly browser?: BrowserClient,
     private readonly fetchDetails = true,
     http?: HttpClient,
   ) {
+    this.http = http;
     this.pdfExtractor = http ? new PdfTextExtractor(http) : null;
   }
 
   async fetchList(category: BankCategory): Promise<DFCCListItem[]> {
-    try {
-      const items = await this.browser.extract<DFCCListItem[]>(
-        category.url,
-        extractDFCCPromotionsFromListing,
-        // a.cardd is DFCC's current card markup; the other selectors are a
-        // fallback chain for categories mid-migration to a different template
-        // (observed: some category pages still 200 but never render a.cardd).
-        { waitForSelector: 'a.cardd, a[href*="cards-promotions"], .promotion-item, article' },
-      );
+    let rawItems: DFCCListItem[] = [];
 
-      const seen = new Set<string>();
-      const uniqueItems: DFCCListItem[] = [];
-      for (const item of items) {
-        const key = `${item.detailUrl || ''}|${item.cardType}|${item.offerText}`.trim().toLowerCase();
-        if (!key || seen.has(key)) continue;
-        seen.add(key);
-        uniqueItems.push({
-          ...item,
-          _categoryName: category.name,
-          _categoryId: category.id,
-          _sourceUrl: category.url,
-        });
+    // 1. Fast HTTP fetch with Cheerio
+    if (this.http) {
+      try {
+        const res = await this.http.getHTML(category.url);
+        if (res.data && typeof res.data === 'string' && !res.data.includes('Page Not Found')) {
+          rawItems = extractDFCCPromotionsFromHtml(res.data);
+        }
+      } catch {
+        // Fall back to browser if available
       }
-
-      return uniqueItems;
-    } catch {
-      return [];
     }
+
+    // 2. Fall back to headless browser automation if HTTP returned nothing
+    if (rawItems.length === 0 && this.browser) {
+      try {
+        rawItems = await this.browser.extract<DFCCListItem[]>(
+          category.url,
+          extractDFCCPromotionsFromListing,
+          {
+            waitUntil: 'domcontentloaded',
+            waitForSelector: 'a.cardd, a[href*="cards-promotions"], .promotion-item, article',
+          },
+        );
+      } catch {
+        rawItems = [];
+      }
+    }
+
+    const seen = new Set<string>();
+    const uniqueItems: DFCCListItem[] = [];
+    for (const item of rawItems) {
+      const key = `${item.detailUrl || ''}|${item.cardType}|${item.offerText}`.trim().toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      uniqueItems.push({
+        ...item,
+        _categoryName: category.name,
+        _categoryId: category.id,
+        _sourceUrl: category.url,
+      });
+    }
+
+    return uniqueItems;
   }
 
   // CONFIRMED LIVE 2026-08-01: every "Read More" detailUrl 200s at the raw
@@ -63,11 +83,18 @@ export class DFCCFetcher {
       return { listing: item, detail: null };
     }
 
+    if (!this.browser) {
+      return { listing: item, detail: null };
+    }
+
     try {
       let detail = await this.browser.extract<DFCCDetailPage>(
         item.detailUrl,
         extractDFCCPromotionDetail,
-        { waitForSelector: '.pageMainBlock-main-title-1, .pageMainBlock-description, body' },
+        {
+          waitUntil: 'domcontentloaded',
+          waitForSelector: '.pageMainBlock-main-title-1, .pageMainBlock-description, body',
+        },
       );
 
       if (detail.termsAndConditionsPdfUrl && this.pdfExtractor && PdfTextExtractor.isAvailable()) {
@@ -84,12 +111,55 @@ export class DFCCFetcher {
   }
 }
 
+export function extractDFCCPromotionsFromHtml(html: string): DFCCListItem[] {
+  const $ = cheerio.load(html);
+  const items: DFCCListItem[] = [];
+
+  $('a[href*="/cards/cards-promotions/"]').each((_, el) => {
+    const href = $(el).attr('href') || '';
+    if (href.endsWith('credit-card-offers') || href.endsWith('today-promotions') || href.endsWith('cards-promotions')) return;
+
+    const cardContainer = $(el).closest('.cardd, [class*="card"], div.bIRM').parent();
+    const offerText = cardContainer.find('.cardOfferText, .card-title, h4, h5, p')
+      .filter((_, p) => $(p).text().length > 15)
+      .first()
+      .text().trim().replace(/\s+/g, ' ');
+
+    const validityText = cardContainer.find('.cardOfferValid, [class*="valid" i]').text().trim().replace(/\s+/g, ' ');
+    const discountBadge = cardContainer.find('.Offerpercentage, .discount-badgee, [class*="discount-badge" i]').text().trim().replace(/\s+/g, ' ');
+
+    let img = '';
+    let alt = '';
+    cardContainer.find('img').each((_, im) => {
+      const src = $(im).attr('src') || '';
+      const a = $(im).attr('alt') || '';
+      if (!src.endsWith('.svg') && !src.includes('arrow') && !a.toLowerCase().includes('relivenet')) {
+        img = src;
+        alt = a;
+      }
+    });
+
+    const fullDetailUrl = href.startsWith('http') ? href : `https://www.dfcc.lk${href}`;
+
+    if (offerText || href) {
+      items.push({
+        cardType: cardContainer.find('.tag, .card-tags p, [class*="tag"], .badge').text().trim(),
+        offerText,
+        validityText,
+        discountBadge,
+        imageUrl: img.startsWith('http') ? img : img ? `https://www.dfcc.lk${img}` : '',
+        imageAlt: alt,
+        detailUrl: fullDetailUrl,
+      });
+    }
+  });
+
+  return items;
+}
+
 function extractDFCCPromotionsFromListing(): DFCCListItem[] {
   const doc = (globalThis as any).document;
 
-  // Fallback chain mirrors the tested legacy scraper: prefer the current
-  // a.cardd markup, but degrade gracefully if a category page is still on
-  // an older/different template.
   let cards = Array.from(doc.querySelectorAll('a.cardd')) as any[];
   if (cards.length === 0) cards = Array.from(doc.querySelectorAll('a[href*="cards-promotions"]')) as any[];
   if (cards.length === 0) cards = Array.from(doc.querySelectorAll('.promotion-item')) as any[];
@@ -100,19 +170,16 @@ function extractDFCCPromotionsFromListing(): DFCCListItem[] {
   return cards.map((card) => {
     const link = card.tagName === 'A' ? card : card.querySelector('a[href*="cards-promotions"], a[href*="promotion"], a');
     const detailUrl = link?.getAttribute('href') || '';
-    const img = card.querySelector('.offerMainImage, img, figure img');
+    const imgElements = Array.from(card.querySelectorAll('img')) as any[];
+    const validImg = imgElements.find((im) => !im.src.endsWith('.svg') && !im.src.includes('arrow') && !im.alt?.toLowerCase().includes('relivenet'));
+
     return {
       cardType: card.querySelector('.tag, .card-tags p, [class*="tag"], .badge')?.textContent?.trim() ?? '',
       offerText: card.querySelector('.cardOfferText, .card-title, h4, h5')?.textContent?.trim() ?? '',
-      // .cardOfferValid: a date-validity line SEPARATE from the offer
-      // sentence — since detail pages are dead, this is the only source of
-      // the real validity date and was previously never captured at all.
       validityText: card.querySelector('.cardOfferValid, [class*="valid" i]')?.textContent?.trim() ?? '',
-      // .discount-badgee (sic — typo in DFCC's own CSS class name): the
-      // structured percentage badge, distinct from the card-type tag.
-      discountBadge: card.querySelector('.discount-badgee, [class*="discount-badge" i]')?.textContent?.trim() ?? '',
-      imageUrl: img?.src ?? '',
-      imageAlt: img?.alt ?? '',
+      discountBadge: card.querySelector('.Offerpercentage, .discount-badgee, [class*="discount-badge" i]')?.textContent?.trim() ?? '',
+      imageUrl: validImg?.src ?? '',
+      imageAlt: validImg?.alt ?? '',
       detailUrl: detailUrl.startsWith('http') ? detailUrl : `https://www.dfcc.lk${detailUrl}`,
     };
   }).filter((item) => item.offerText || item.detailUrl);

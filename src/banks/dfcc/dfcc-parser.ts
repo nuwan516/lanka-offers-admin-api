@@ -146,8 +146,10 @@ function sourceIdFromUrl(url: string): string | null {
 function selectSourceTitle(listing: DFCCListItem, detail: DFCCDetailPage | null): string {
   const detailTitle = stripHtml(detail?.title ?? '').trim();
   const genericDetailTitle = detailTitle && detailTitle.toLowerCase() === listing._categoryName?.toLowerCase();
-  if (detailTitle && !genericDetailTitle) return detailTitle;
-  return stripHtml(listing.imageAlt || listing.offerText).trim();
+  if (detailTitle && !genericDetailTitle && !isWeakTitle(detailTitle)) return detailTitle;
+  const candidate = stripHtml(listing.imageAlt || '').trim();
+  if (candidate && !isWeakTitle(candidate)) return candidate;
+  return stripHtml(listing.offerText).trim();
 }
 
 function buildOfferTitle(sourceTitle: string, merchantName: string, description: string): string {
@@ -160,7 +162,7 @@ function buildOfferTitle(sourceTitle: string, merchantName: string, description:
 }
 
 function isWeakTitle(title: string): boolean {
-  return /^\d+$/.test(title) || /banner|logo|web\s*banners?/i.test(title);
+  return /^\d+$/.test(title) || /banner|logo|web\s*banners?|arrow|relivenet|read\s*more|view\s*more|go\s*to/i.test(title);
 }
 
 function isLessSpecificThanMerchant(title: string, merchantName: string): boolean {
