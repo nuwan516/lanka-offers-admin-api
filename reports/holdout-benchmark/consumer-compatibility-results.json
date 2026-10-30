@@ -1,5 +1,5 @@
 {
-  "auditedAt": "2026-10-29T16:14:39.501Z",
+  "auditedAt": "2026-10-30T15:38:30.288Z",
   "totalBoundariesAudited": 13,
   "invariantsVerified": [
     "Invariant #1: Immutable raw_offer evidence preserved across all boundaries",
@@ -30,7 +30,7 @@
     },
     {
       "boundary": "3_SCRAPER_PARSER_OUTPUT",
-      "uniqueId": "seylan-amante-1793290479360",
+      "uniqueId": "seylan-amante-1793374710157",
       "contentHash": "dd9d2f2048fa7863458eda967978430c6773fed4c424674e60e11f2394d93f51",
       "discountPercentage": 25
     },

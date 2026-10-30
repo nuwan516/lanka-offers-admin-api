@@ -55,7 +55,7 @@ import { preloadBankRules } from '@/banks/bank-rules-loader';
 import { getCostControlConfig, formatSafePolicySummary } from '@/config/cost-control';
 import { decideOfferQuality } from '@/domain/offer-quality-decision';
 import type { OfferLifecycleStatus } from '@/domain/offer-lifecycle';
-import { detectAndRecordDuplicates, flagOfferAsDuplicate, shouldRunDuplicateDetection } from '@/infrastructure/db/duplicate-repository';
+import { detectAndRecordDuplicates, flagOfferAsDuplicate, shouldRunDuplicateDetection, loadBankCandidates } from '@/infrastructure/db/duplicate-repository';
 import { exportDryRunArtifacts } from '@/cli/dry-run-exporter';
 
 // ─── CLI arg parsing ────────────────────────────────────────────────────────────
@@ -394,8 +394,12 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
   } else if (runId) {
     if (offers.length > 0) {
       logger.info('DB', `Persisting ${offers.length} offers to Neon…`);
+      const bankCandidates = await loadBankCandidates(bankName, 200).catch(() => []);
       let dbNew = 0, dbChanged = 0, dbUnchanged = 0, dbErrors = 0, validationWrites = 0, duplicatesFlagged = 0;
-      for (const offer of offers) {
+      let processed = 0;
+      const total = offers.length;
+
+      const processOffer = async (offer: Offer) => {
         try {
           const report = reportsById.get(offer.uniqueId);
           let lifecycleStatus: OfferLifecycleStatus = 'REVIEW_REQUIRED';
@@ -470,7 +474,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
           // an UNCHANGED offer can't have created a new duplicate.
           if (shouldRunDuplicateDetection(result.status)) {
             try {
-              const dup = await detectAndRecordDuplicates(result.id, offer, bankName, fencingToken);
+              const dup = await detectAndRecordDuplicates(result.id, offer, bankName, fencingToken, bankCandidates);
               if (dup.flagged) {
                 await flagOfferAsDuplicate(result.id, result.staged, 'scrape', fencingToken);
                 duplicatesFlagged++;
@@ -482,7 +486,18 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
         } catch (e) {
           dbErrors++;
           logger.warn('DB', `Failed to upsert offer ${offer.uniqueId}: ${e instanceof Error ? e.message : e}`);
+        } finally {
+          processed++;
+          if (processed % 100 === 0 || processed === total) {
+            logger.info('DB', `Persisting progress: ${processed}/${total} offers (${Math.round((processed / total) * 100)}%)`);
+          }
         }
+      };
+
+      const CONCURRENCY = 5;
+      for (let i = 0; i < offers.length; i += CONCURRENCY) {
+        const chunk = offers.slice(i, i + CONCURRENCY);
+        await Promise.all(chunk.map(processOffer));
       }
       logger.info('DB', `Validation state written for ${validationWrites}/${offers.length} offers (rest reused unchanged state).`);
       if (duplicatesFlagged > 0) {

@@ -43,7 +43,8 @@ export class Logger {
     private bank: string,
     rootDir = path.join(process.cwd(), 'logs'),
   ) {
-    this.logDir = path.join(rootDir, bank.toLowerCase());
+    const safeFolder = bank.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+    this.logDir = path.join(rootDir, safeFolder);
     fs.mkdirSync(this.logDir, { recursive: true });
   }
 

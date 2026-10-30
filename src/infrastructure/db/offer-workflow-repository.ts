@@ -15,6 +15,8 @@ import {
   type OfferReviewAction,
 } from '@/domain/offer-lifecycle';
 import { validateSourceProvenance } from '@/domain/source-provenance';
+import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
+import { determineLocationScope } from '@/domain/location-scope';
 import { type FencingToken, assertActiveLease } from './offer-repository';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -314,13 +316,42 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
     return { offerId, outcome: 'failed', reason: 'final validation failed' };
   }
 
+  const merchantName = effective.merchant?.name ?? effective.title;
+  const canonicalRes = resolveCanonicalMerchant(merchantName);
+  const scopeRes = determineLocationScope({
+    location: effective.merchant?.location,
+    title: effective.title,
+    description: effective.offer?.description,
+    merchantName,
+    addresses: effective.merchant?.addresses,
+    geoLocations: effective.merchant?.geocodedLocations,
+    terms: effective.offer?.generalTerms,
+  });
+  const merchantPhone = effective.merchant?.phone?.[0] ?? null;
+  const imageUrl = effective.images?.images?.[0]?.url ?? effective.images?.logo?.url ?? null;
+  const validity = effective.validityPeriods?.[0];
+  const termsText = (effective.offer as any)?.terms ?? (effective.offer?.generalTerms?.length ? effective.offer.generalTerms.join('\n') : null);
+
   const cols = {
     discount: effective.offer?.discountPercentage?.toString() ?? null,
-    validFrom: effective.validityPeriods?.[0]?.validFrom ?? null,
-    validTo: effective.validityPeriods?.[0]?.validTo ?? null,
+    validFrom: validity?.validFrom ?? null,
+    validTo: validity?.validTo ?? null,
     cardEligibility: JSON.stringify(effective.cardEligibility ?? {}),
     geoLocations: JSON.stringify(effective.merchant?.geocodedLocations ?? row.geo_locations ?? []),
     rawOffer: JSON.stringify(effective),
+    canonicalMerchant: canonicalRes.canonicalName,
+    locationScope: scopeRes.scope,
+    description: effective.offer?.description ?? null,
+    terms: termsText,
+    minSpend: effective.transactionRange?.min ?? null,
+    maxDiscount: (effective.transactionRange as any)?.maxDiscount ?? null,
+    maxBillValue: (effective.transactionRange as any)?.maxBillValue ?? (effective.transactionRange?.max ?? null),
+    installmentPlans: JSON.stringify(effective.installmentPlans ?? []),
+    recurrence: JSON.stringify((validity as any)?.recurrence ?? {}),
+    bookingRequired: Boolean(effective.offer?.bookingRequired),
+    bookingPhone: merchantPhone,
+    pdfTermsUrl: (effective.offer as any)?.termsPdfUrl ?? null,
+    imageUrl: imageUrl,
   };
 
   await client.query(
@@ -329,6 +360,9 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
        discount_percentage = $7, valid_from = $8, valid_to = $9, card_eligibility = $10,
        raw_offer = $11, content_hash = COALESCE(pending_candidate->>'contentHash', content_hash),
        db_status = 'PUBLISHED', change_status = COALESCE(pending_change_status, change_status),
+       canonical_merchant = $12, location_scope = $13, description = $14, terms = $15,
+       min_spend = $16, max_discount = $17, max_bill_value = $18, installment_plans = $19,
+       recurrence = $20, booking_required = $21, booking_phone = $22, pdf_terms_url = $23, image_url = $24,
        pending_candidate = NULL, pending_lifecycle_status = NULL, pending_change_status = NULL,
        published_at = NOW(), updated_at = NOW()
      WHERE id = $1`,
@@ -336,6 +370,9 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
       offerId, effective.title, effective.category, effective.cardType,
       effective.merchant?.name, effective.merchant?.location,
       cols.discount, cols.validFrom, cols.validTo, cols.cardEligibility, cols.rawOffer,
+      cols.canonicalMerchant, cols.locationScope, cols.description, cols.terms,
+      cols.minSpend, cols.maxDiscount, cols.maxBillValue, cols.installmentPlans,
+      cols.recurrence, cols.bookingRequired, cols.bookingPhone, cols.pdfTermsUrl, cols.imageUrl,
     ]
   );
 

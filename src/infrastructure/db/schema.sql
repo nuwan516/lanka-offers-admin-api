@@ -236,6 +236,19 @@ ALTER TABLE offers ADD COLUMN IF NOT EXISTS location_scope    TEXT DEFAULT 'UNRE
 CREATE INDEX IF NOT EXISTS offers_canonical_merchant_idx ON offers (canonical_merchant);
 CREATE INDEX IF NOT EXISTS offers_location_scope_idx ON offers (location_scope);
 
+-- ── Generalized Bank-Specific Offer Attributes ─────────────────────────────
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS description       TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS terms             TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS min_spend         NUMERIC;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS max_discount      NUMERIC;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS max_bill_value    NUMERIC;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS installment_plans JSONB DEFAULT '[]';
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS recurrence        JSONB DEFAULT '{}';
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS booking_required  BOOLEAN DEFAULT FALSE;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS booking_phone     TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS pdf_terms_url     TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_url         TEXT;
+
 -- ── High-Performance Production Query Indexes ─────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_offers_published_active 
   ON offers (valid_to, updated_at DESC) 

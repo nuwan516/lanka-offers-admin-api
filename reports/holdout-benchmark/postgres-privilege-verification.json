@@ -1,5 +1,5 @@
 {
-  "auditedAt": "2026-10-29T18:26:26.403Z",
+  "auditedAt": "2026-10-30T15:39:59.393Z",
   "evaluationGate": "TASK_3_POSTGRES_PRIVILEGE_VERIFICATION",
   "leastPrivilegeRoleModel": {
     "roleName": "lanka_offers_public_api",

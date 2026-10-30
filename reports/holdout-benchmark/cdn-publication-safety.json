@@ -1,5 +1,5 @@
 {
-  "auditedAt": "2026-10-29T18:26:26.395Z",
+  "auditedAt": "2026-10-30T15:39:59.385Z",
   "evaluationGate": "TASK_2_CDN_PUBLICATION_SAFETY",
   "backendApiHeadersAudited": {
     "listingEndpoints": {

@@ -1,39 +1,39 @@
 {
-  "executedAt": "2026-10-29T17:58:08.563Z",
+  "executedAt": "2026-10-30T15:38:11.790Z",
   "evaluationGate": "PHASE_4_SINGLE_BANK_STAGING_PILOT",
   "bankEvaluated": "HNB (Hatton National Bank)",
   "totalCandidatePromotionsProcessed": 5,
   "traces": [
     {
-      "offerId": "7ae7df5c-d1bd-4219-8bca-4e6636347b6f",
+      "offerId": "3396d0f7-0757-42c3-a674-c099efd7518c",
       "uniqueId": "hnb-pilot-3360",
       "isNew": true,
       "dbStatus": "REVIEW_REQUIRED",
       "publicLeakDetected": false
     },
     {
-      "offerId": "0d1fe1ca-b491-45a5-bdd6-6684728d27a4",
+      "offerId": "8a8a248a-0afa-460e-8fee-9c26f306f46a",
       "uniqueId": "hnb-pilot-3454",
       "isNew": true,
       "dbStatus": "REVIEW_REQUIRED",
       "publicLeakDetected": false
     },
     {
-      "offerId": "4eb4bc42-b50f-4618-88e3-ce179814ddc0",
+      "offerId": "251c8c62-4f21-49e6-ab04-59b36f01138d",
       "uniqueId": "hnb-pilot-3457",
       "isNew": true,
       "dbStatus": "REVIEW_REQUIRED",
       "publicLeakDetected": false
     },
     {
-      "offerId": "741d7a8d-719c-4854-bcc9-0d841802b591",
+      "offerId": "e04e7332-c57b-41d7-a865-6504ce616564",
       "uniqueId": "hnb-pilot-3455",
       "isNew": true,
       "dbStatus": "REVIEW_REQUIRED",
       "publicLeakDetected": false
     },
     {
-      "offerId": "647e6615-0465-42d0-8834-e1094265ae40",
+      "offerId": "d0a710c8-18ce-4b8b-9679-c17c5b422c92",
       "uniqueId": "hnb-pilot-3463",
       "isNew": true,
       "dbStatus": "REVIEW_REQUIRED",

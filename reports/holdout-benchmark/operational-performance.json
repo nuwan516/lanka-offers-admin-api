@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-29T17:58:08.650Z",
+  "evaluatedAt": "2026-10-30T15:38:12.150Z",
   "evaluationGate": "PHASE_9_10_OPERATIONAL_PERFORMANCE",
   "observedLatenciesMs": {
     "liveBankFetch": {

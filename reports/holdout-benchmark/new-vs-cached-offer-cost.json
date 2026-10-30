@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-29T18:26:26.418Z",
+  "evaluatedAt": "2026-10-30T15:39:59.416Z",
   "evaluationGate": "TASK_5_NEW_VS_CACHED_OFFER_COST",
   "pricingModel": {
     "llmProvider": "OpenAI gpt-4o-mini / Gemini 1.5 Flash",

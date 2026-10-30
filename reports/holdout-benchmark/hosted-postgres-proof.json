@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-30T05:59:07.013Z",
+  "evaluatedAt": "2026-10-30T15:38:30.478Z",
   "gate": "TASK_3_HOSTED_POSTGRESQL_SECURITY_PROOF",
   "status": "NOT_TESTED",
   "reason": "Dedicated nonproduction hosted compute branch has not yet been provisioned by the operator. Production Neon was strictly protected from unapproved connections.",

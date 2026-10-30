@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-29T18:26:26.433Z",
+  "evaluatedAt": "2026-10-30T15:39:59.433Z",
   "evaluationGate": "TASK_7_RELEASE_GO_NO_GO",
   "masterClassification": "READY_FOR_LIMITED_PRODUCTION_PILOT",
   "totalGatesEvaluated": 10,
@@ -11,7 +11,7 @@
       "gate": "Bank Source Reachability",
       "requirement": "All 10 commercial bank promotion portals reachable without timeouts or 404s",
       "evidenceArtifact": "reports/holdout-benchmark/final-bank-ingestion-gate.json",
-      "actualTestOrCommand": "jest tests/integration/phase19-production-pilot-preflight.test.ts",
+      "actualTestOrCommand": "jest tests/integration/production-pilot-preflight.test.ts",
       "executionEnvironment": "Node.js / Live HTTPS probes to 10 banks",
       "status": "PASS",
       "severity": "BLOCKER",

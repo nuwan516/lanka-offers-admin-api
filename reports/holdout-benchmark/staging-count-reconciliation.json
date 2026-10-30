@@ -1,5 +1,5 @@
 {
-  "reconciledAt": "2026-10-29T17:58:00.293Z",
+  "reconciledAt": "2026-10-30T15:38:10.305Z",
   "evaluationGate": "PHASE_3_STAGING_COUNT_RECONCILIATION",
   "reconciliationFormula": "Total Staged Rows (93) = Primary Valid Staged (81) + Duplicate Rehearsal Step Expired Insertions (2) + Synthetic Expired Fixtures (10)",
   "holdoutFixtureBreakdown": "Raw Holdout Fixtures (100) = Primary Valid Staged (81) + In-Run Duplicate Updates (3) + Validation Failures (16)",
@@ -171,7 +171,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.768Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-06-30 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-06-30 < 2026-10-30)"
     },
     {
       "offerId": "hnb_9001",
@@ -182,7 +182,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.772Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-07-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-07-31 < 2026-10-30)"
     },
     {
       "offerId": "hnb-expired-test-fixture",
@@ -192,7 +192,7 @@
       "rawEvidenceHash": "b94482d9e27d5a67a4f629709aa462e8014ef04bf55a6cab16868720d191f801",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.282Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.291Z",
       "exclusionReason": null
     },
     {
@@ -292,7 +292,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.732Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2024-12-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2024-12-31 < 2026-10-30)"
     },
     {
       "offerId": "boc_0e42e41abf28c2cd",
@@ -303,7 +303,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.768Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-09-30 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-09-30 < 2026-10-30)"
     },
     {
       "offerId": "boc-expired-test-fixture",
@@ -313,7 +313,7 @@
       "rawEvidenceHash": "b93c50b97a2bcb70bc37259aee92ab912608ee756537eb59c522ff531beb5f0c",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.283Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.291Z",
       "exclusionReason": null
     },
     {
@@ -424,7 +424,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.768Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-08-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-08-31 < 2026-10-30)"
     },
     {
       "offerId": "sampath-expired-test-fixture",
@@ -434,7 +434,7 @@
       "rawEvidenceHash": "b4d874618eb96b2c147a9296dffd5c4fd87d3a21f8230fbf50f9f47bd21b0471",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.283Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.292Z",
       "exclusionReason": null
     },
     {
@@ -555,7 +555,7 @@
       "rawEvidenceHash": "6edaa1942b4931f10bd61b6e0e2d4895dd66ae189dbaf74a5d1ee2112fcf2275",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.291Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.302Z",
       "exclusionReason": null
     },
     {
@@ -655,7 +655,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.769Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-07-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-07-31 < 2026-10-30)"
     },
     {
       "offerId": "seylan_jetwing-hotels",
@@ -676,7 +676,7 @@
       "rawEvidenceHash": "0c82ac7d7b2539effd863fb0d06bf868f862a7d1463b5f371d9e6a034f8890e7",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.291Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.303Z",
       "exclusionReason": null
     },
     {
@@ -688,7 +688,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-09-04T13:02:24.754Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-30)"
     },
     {
       "offerId": "nsb_enjoy-a-20-off-at-kelly-felder-with-your-nsb-mas",
@@ -710,7 +710,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-09-04T13:02:24.767Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-30)"
     },
     {
       "offerId": "nsb_enjoy-a-10-off-at-taru-villas-levita-taru-villas",
@@ -721,7 +721,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-09-04T13:02:24.768Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-30)"
     },
     {
       "offerId": "nsb_enjoy-a-10-off-at-hayleys-hotels-with-your-nsb-m",
@@ -732,7 +732,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-09-04T13:02:24.770Z",
-      "exclusionReason": "validityPeriods[0]: validFrom (2026-09-04) is after validTo (2025-12-20); validityPeriods: Offer is fully expired (latest validTo 2025-12-20 < 2026-10-29)"
+      "exclusionReason": "validityPeriods[0]: validFrom (2026-09-04) is after validTo (2025-12-20); validityPeriods: Offer is fully expired (latest validTo 2025-12-20 < 2026-10-30)"
     },
     {
       "offerId": "nsb_arpico",
@@ -808,7 +808,7 @@
       "rawEvidenceHash": "7d26bc24fe44297699d259248e6eec28c494fb7044063064e581ae895f634009",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.291Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.303Z",
       "exclusionReason": null
     },
     {
@@ -820,7 +820,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-16T08:35:52.422Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-10-24 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-10-24 < 2026-10-30)"
     },
     {
       "offerId": "combank_22a64f4c555b",
@@ -831,7 +831,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-16T08:35:52.430Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-30)"
     },
     {
       "offerId": "combank_e3e5410c444a",
@@ -842,7 +842,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-16T08:35:52.433Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-30)"
     },
     {
       "offerId": "combank_70264eb81fd6",
@@ -919,7 +919,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.771Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-08-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-08-31 < 2026-10-30)"
     },
     {
       "offerId": "combank_96213e48a116",
@@ -940,7 +940,7 @@
       "rawEvidenceHash": "866a480db5c23ccba297d1ec8cd479a025140571dd5ef05adb4302dc8fc30fe3",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.292Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.303Z",
       "exclusionReason": null
     },
     {
@@ -1040,7 +1040,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.768Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-07-31 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-07-31 < 2026-10-30)"
     },
     {
       "offerId": "ndb_tangerine",
@@ -1061,7 +1061,7 @@
       "rawEvidenceHash": "924b67358e32e342008b440cd87d8556039fc25628141be25ac02e52adce8962",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.292Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.304Z",
       "exclusionReason": null
     },
     {
@@ -1182,7 +1182,7 @@
       "rawEvidenceHash": "11ac2bbcca5df10a0b557a7b59ea51768c0296167d5e55dc390aedd5efc959c8",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.292Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.304Z",
       "exclusionReason": null
     },
     {
@@ -1282,7 +1282,7 @@
       "parsedStatus": "INVALID_VALIDATION_FAILURE",
       "stagingStatus": "EXCLUDED_FROM_PRIMARY_STAGING",
       "collectionTimestamp": "2026-10-29T07:31:35.769Z",
-      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-08-15 < 2026-10-29)"
+      "exclusionReason": "validityPeriods: Offer is fully expired (latest validTo 2026-08-15 < 2026-10-30)"
     },
     {
       "offerId": "pabc_e6e4ef2460d3",
@@ -1303,7 +1303,7 @@
       "rawEvidenceHash": "d6b58904c889fe9e01fa68373d393b1d96b6ba5e29bd6b6dd7a6ee1d5bd16320",
       "parsedStatus": "VALID_HISTORICAL",
       "stagingStatus": "REVIEW_REQUIRED",
-      "collectionTimestamp": "2026-10-29T17:58:00.292Z",
+      "collectionTimestamp": "2026-10-30T15:38:10.304Z",
       "exclusionReason": null
     }
   ],

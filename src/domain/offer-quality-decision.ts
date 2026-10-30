@@ -21,6 +21,7 @@ export interface QualityDecisionInput {
   ruleValid: boolean;
   ruleErrorCount: number;
   ruleWarningCount: number;
+  criticalWarningCount?: number;
   /** null when the LLM never ran (disabled, unavailable, or budget-blocked). */
   llmScore: number | null;
   llmValid: boolean | null;
@@ -72,9 +73,15 @@ export function classifyDetailedOfferQuality(input: QualityDecisionInput): Detai
   const hasLlmSignal = input.llmScore !== null && input.llmValid !== null
     && !(input.llmStatus && NO_USABLE_LLM_SIGNAL.has(input.llmStatus));
 
+  const warningCount = input.criticalWarningCount ?? input.ruleWarningCount;
+
   if (!hasLlmSignal) {
-    if (policy.allowRuleOnlyAutoApprove && input.ruleWarningCount === 0) {
-      reasons.push('Rule-only validation passed with 0 errors and 0 warnings (policy allows auto-approve)');
+    if (policy.allowRuleOnlyAutoApprove && warningCount === 0) {
+      reasons.push(
+        input.ruleWarningCount > 0
+          ? `Rule-only validation passed with 0 errors and ${input.ruleWarningCount} non-blocking warning(s) (policy allows auto-approve)`
+          : 'Rule-only validation passed with 0 errors and 0 warnings (policy allows auto-approve)'
+      );
       return { decision: 'AUTO_APPROVE', category: 'VALID_HIGH_CONFIDENCE', reasons };
     }
     reasons.push(

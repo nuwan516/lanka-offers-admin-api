@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T17:47:02.342Z",
+  "generatedAt": "2026-10-30T15:38:01.948Z",
   "evaluationGate": "PHASE_3_REAL_SOURCE_INGESTION_REHEARSAL",
   "totalBanksEvaluated": 10,
   "probeResults": {
@@ -8,7 +8,7 @@
       "url": "https://venus.hnb.lk/api/get_all_web_card_promos?page=1&cardType=all",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 1009,
+      "latencyMs": 1117,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -17,7 +17,7 @@
       "url": "https://www.sampath.lk/sampath-cards/credit-card-offer",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 4727,
+      "latencyMs": 1356,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -26,7 +26,7 @@
       "url": "https://www.boc.lk/personal-banking/card-offers",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 1712,
+      "latencyMs": 4807,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -35,7 +35,7 @@
       "url": "https://www.peoplesbank.lk/special-offers/",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 2678,
+      "latencyMs": 5926,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -44,7 +44,7 @@
       "url": "https://www.seylan.lk/promotions/cards",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 5395,
+      "latencyMs": 1617,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -53,7 +53,7 @@
       "url": "https://www.ndbbank.com/cards/card-offers",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 1036,
+      "latencyMs": 3010,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -62,7 +62,7 @@
       "url": "https://www.dfcc.lk/dfcc-card-offers/today-promotions",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 1239,
+      "latencyMs": 1417,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -71,7 +71,7 @@
       "url": "https://www.pabcbank.com/card-offers/",
       "statusCode": 307,
       "reachable": true,
-      "latencyMs": 347,
+      "latencyMs": 359,
       "statusText": "Temporary Redirect",
       "tlsSecure": true
     },
@@ -80,7 +80,7 @@
       "url": "https://www.nsb.lk/category/card-offers/",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 553,
+      "latencyMs": 885,
       "statusText": "OK",
       "tlsSecure": true
     },
@@ -89,7 +89,7 @@
       "url": "https://www.combank.lk/rewards-promotions",
       "statusCode": 200,
       "reachable": true,
-      "latencyMs": 1116,
+      "latencyMs": 2208,
       "statusText": "OK",
       "tlsSecure": true
     }
@@ -103,7 +103,7 @@
         "url": "https://venus.hnb.lk/api/get_all_web_card_promos?page=1&cardType=all",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 1009,
+        "latencyMs": 1117,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -112,7 +112,7 @@
         "new": 9,
         "changed": 0,
         "duplicate": 1,
-        "expired": 1,
+        "expired": 2,
         "reviewRequired": 10,
         "invalid": 3
       },
@@ -127,7 +127,7 @@
         "url": "https://www.sampath.lk/sampath-cards/credit-card-offer",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 4727,
+        "latencyMs": 1356,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -151,7 +151,7 @@
         "url": "https://www.boc.lk/personal-banking/card-offers",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 1712,
+        "latencyMs": 4807,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -175,7 +175,7 @@
         "url": "https://www.peoplesbank.lk/special-offers/",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 2678,
+        "latencyMs": 5926,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -199,7 +199,7 @@
         "url": "https://www.seylan.lk/promotions/cards",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 5395,
+        "latencyMs": 1617,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -223,7 +223,7 @@
         "url": "https://www.ndbbank.com/cards/card-offers",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 1036,
+        "latencyMs": 3010,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -247,7 +247,7 @@
         "url": "https://www.dfcc.lk/dfcc-card-offers/today-promotions",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 1239,
+        "latencyMs": 1417,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -271,7 +271,7 @@
         "url": "https://www.pabcbank.com/card-offers/",
         "statusCode": 307,
         "reachable": true,
-        "latencyMs": 347,
+        "latencyMs": 359,
         "statusText": "Temporary Redirect",
         "tlsSecure": true
       },
@@ -295,7 +295,7 @@
         "url": "https://www.nsb.lk/category/card-offers/",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 553,
+        "latencyMs": 885,
         "statusText": "OK",
         "tlsSecure": true
       },
@@ -319,7 +319,7 @@
         "url": "https://www.combank.lk/rewards-promotions",
         "statusCode": 200,
         "reachable": true,
-        "latencyMs": 1116,
+        "latencyMs": 2208,
         "statusText": "OK",
         "tlsSecure": true
       },

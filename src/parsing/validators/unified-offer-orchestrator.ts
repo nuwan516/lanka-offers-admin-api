@@ -16,7 +16,7 @@ import {
 import { OfferToolExecutor, ToolExecutionRecord } from '@/llm/tools/offer-tool-executor';
 import { computeEffectiveOffer, ManualOverride } from '@/domain/effective-offer';
 import { scoreDuplicateCandidate } from '@/domain/duplicate-detector';
-import { determineLocationScope } from '@/domain/location-scope';
+import { determineLocationScope, LocationScope } from '@/domain/location-scope';
 import { ValidationOrchestrator } from '@/geo/validation-orchestrator';
 import { RawValidationData } from '@/core/types/validation';
 import { runLlmToolCallingSession, LlmToolSessionConfig } from '@/llm/llm-tool-session';
@@ -220,8 +220,11 @@ export class UnifiedOfferOrchestrator {
 
     const allCriticalGrounded = titleGrounded && discGrounded && merchantGrounded;
     const hasWarnings = ruleRes.warnings.length > 0;
+    const hasCriticalWarnings = ruleRes.warnings.some(
+      (w) => !w.message.includes('geocoding will rely on name only')
+    );
 
-    // Fast-path scope detection: ONLINE, NATIONWIDE, and SINGLE_OUTLET scopes are deterministically clean
+    // Fast-path scope detection: ONLINE, NATIONWIDE, EXPLICIT_BRANCH, and MULTIPLE_BRANCHES scopes are deterministically clean
     const detScope = determineLocationScope({
       location: candidate.merchant?.location,
       title: candidate.title,
@@ -229,7 +232,11 @@ export class UnifiedOfferOrchestrator {
       merchantName: candidate.merchant?.name,
       addresses: candidate.merchant?.addresses,
     });
-    const isCleanScope = detScope.scope === 'ONLINE' || detScope.scope === 'NATIONWIDE' || (detScope.scope as string) === 'SINGLE_OUTLET';
+    const isCleanScope =
+      detScope.scope === LocationScope.ONLINE ||
+      detScope.scope === LocationScope.NATIONWIDE ||
+      detScope.scope === LocationScope.EXPLICIT_BRANCH ||
+      detScope.scope === LocationScope.MULTIPLE_BRANCHES;
 
     // Shared budget: Complex or ambiguous scopes receive model attempts; clean scopes evaluate deterministically
     const initialGeoResult = await this.evaluateGeo(
@@ -240,10 +247,10 @@ export class UnifiedOfferOrchestrator {
     );
     const geoAttemptsUsed = initialGeoResult.attemptsUsed;
     const geoToolsUsed = initialGeoResult.toolCallsUsed;
-    const geoNeedsResolution = initialGeoResult.requiresHumanReview || initialGeoResult.scope === 'UNRESOLVED';
+    const geoNeedsResolution = initialGeoResult.requiresHumanReview;
 
-    // Fast-path: When offer is clean, 0 warnings, critical fields are grounded, and geo is already resolved
-    if (!this.config.forceLlm && allCriticalGrounded && !hasWarnings && !geoNeedsResolution) {
+    // Fast-path: When offer is clean, 0 critical warnings, critical fields are grounded, and geo does not require human review
+    if (!this.config.forceLlm && allCriticalGrounded && !hasCriticalWarnings && !geoNeedsResolution) {
       const dupResult = this.evaluateDuplicates(candidate, existingOffers);
 
       const isDup = dupResult.isDuplicate;

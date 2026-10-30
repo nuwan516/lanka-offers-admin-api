@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-29T18:26:26.410Z",
+  "evaluatedAt": "2026-10-30T15:39:59.404Z",
   "evaluationGate": "TASK_4_CONSUMER_JOURNEY_ACCEPTANCE",
   "webClient": {
     "framework": "Next.js 16.3.8 (App Router / Turbopack / Tailwind 4)",
@@ -90,7 +90,7 @@
         ]
       },
       {
-        "name": "phase7_card_eligibility_test.dart",
+        "name": "card_eligibility_matching_test.dart",
         "covers": [
           "Tier matching (Platinum/Signature/World)",
           "Conservative unknown fallback"

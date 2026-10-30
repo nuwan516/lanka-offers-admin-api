@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-29T20:44:39.825Z",
+  "evaluatedAt": "2026-10-30T15:37:49.893Z",
   "evaluationScope": "PHASE_1_LEAN_POSTGRESQL_2000_SIMULTANEOUSLY_PUBLISHED_OFFERS",
   "datasetSize": 2400,
   "activePublishedOffers": 2000,
@@ -67,8 +67,8 @@
     }
   ],
   "performanceSummary": {
-    "p50LatencyMs": 5,
-    "p95LatencyMs": 6,
+    "p50LatencyMs": 6,
+    "p95LatencyMs": 9,
     "performanceVerdict": "EXCELLENT: PostgreSQL natively handles the full 2,000 active offer Phase 1 workload with sub-10ms typical response times and deterministic pagination ordering."
   },
   "infrastructureVerdict": "LEAN POSTGRESQL ARCHITECTURE FULLY VALIDATED FOR IMMEDIATE LAUNCH"
