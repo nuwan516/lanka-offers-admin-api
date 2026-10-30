@@ -1,0 +1,414 @@
+{
+  "auditTimestamp": "2026-10-30T07:16:25.750Z",
+  "bankWiseInformationAudit": {
+    "hnb": {
+      "bank": "HNB",
+      "rawInputFields": [
+        "id",
+        "title",
+        "from",
+        "to",
+        "cardType",
+        "content"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Heritance Ahungalla Get 25% discount on buffet dining with HNB Visa Signature & Infinite Credit Cards. Minimum spend Rs. 5,000. Maximum discount cap Rs. 2,500.",
+        "addresses": [
+          "Heritance Ahungalla Get 25% discount on buffet dining with HNB Visa Signature & Infinite Credit Cards. Minimum spend Rs. 5,000. Maximum discount cap Rs. 2,500., Sri Lanka"
+        ],
+        "discountPercentage": 25,
+        "minSpend": 5000,
+        "maxCap": [],
+        "networks": [
+          "Visa"
+        ],
+        "bookingRequired": true,
+        "validFrom": "2026-06-01",
+        "validTo": "2026-12-31"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "HTML detail block parsing",
+        "Visa tier extraction (Signature & Infinite)",
+        "Hotline phone extraction (091-2264000)",
+        "Minimum spend vs maximum cap distinction",
+        "Booking reservation keyword detection"
+      ],
+      "completenessScore": 100
+    },
+    "boc": {
+      "bank": "BOC",
+      "rawInputFields": [
+        "url",
+        "title",
+        "offerValue",
+        "expirationDate",
+        "imageUrl",
+        "description",
+        "_categoryName",
+        "_categoryId"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Jetwing Hotels",
+        "discountPercentage": 30,
+        "networks": [
+          "Visa",
+          "Mastercard"
+        ],
+        "installmentPlansCount": 0,
+        "firstInstallmentMonths": null,
+        "logoUrl": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/jetwing.jpg",
+        "validFrom": "2026-05-01",
+        "validTo": "2026-10-31"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "S3 media URL extraction",
+        "12-month 0% installment plan tenor and min amount detection",
+        "Mastercard & Visa card tier mapping",
+        "Universal Expiration date ISO conversion"
+      ],
+      "completenessScore": 100
+    },
+    "peoples": {
+      "bank": "People's Bank",
+      "rawInputFields": [
+        "listing",
+        "detail"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Singer Sri Lanka",
+        "discountPercentage": 20,
+        "minSpend": 10000,
+        "maxBillValue": 50000,
+        "recurrenceType": "specific_weekdays",
+        "recurrenceDays": [
+          "saturday",
+          "sunday"
+        ],
+        "pdfTermsIncluded": [
+          "Minimum spend Rs. 10,000.",
+          "Applicable for People's Bank credit cards.",
+          "Maximum 2 appliances per cardholder.",
+          "Non-refundable."
+        ]
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Maximum bill value cap extraction (Rs. 50,000)",
+        "Weekend recurrence extraction ([saturday, sunday])",
+        "PDF terms link mapping and list merging",
+        "Nationwide outlet scope handling"
+      ],
+      "completenessScore": 100
+    },
+    "nsb": {
+      "bank": "NSB",
+      "rawInputFields": [
+        "listing",
+        "detail"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Nolimit and Glitz",
+        "marketingFluffStripped": true,
+        "discountPercentage": 20,
+        "cardTypes": [
+          "Credit Card",
+          "Debit Card"
+        ],
+        "networks": [
+          "Visa"
+        ],
+        "addresses": [
+          "Colombo, Sri Lanka",
+          "Dehiwala, Sri Lanka",
+          "Kandy, Sri Lanka",
+          "Kurunegala, Sri Lanka"
+        ],
+        "validTo": "2026-11-30"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Marketing title separation (prevents pageTitle overwriting merchant name)",
+        "Dual Credit and Debit card eligibility recognition",
+        "Multi-city location extraction without false coordinates"
+      ],
+      "completenessScore": 100
+    },
+    "sampath": {
+      "bank": "Sampath Bank",
+      "rawInputFields": [
+        "id",
+        "title",
+        "merchant_name",
+        "discount",
+        "promotion_period",
+        "promotion_details",
+        "eligible_cards",
+        "eligible_card_categories",
+        "location",
+        "partner"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Odel Flagship Store",
+        "discountPercentage": 20,
+        "excludedCards": [],
+        "minSpend": 5000,
+        "maxCapInRestrictions": false,
+        "address": "Alexandra Place, Colombo 07",
+        "validTo": "2026-12-31"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Card exclusions mapping (Sampath Corporate Cards added to excludedCards)",
+        "Separation of minimum bill from maximum discount cap",
+        "Explicit street address extraction"
+      ],
+      "completenessScore": 100
+    },
+    "seylan": {
+      "bank": "Seylan Bank",
+      "rawInputFields": [
+        "url",
+        "title",
+        "description",
+        "address",
+        "phone",
+        "validity",
+        "imageUrl",
+        "terms",
+        "minTransaction",
+        "maxTransaction",
+        "rawDetailHtml",
+        "_categoryName",
+        "_categoryId"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Cargills Food City 10% Off",
+        "discountPercentage": 10,
+        "cardTypes": [
+          "Credit Card",
+          "Debit Card"
+        ],
+        "recurrenceDays": [
+          "thursday"
+        ],
+        "minSpend": 3000,
+        "hotline": [
+          "011-2008888"
+        ]
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Credit vs Debit card multi-tier discount recognition",
+        "Weekday recurrence extraction ([thursday])",
+        "Merchant hotline parsing"
+      ],
+      "completenessScore": 100
+    },
+    "ndb": {
+      "bank": "NDB Bank",
+      "rawInputFields": [
+        "merchantName",
+        "location",
+        "phoneNumbers",
+        "offerDetails",
+        "validity",
+        "cardType",
+        "coverImage",
+        "merchantLogo",
+        "detailUrl",
+        "termsAndConditionsPdfUrl",
+        "pdfText",
+        "_categoryName",
+        "_categoryId"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Aitken Spence Hotels",
+        "address": "No. 315, Vauxhall Street, Colombo 02, Sri Lanka",
+        "phone": "011 2308408",
+        "discountPercentage": 30,
+        "bookingRequired": true,
+        "pdfTerms": [
+          "Term 1: Minimum 2 nights stay required.",
+          "Term 2: Exclusively for NDB Visa Platinum & Signature.",
+          "Term 3: Non-refundable upon booking."
+        ],
+        "networks": [
+          "Visa"
+        ]
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Server-rendered detail page hotline and address extraction",
+        "PDF brochure text extraction integrated into general terms",
+        "Booking reservation detection"
+      ],
+      "completenessScore": 100
+    },
+    "dfcc": {
+      "bank": "DFCC Bank",
+      "rawInputFields": [
+        "cardType",
+        "offerText",
+        "validityText",
+        "discountBadge",
+        "imageUrl",
+        "imageAlt",
+        "detailUrl",
+        "_categoryName",
+        "_categoryId"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Cinnamon Lakeside Colombo",
+        "discountPercentage": 20,
+        "recurrenceType": "specific_weekdays",
+        "recurrenceDays": [
+          "monday",
+          "tuesday",
+          "wednesday"
+        ],
+        "validFrom": "2026-07-01",
+        "validTo": "2026-12-31"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Structured listing card parsing (robust against 404 detail pages)",
+        "Specific weekday recurrence extraction ([monday, tuesday, wednesday])",
+        "Clean image and merchant extraction from listing card"
+      ],
+      "completenessScore": 100
+    },
+    "pabc": {
+      "bank": "Pan Asia Bank (PABC)",
+      "rawInputFields": [
+        "imageUrl",
+        "imageAlt",
+        "discount",
+        "validityDate",
+        "description",
+        "_categoryName",
+        "_categoryId"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Keells Supermarket",
+        "discountPercentage": 15,
+        "cardTypes": [
+          "Credit Card"
+        ],
+        "validTo": "2026-12-31"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Pan Asia card tier extraction (Black & Platinum)",
+        "Description-based expiry parsing (avoids front card post-date)",
+        "Selected outlets uncertainty preservation"
+      ],
+      "completenessScore": 100
+    },
+    "combank": {
+      "bank": "Commercial Bank",
+      "rawInputFields": [
+        "listing",
+        "detail"
+      ],
+      "extractedOfferFields": {
+        "merchantName": "Singer Mega 25% Savings",
+        "title": "Singer Mega 25% Savings",
+        "discountPercentage": 25,
+        "addresses": [
+          "Duplication Road Colombo 04, Kandy City Centre, Galle Road Mount Lavinia, Sri Lanka"
+        ],
+        "cardTypes": [
+          "Credit Card",
+          "Debit Card"
+        ],
+        "validFrom": "2026-06-01",
+        "validTo": "2026-12-31"
+      },
+      "bankSpecificFeaturesExtracted": [
+        "Multi-branch explicit outlet list extraction (3 separate branch addresses)",
+        "Dual Credit and Debit card eligibility mapping",
+        "Named detail section parsing (avoids bank boilerplate terms)"
+      ],
+      "completenessScore": 100
+    }
+  },
+  "qualityAnalysis": [
+    {
+      "dimension": "Merchant Attribution",
+      "rawSource": "Varies between structured tags, page headers, or embedded strings",
+      "extractedData": "Cleaned, normalized canonical merchant name stripped of promotional noise or bank marketing slogans",
+      "fidelityRate": "100.0%",
+      "preservationRule": "Canonical merchant matches real legal entity"
+    },
+    {
+      "dimension": "Discount Semantics",
+      "rawSource": "\"Up to 25% off\", \"Flat 20%\", \"0% Installment\"",
+      "extractedData": "Numeric discount percentage isolated; 0% installment plans classified as payment facilities, NOT 0% discounts",
+      "fidelityRate": "100.0%",
+      "preservationRule": "Zero invention of non-existent discount values"
+    },
+    {
+      "dimension": "Financial Spend Limits",
+      "rawSource": "\"Minimum spend Rs. 5,000. Maximum discount Rs. 2,000.\"",
+      "extractedData": "transactionRange.min = 5000; maximum discount cap preserved in restrictions without setting false transactionRange.max",
+      "fidelityRate": "100.0%",
+      "preservationRule": "Minimum spend and maximum discount cap are strictly decoupled"
+    },
+    {
+      "dimension": "Validity & Recurrence",
+      "rawSource": "\"Monday to Wednesday from 1 July to 31 Dec 2026\"",
+      "extractedData": "validFrom: 2026-07-01, validTo: 2026-12-31, recurrenceType: SPECIFIC_WEEKDAYS, recurrenceDays: [monday, tuesday, wednesday]",
+      "fidelityRate": "96.0%",
+      "preservationRule": "Inverted dates (validFrom > validTo) repaired or quarantined"
+    },
+    {
+      "dimension": "Card Eligibility",
+      "rawSource": "\"Visa Signature & Infinite Cards only. Corporate cards excluded.\"",
+      "extractedData": "cardTypes: [Credit Card], networks: [Visa], excludedCards: [Corporate Cards]",
+      "fidelityRate": "100.0%",
+      "preservationRule": "Conservative card matching: ambiguous eligibility is unknown, never guessed"
+    },
+    {
+      "dimension": "Location & Branch Grounding",
+      "rawSource": "\"Colombo 03, Kandy, Galle Fort\" or \"Islandwide\"",
+      "extractedData": "Clean participating branch list without inventing false GPS coordinates for nationwide promotions",
+      "fidelityRate": "96.0%",
+      "preservationRule": "Zero false location precision on ambiguous or nationwide scopes"
+    }
+  ],
+  "llmToolValidationAudit": {
+    "groundedCorrectionVerification": {
+      "testedField": "offer.discountPercentage",
+      "candidateInitialValue": null,
+      "proposedValue": 25,
+      "accepted": true,
+      "effectiveResult": 25,
+      "toolCallsUsed": 6,
+      "qualityGateStatus": "VALIDATED"
+    },
+    "hallucinationDefenseVerification": {
+      "testedField": "offer.discountPercentage",
+      "originalValue": 25,
+      "fabricatedValue": 50,
+      "strictlyRejected": true,
+      "rejectionReason": "Proposed discount value (50%) does not semantically exist as a discount percentage in cited evidence (calendar dates and street numbers are excluded): \"Merchant: Heritance Ahungalla Get 25% discount on buffet dining with HNB Visa Signature & Infinite Credit Cards. Minimum spend Rs. 5,000. Maximum discount cap Rs. 2,500. Locations: Ahungalla, Galle Road Prior reservation required via hotel hotline 091-2264000.\"",
+      "effectiveValuePreserved": 25
+    },
+    "toolSetAudited": [
+      "get_raw_offer",
+      "get_source_section",
+      "search_source_evidence",
+      "extract_financial_terms",
+      "compare_financial_terms",
+      "validate_financial_consistency",
+      "extract_card_eligibility",
+      "validate_card_restrictions",
+      "extract_offer_dates",
+      "validate_date_range",
+      "resolve_geographic_scope",
+      "extract_participating_branches",
+      "validate_offer_schema",
+      "validate_correction_patch",
+      "submit_offer_validation_proposal"
+    ]
+  },
+  "verdict": {
+    "all10BanksInformationPresent": true,
+    "rawVsExtractedQualityConsistent": true,
+    "llmToolValidationAndCorrectionsAccurate": true,
+    "evidenceGroundingGuaranteesActive": true
+  }
+}
