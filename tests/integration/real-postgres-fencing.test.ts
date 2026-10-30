@@ -57,6 +57,8 @@ function makeTestOffer(id: string, bank = 'hnb', title = 'Test Hotel Offer'): Of
   };
   const parsed = parseHNBDetail(id, fixture, 'Dining', 1)!;
   parsed.source = bank;
+  const domain = bank === 'ndb' ? 'www.ndbbank.com' : bank === 'pabc' ? 'www.pabcbank.com' : `www.${bank}.lk`;
+  parsed.sourceUrl = `https://${domain}/promotions/${id}`;
   parsed.uniqueId = `${bank}_${id}`;
   parsed.contentHash = `hash-${id}-v1`;
   return parsed;

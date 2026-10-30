@@ -1,5 +1,5 @@
 {
-  "evaluatedAt": "2026-10-29T20:44:35.631Z",
+  "evaluatedAt": "2026-10-30T05:59:07.005Z",
   "gate": "TASK_2_CDN_CACHE_INVALIDATION_PROOF",
   "status": "PASS",
   "strategy": "DIRECT_ORIGIN_NO_STORE_FRESHNESS",

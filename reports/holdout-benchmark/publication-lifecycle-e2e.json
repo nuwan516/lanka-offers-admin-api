@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T16:14:32.825Z",
+  "generatedAt": "2026-10-30T05:56:51.274Z",
   "evaluationGate": "PHASE_4_FULL_PUBLICATION_WORKFLOW_SIMULATION",
   "lifecycleStepsVerified": 13,
   "traces": [
@@ -34,7 +34,7 @@
       "step": 5,
       "name": "AUTHORIZED_PUBLICATION",
       "dbStatus": "PUBLISHED",
-      "publishedAt": "2026-10-29T16:14:32.702Z"
+      "publishedAt": "2026-10-30T05:56:51.168Z"
     },
     {
       "step": 6,
