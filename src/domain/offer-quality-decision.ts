@@ -6,11 +6,12 @@
  */
 import { getQualityPolicyConfig } from '@/config/quality-policy';
 
-export type QualityDecision = 'AUTO_APPROVE' | 'REVIEW_REQUIRED' | 'REJECT';
+export type QualityDecision = 'AUTO_APPROVE' | 'REVIEW_REQUIRED' | 'REJECT' | 'EXPIRE';
 
 export type ExtendedQualityCategory =
   | 'VALID_HIGH_CONFIDENCE'
   | 'VALID_WITH_WARNINGS'
+  | 'VALID_EXPIRED'
   | 'REVIEW_REQUIRED'
   | 'INVALID'
   | 'DUPLICATE_CANDIDATE'
@@ -27,6 +28,7 @@ export interface QualityDecisionInput {
   llmStatus: string | null;
   isDuplicate?: boolean;
   isSourceIncomplete?: boolean;
+  isExpired?: boolean;
   /** Non-blocking context — informational only for now. */
   geoStatus?: string | null;
 }
@@ -55,7 +57,13 @@ export function classifyDetailedOfferQuality(input: QualityDecisionInput): Detai
     return { decision: 'REVIEW_REQUIRED', category: 'DUPLICATE_CANDIDATE', reasons };
   }
 
-  // 3. Rule validation failure
+  // 3. Expired promotion (valid extraction, but past validity date)
+  if (input.isExpired) {
+    reasons.push('Promotion validity period has expired; extraction is structurally valid but cannot be published active');
+    return { decision: 'EXPIRE', category: 'VALID_EXPIRED', reasons };
+  }
+
+  // 4. Rule validation failure
   if (!input.ruleValid || input.ruleErrorCount > 0) {
     reasons.push(`Deterministic parser rule validation failed with ${input.ruleErrorCount} error(s)`);
     return { decision: 'REVIEW_REQUIRED', category: 'INVALID', reasons };

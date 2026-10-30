@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-10-29T17:58:00.249Z",
+  "totalBanks": 10,
+  "endpointHealth": [
+    {
+      "bank": "hnb",
+      "displayName": "Hatton National Bank",
+      "officialUrl": "https://venus.hnb.lk/api/get_all_web_card_promos?page=1&cardType=all",
+      "sourceType": "json-api",
+      "httpStatus": 200,
+      "latencyMs": 1046,
+      "reachable": true,
+      "contentType": "application/json; charset=utf-8",
+      "evidenceHash": "d367bc9f30af35bd07f66accd888e8ca083511aaaeeab282f18db01190e31fdd",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "sampath",
+      "displayName": "Sampath Bank",
+      "officialUrl": "https://www.sampath.lk/sampath-cards/credit-card-offer",
+      "sourceType": "headless-browser",
+      "httpStatus": 200,
+      "latencyMs": 46640,
+      "reachable": true,
+      "contentType": "text/html; charset=utf-8",
+      "evidenceHash": "224e2106702c28884d04ab799b568ef3e9450a84ee2a24e8e9fcf05c59da4a06",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "boc",
+      "displayName": "Bank of Ceylon",
+      "officialUrl": "https://www.boc.lk/personal-banking/card-offers",
+      "sourceType": "html",
+      "httpStatus": 200,
+      "latencyMs": 1765,
+      "reachable": true,
+      "contentType": "text/html; charset=UTF-8",
+      "evidenceHash": "cdc6df2af84bee2ace098eeab8e4be4b9b27ae0787cd2fb6b9b8b4fbce6ef1dc",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "peoples",
+      "displayName": "People's Bank",
+      "officialUrl": "https://www.peoplesbank.lk/special-offers/",
+      "sourceType": "html",
+      "httpStatus": 200,
+      "latencyMs": 3266,
+      "reachable": true,
+      "contentType": "text/html; charset=UTF-8",
+      "evidenceHash": "80f7ad787a0f8f950de79e13a62912fd009c22c9250b8fd706cbc2eb1c6dee16",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "seylan",
+      "displayName": "Seylan Bank",
+      "officialUrl": "https://www.seylan.lk/promotions/cards",
+      "sourceType": "html",
+      "httpStatus": 200,
+      "latencyMs": 9844,
+      "reachable": true,
+      "contentType": "text/html; charset=UTF-8",
+      "evidenceHash": "6d4ed50763597cf2fd0d380973921c412f3df083205d5561dce248ab05c6081a",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "ndb",
+      "displayName": "NDB Bank",
+      "officialUrl": "https://www.ndbbank.com/cards/card-offers",
+      "sourceType": "headless-browser",
+      "httpStatus": 200,
+      "latencyMs": 8279,
+      "reachable": true,
+      "contentType": "text/html; charset=utf-8",
+      "evidenceHash": "31536b1be9fb528180113842e8321c2524792e8d6c640d5dc59663f436bd6e51",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "dfcc",
+      "displayName": "DFCC Bank",
+      "officialUrl": "https://www.dfcc.lk/dfcc-card-offers/today-promotions",
+      "sourceType": "headless-browser",
+      "httpStatus": 200,
+      "latencyMs": 2260,
+      "reachable": true,
+      "contentType": "text/html; charset=utf-8",
+      "evidenceHash": "c08617923b9e99850b470b0452bcd6630228763763d07aaa9d03857546b755f7",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "pabc",
+      "displayName": "Pan Asia Bank",
+      "officialUrl": "https://www.pabcbank.com/card-offers/",
+      "sourceType": "headless-browser",
+      "httpStatus": 307,
+      "latencyMs": 282,
+      "reachable": true,
+      "contentType": "text/html",
+      "evidenceHash": "21a0e7eecf361d667c4759ad02dbc19099422fb456ce419e15fe7b18196a5fcb",
+      "status": "DEGRADED"
+    },
+    {
+      "bank": "nsb",
+      "displayName": "National Savings Bank",
+      "officialUrl": "https://www.nsb.lk/category/card-offers/",
+      "sourceType": "html",
+      "httpStatus": 200,
+      "latencyMs": 610,
+      "reachable": true,
+      "contentType": "text/html; charset=UTF-8",
+      "evidenceHash": "7ebef6f1ac21c7e626c0704e2186e065bfcc5b2554b51c844a6770c50b81301b",
+      "status": "OPERATIONAL"
+    },
+    {
+      "bank": "combank",
+      "displayName": "Commercial Bank of Ceylon",
+      "officialUrl": "https://www.combank.lk/rewards-promotions",
+      "sourceType": "html",
+      "httpStatus": 200,
+      "latencyMs": 2082,
+      "reachable": true,
+      "contentType": "text/html; charset=UTF-8",
+      "evidenceHash": "86c50c0f6bc35fda3fab500627820d481475558869c2f5ce13675b554d02a800",
+      "status": "OPERATIONAL"
+    }
+  ]
+}

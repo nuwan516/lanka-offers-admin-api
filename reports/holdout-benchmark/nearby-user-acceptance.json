@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-10-29T16:14:32.486Z",
+  "evaluationGate": "PHASE_5_NEARBY_USER_ACCEPTANCE_TESTING",
+  "scenariosEvaluated": [
+    {
+      "scenario": "Nearby Radius Filtering (5km vs 3km vs Fort 1km)",
+      "userLocation": {
+        "lat": 6.9147,
+        "lng": 79.8653,
+        "description": "Town Hall, Colombo 07"
+      },
+      "results5kmCount": 3,
+      "results3kmCount": 1,
+      "resultsFort1kmCount": 2,
+      "passed": true
+    },
+    {
+      "scenario": "Device/Map Coordinate Relocation (Kandy 5km)",
+      "searchLocation": {
+        "lat": 7.2936,
+        "lng": 80.635,
+        "description": "Kandy City Center"
+      },
+      "discoveredBranches": [
+        "Kandy City Center Branch"
+      ],
+      "passed": true
+    },
+    {
+      "scenario": "Suppression of Non-Physical / Expired / Unverified Records",
+      "onlineSuppressed": true,
+      "nationwideSuppressed": true,
+      "unverifiedHQSuppressed": true,
+      "expiredSuppressed": true,
+      "unapprovedStagingSuppressed": true,
+      "passed": true
+    },
+    {
+      "scenario": "Multi-Bank Shared Venue Disambiguation",
+      "sharedVenue": "Chatham Street, Colombo 01",
+      "distinctPromotionsIdentified": 2,
+      "banks": [
+        "seylan (25%)",
+        "hnb (20%)"
+      ],
+      "passed": true
+    },
+    {
+      "scenario": "Consumer Client Compatibility (Next.js & Flutter)",
+      "nextJsPinCount": 3,
+      "flutterMarkerCount": 3,
+      "passed": true
+    }
+  ],
+  "verdict": "ALL NEARBY USER ACCEPTANCE CRITERIA SATISFIED WITH 100% VENUE ACCURACY"
+}

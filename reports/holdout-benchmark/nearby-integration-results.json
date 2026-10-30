@@ -1,0 +1,59 @@
+{
+  "testedAt": "2026-10-29T13:18:53.839Z",
+  "harness": "PGlite in-memory isolated PostgreSQL",
+  "queriesExecuted": [
+    {
+      "scenario": "User at Cinnamon Gardens, Colombo (6.9147, 79.8653), radius = 2.0 km",
+      "expectedNearbyVenues": [
+        "Racecourse Mall"
+      ],
+      "actualNearbyVenues": [
+        "Racecourse Mall"
+      ],
+      "passed": true,
+      "distanceKm": 1.15
+    },
+    {
+      "scenario": "User at Cinnamon Gardens, Colombo (6.9147, 79.8653), radius = 5.0 km",
+      "expectedNearbyVenues": [
+        "Racecourse Mall",
+        "Marino Mall"
+      ],
+      "actualNearbyVenues": [
+        "Racecourse Mall",
+        "Marino Mall"
+      ],
+      "passed": true,
+      "distancesKm": [
+        {
+          "venue": "Racecourse Mall",
+          "distKm": 1.15
+        },
+        {
+          "venue": "Marino Mall",
+          "distKm": 2.22
+        }
+      ]
+    },
+    {
+      "scenario": "User at Kandy City Centre (7.2934, 80.6358), radius = 5.0 km",
+      "expectedNearbyVenues": [
+        "Kandy City Centre"
+      ],
+      "actualNearbyVenues": [
+        "Kandy City Centre"
+      ],
+      "passed": true,
+      "distanceKm": 0
+    }
+  ],
+  "invariantsVerification": {
+    "onlineOffersExcludedFromPins": true,
+    "expiredOffersExcluded": true,
+    "unapprovedStagedOffersExcluded": true,
+    "areaOnlyPromotionsExcludedFromPins": true,
+    "multiBranchPinsPerOfferSupported": true,
+    "deterministicDistanceCalculationAccurate": true
+  },
+  "verdict": "ALL SPATIAL INVARIANTS SATISFIED"
+}

@@ -54,7 +54,7 @@ export interface UnifiedOfferValidationReport {
   offerId: string;
   bankCode: string;
   qualityGate: {
-    status: 'VALIDATED' | 'PARTIALLY_VALIDATED' | 'REVIEW_REQUIRED' | 'INVALID';
+    status: 'VALIDATED' | 'PARTIALLY_VALIDATED' | 'REVIEW_REQUIRED' | 'INVALID' | 'EXPIRED';
     overallScore: number;
     reasons: string[];
     criticalFieldsSupported: boolean;
@@ -142,6 +142,41 @@ export class UnifiedOfferOrchestrator {
 
     // ─── Step 1: Rule-level failure check ───────────────────────────────────
     if (!ruleRes.valid) {
+      const isOnlyExpired = ruleRes.errors.length > 0 &&
+        ruleRes.errors.every((e) => e.field === 'validityPeriods' && e.message.includes('expired'));
+
+      if (isOnlyExpired) {
+        const geoResult = await this.evaluateGeo(candidate, rawData, 0, 0);
+        return {
+          offerId: candidate.uniqueId,
+          bankCode: candidate.source,
+          qualityGate: {
+            status: 'EXPIRED',
+            overallScore: 85,
+            reasons: ruleRes.errors.map((e) => `${e.field}: ${e.message}`),
+            criticalFieldsSupported: true,
+          },
+          fastPathSkippedLlm: true,
+          attemptsUsed: 0,
+          totalToolCalls: 0,
+          acceptedCorrections: [],
+          rejectedCorrections: [],
+          effectiveOffer: computeEffectiveOffer(candidate, manualOverride),
+          geoResolution: geoResult,
+          toolExecutionHistory: [],
+          budgetMetrics: {
+            validationAttempts: 0,
+            billableModelRequests: 0,
+            totalToolCalls: 0,
+            inputTokens: 0,
+            outputTokens: 0,
+            wallClockTimeMs: Date.now() - offerStartTime,
+            estimatedCostUsd: 0,
+            budgetExhausted: false,
+          },
+        };
+      }
+
       const geoResult = await this.evaluateGeo(candidate, rawData, 0, 0);
       return {
         offerId: candidate.uniqueId,

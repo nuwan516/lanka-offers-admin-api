@@ -1,0 +1,51 @@
+{
+  "executedAt": "2026-10-29T17:58:08.563Z",
+  "evaluationGate": "PHASE_4_SINGLE_BANK_STAGING_PILOT",
+  "bankEvaluated": "HNB (Hatton National Bank)",
+  "totalCandidatePromotionsProcessed": 5,
+  "traces": [
+    {
+      "offerId": "7ae7df5c-d1bd-4219-8bca-4e6636347b6f",
+      "uniqueId": "hnb-pilot-3360",
+      "isNew": true,
+      "dbStatus": "REVIEW_REQUIRED",
+      "publicLeakDetected": false
+    },
+    {
+      "offerId": "0d1fe1ca-b491-45a5-bdd6-6684728d27a4",
+      "uniqueId": "hnb-pilot-3454",
+      "isNew": true,
+      "dbStatus": "REVIEW_REQUIRED",
+      "publicLeakDetected": false
+    },
+    {
+      "offerId": "4eb4bc42-b50f-4618-88e3-ce179814ddc0",
+      "uniqueId": "hnb-pilot-3457",
+      "isNew": true,
+      "dbStatus": "REVIEW_REQUIRED",
+      "publicLeakDetected": false
+    },
+    {
+      "offerId": "741d7a8d-719c-4854-bcc9-0d841802b591",
+      "uniqueId": "hnb-pilot-3455",
+      "isNew": true,
+      "dbStatus": "REVIEW_REQUIRED",
+      "publicLeakDetected": false
+    },
+    {
+      "offerId": "647e6615-0465-42d0-8834-e1094265ae40",
+      "uniqueId": "hnb-pilot-3463",
+      "isNew": true,
+      "dbStatus": "REVIEW_REQUIRED",
+      "publicLeakDetected": false
+    }
+  ],
+  "safeguardsVerified": {
+    "rawEvidenceImmutability": true,
+    "deterministicValidationPassed": true,
+    "zeroPublicLeakage": true,
+    "manualOverrideProtected": true,
+    "adminDashboardReviewRequired": true
+  },
+  "verdict": "SINGLE-BANK STAGING PILOT SATISFIES ALL 10 OPERATIONAL SAFETY CRITERIA"
+}

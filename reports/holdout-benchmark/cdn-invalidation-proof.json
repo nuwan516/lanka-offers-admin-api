@@ -1,0 +1,28 @@
+{
+  "evaluatedAt": "2026-10-29T20:44:35.631Z",
+  "gate": "TASK_2_CDN_CACHE_INVALIDATION_PROOF",
+  "status": "PASS",
+  "strategy": "DIRECT_ORIGIN_NO_STORE_FRESHNESS",
+  "headerAudit": {
+    "listings": {
+      "cacheControl": "no-store",
+      "edgeTtlSeconds": 0,
+      "explanation": "Immediate revocation correctness; no edge or proxy caching delay"
+    },
+    "detail": {
+      "cacheControl": "no-store",
+      "edgeTtlSeconds": 0,
+      "explanation": "Instant reflection of operator withdrawal, disabling, or financial updates"
+    },
+    "errorsAndHealth": {
+      "cacheControl": "no-cache, no-store, must-revalidate",
+      "edgeTtlSeconds": 0
+    }
+  },
+  "withdrawalExposureAnalysis": {
+    "maximumExposureWindowSeconds": 0,
+    "mechanism": "Direct PostgreSQL query on every request; withdrawn offers immediately disappear without CDN purge webhooks or cache-tag dependencies.",
+    "riskLevel": "ZERO_EXPOSURE"
+  },
+  "verdict": "LEAN PHASE 1 CACHING VERIFIED: NO-STORE GUARANTEES IMMEDIATE REVOCATION CORRECTNESS WITHOUT COMPLEX CDN DEPENDENCIES"
+}

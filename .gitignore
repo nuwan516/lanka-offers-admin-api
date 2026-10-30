@@ -80,3 +80,5 @@ ssh-key*
 
 # local data backups
 backups/
+data/
+.test-images/

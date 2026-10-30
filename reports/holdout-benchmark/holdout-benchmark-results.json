@@ -1,0 +1,663 @@
+{
+  "evaluatedAt": "2026-10-29T09:56:38.596Z",
+  "totalHoldoutOffers": 100,
+  "banksEvaluated": [
+    "hnb",
+    "boc",
+    "sampath",
+    "seylan",
+    "peoples",
+    "nsb",
+    "combank",
+    "ndb",
+    "dfcc",
+    "pabc"
+  ],
+  "pipelineA": {
+    "pipelineName": "Pipeline A: Deterministic-Only",
+    "totalOffers": 100,
+    "bankBreakdown": {
+      "hnb": {
+        "total": 10,
+        "correctFields": 127,
+        "totalFields": 140,
+        "accuracy": 90.71
+      },
+      "boc": {
+        "total": 10,
+        "correctFields": 134,
+        "totalFields": 140,
+        "accuracy": 95.71
+      },
+      "sampath": {
+        "total": 10,
+        "correctFields": 128,
+        "totalFields": 140,
+        "accuracy": 91.43
+      },
+      "seylan": {
+        "total": 10,
+        "correctFields": 128,
+        "totalFields": 140,
+        "accuracy": 91.43
+      },
+      "peoples": {
+        "total": 10,
+        "correctFields": 133,
+        "totalFields": 140,
+        "accuracy": 95
+      },
+      "nsb": {
+        "total": 10,
+        "correctFields": 132,
+        "totalFields": 140,
+        "accuracy": 94.29
+      },
+      "combank": {
+        "total": 10,
+        "correctFields": 135,
+        "totalFields": 140,
+        "accuracy": 96.43
+      },
+      "ndb": {
+        "total": 10,
+        "correctFields": 135,
+        "totalFields": 140,
+        "accuracy": 96.43
+      },
+      "dfcc": {
+        "total": 10,
+        "correctFields": 134,
+        "totalFields": 140,
+        "accuracy": 95.71
+      },
+      "pabc": {
+        "total": 10,
+        "correctFields": 130,
+        "totalFields": 140,
+        "accuracy": 92.86
+      }
+    },
+    "fieldMetrics": {
+      "merchant_accuracy": {
+        "fieldName": "merchant_accuracy",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "bank_attribution": {
+        "fieldName": "bank_attribution",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "discount_extraction": {
+        "fieldName": "discount_extraction",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "is_up_to_correctness": {
+        "fieldName": "is_up_to_correctness",
+        "totalEvaluated": 100,
+        "correct": 95,
+        "incorrect": 5,
+        "abstained": 0,
+        "accuracy": 95,
+        "precision": 95,
+        "recall": 95
+      },
+      "cashback_semantics": {
+        "fieldName": "cashback_semantics",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "installment_correctness": {
+        "fieldName": "installment_correctness",
+        "totalEvaluated": 100,
+        "correct": 99,
+        "incorrect": 1,
+        "abstained": 0,
+        "accuracy": 99,
+        "precision": 99,
+        "recall": 99
+      },
+      "minimum_spend": {
+        "fieldName": "minimum_spend",
+        "totalEvaluated": 100,
+        "correct": 99,
+        "incorrect": 1,
+        "abstained": 0,
+        "accuracy": 99,
+        "precision": 99,
+        "recall": 99
+      },
+      "maximum_discount": {
+        "fieldName": "maximum_discount",
+        "totalEvaluated": 100,
+        "correct": 91,
+        "incorrect": 9,
+        "abstained": 0,
+        "accuracy": 91,
+        "precision": 91,
+        "recall": 91
+      },
+      "card_eligibility": {
+        "fieldName": "card_eligibility",
+        "totalEvaluated": 100,
+        "correct": 97,
+        "incorrect": 2,
+        "abstained": 1,
+        "accuracy": 97,
+        "precision": 97.98,
+        "recall": 97
+      },
+      "date_validity": {
+        "fieldName": "date_validity",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "location_scope": {
+        "fieldName": "location_scope",
+        "totalEvaluated": 100,
+        "correct": 68,
+        "incorrect": 32,
+        "abstained": 0,
+        "accuracy": 68,
+        "precision": 68,
+        "recall": 68
+      },
+      "branch_accuracy": {
+        "fieldName": "branch_accuracy",
+        "totalEvaluated": 100,
+        "correct": 88,
+        "incorrect": 12,
+        "abstained": 0,
+        "accuracy": 88,
+        "precision": 88,
+        "recall": 88
+      },
+      "duplicate_classification": {
+        "fieldName": "duplicate_classification",
+        "totalEvaluated": 100,
+        "correct": 84,
+        "incorrect": 16,
+        "abstained": 0,
+        "accuracy": 84,
+        "precision": 84,
+        "recall": 84
+      },
+      "terms_and_restrictions": {
+        "fieldName": "terms_and_restrictions",
+        "totalEvaluated": 100,
+        "correct": 95,
+        "incorrect": 0,
+        "abstained": 5,
+        "accuracy": 95,
+        "precision": 100,
+        "recall": 95
+      }
+    },
+    "overallFieldAccuracy": 94,
+    "abstainedRate": 0.43,
+    "incorrectClaimRate": 5.57,
+    "unsupportedInferenceRate": 5.57
+  },
+  "pipelineB": {
+    "pipelineName": "Pipeline B: Deterministic + Selective LLM Validation",
+    "totalOffers": 100,
+    "bankBreakdown": {
+      "hnb": {
+        "total": 10,
+        "correctFields": 127,
+        "totalFields": 140,
+        "accuracy": 90.71
+      },
+      "boc": {
+        "total": 10,
+        "correctFields": 134,
+        "totalFields": 140,
+        "accuracy": 95.71
+      },
+      "sampath": {
+        "total": 10,
+        "correctFields": 128,
+        "totalFields": 140,
+        "accuracy": 91.43
+      },
+      "seylan": {
+        "total": 10,
+        "correctFields": 128,
+        "totalFields": 140,
+        "accuracy": 91.43
+      },
+      "peoples": {
+        "total": 10,
+        "correctFields": 133,
+        "totalFields": 140,
+        "accuracy": 95
+      },
+      "nsb": {
+        "total": 10,
+        "correctFields": 132,
+        "totalFields": 140,
+        "accuracy": 94.29
+      },
+      "combank": {
+        "total": 10,
+        "correctFields": 135,
+        "totalFields": 140,
+        "accuracy": 96.43
+      },
+      "ndb": {
+        "total": 10,
+        "correctFields": 135,
+        "totalFields": 140,
+        "accuracy": 96.43
+      },
+      "dfcc": {
+        "total": 10,
+        "correctFields": 134,
+        "totalFields": 140,
+        "accuracy": 95.71
+      },
+      "pabc": {
+        "total": 10,
+        "correctFields": 130,
+        "totalFields": 140,
+        "accuracy": 92.86
+      }
+    },
+    "fieldMetrics": {
+      "merchant_accuracy": {
+        "fieldName": "merchant_accuracy",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "bank_attribution": {
+        "fieldName": "bank_attribution",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "discount_extraction": {
+        "fieldName": "discount_extraction",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "is_up_to_correctness": {
+        "fieldName": "is_up_to_correctness",
+        "totalEvaluated": 100,
+        "correct": 95,
+        "incorrect": 5,
+        "abstained": 0,
+        "accuracy": 95,
+        "precision": 95,
+        "recall": 95
+      },
+      "cashback_semantics": {
+        "fieldName": "cashback_semantics",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "installment_correctness": {
+        "fieldName": "installment_correctness",
+        "totalEvaluated": 100,
+        "correct": 99,
+        "incorrect": 1,
+        "abstained": 0,
+        "accuracy": 99,
+        "precision": 99,
+        "recall": 99
+      },
+      "minimum_spend": {
+        "fieldName": "minimum_spend",
+        "totalEvaluated": 100,
+        "correct": 99,
+        "incorrect": 1,
+        "abstained": 0,
+        "accuracy": 99,
+        "precision": 99,
+        "recall": 99
+      },
+      "maximum_discount": {
+        "fieldName": "maximum_discount",
+        "totalEvaluated": 100,
+        "correct": 91,
+        "incorrect": 9,
+        "abstained": 0,
+        "accuracy": 91,
+        "precision": 91,
+        "recall": 91
+      },
+      "card_eligibility": {
+        "fieldName": "card_eligibility",
+        "totalEvaluated": 100,
+        "correct": 97,
+        "incorrect": 2,
+        "abstained": 1,
+        "accuracy": 97,
+        "precision": 97.98,
+        "recall": 97
+      },
+      "date_validity": {
+        "fieldName": "date_validity",
+        "totalEvaluated": 100,
+        "correct": 100,
+        "incorrect": 0,
+        "abstained": 0,
+        "accuracy": 100,
+        "precision": 100,
+        "recall": 100
+      },
+      "location_scope": {
+        "fieldName": "location_scope",
+        "totalEvaluated": 100,
+        "correct": 68,
+        "incorrect": 32,
+        "abstained": 0,
+        "accuracy": 68,
+        "precision": 68,
+        "recall": 68
+      },
+      "branch_accuracy": {
+        "fieldName": "branch_accuracy",
+        "totalEvaluated": 100,
+        "correct": 88,
+        "incorrect": 12,
+        "abstained": 0,
+        "accuracy": 88,
+        "precision": 88,
+        "recall": 88
+      },
+      "duplicate_classification": {
+        "fieldName": "duplicate_classification",
+        "totalEvaluated": 100,
+        "correct": 84,
+        "incorrect": 16,
+        "abstained": 0,
+        "accuracy": 84,
+        "precision": 84,
+        "recall": 84
+      },
+      "terms_and_restrictions": {
+        "fieldName": "terms_and_restrictions",
+        "totalEvaluated": 100,
+        "correct": 95,
+        "incorrect": 0,
+        "abstained": 5,
+        "accuracy": 95,
+        "precision": 100,
+        "recall": 95
+      }
+    },
+    "overallFieldAccuracy": 94,
+    "abstainedRate": 0.43,
+    "incorrectClaimRate": 5.57,
+    "unsupportedInferenceRate": 5.57
+  },
+  "accuracyDelta": {
+    "overallGainPercent": 0,
+    "improvedFields": [],
+    "degradedFields": [],
+    "unchangedFields": [
+      "merchant_accuracy",
+      "bank_attribution",
+      "discount_extraction",
+      "is_up_to_correctness",
+      "cashback_semantics",
+      "installment_correctness",
+      "minimum_spend",
+      "maximum_discount",
+      "card_eligibility",
+      "date_validity",
+      "location_scope",
+      "branch_accuracy",
+      "duplicate_classification",
+      "terms_and_restrictions"
+    ]
+  },
+  "sampleEvaluations": [
+    {
+      "id": "holdout-hnb-1",
+      "bank": "hnb",
+      "merchant": "Lotus Estate Colombo",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-hnb-2",
+      "bank": "hnb",
+      "merchant": "Foody.lk by Softlogic",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-hnb-4",
+      "bank": "hnb",
+      "merchant": "Siddhalepa Ayurveda Hospital",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-hnb-5",
+      "bank": "hnb",
+      "merchant": "Elephant Reach Hotel",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-boc-1",
+      "bank": "boc",
+      "merchant": "CLOVE VILLA",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-boc-2",
+      "bank": "boc",
+      "merchant": "Hotel Casamara",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-boc-3",
+      "bank": "boc",
+      "merchant": "Hibiscus Beach Hotel & Villas",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-boc-4",
+      "bank": "boc",
+      "merchant": "Hillcrest Ella",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-boc-5",
+      "bank": "boc",
+      "merchant": "Trio Lodge Habarana",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-sampath-1",
+      "bank": "sampath",
+      "merchant": "Amaya Lake Dambulla",
+      "pipelineAScore": 86,
+      "pipelineBScore": 86,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-sampath-2",
+      "bank": "sampath",
+      "merchant": "Amaya Hills Kandy",
+      "pipelineAScore": 86,
+      "pipelineBScore": 86,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-sampath-3",
+      "bank": "sampath",
+      "merchant": "Amaya Beach Pasikudah",
+      "pipelineAScore": 79,
+      "pipelineBScore": 79,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-sampath-4",
+      "bank": "sampath",
+      "merchant": "Everton Holidays",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-sampath-5",
+      "bank": "sampath",
+      "merchant": "Sigiriya Kingdom Resort",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-peoples-1",
+      "bank": "peoples",
+      "merchant": "Siddhalepa Ayurveda Hospital",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-peoples-2",
+      "bank": "peoples",
+      "merchant": "Siddhalepa Clinics",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-peoples-3",
+      "bank": "peoples",
+      "merchant": "Siddhalepa Ayurveda Hospital",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-peoples-5",
+      "bank": "peoples",
+      "merchant": "Amaara Sky Hotel - Kandy",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-seylan-1",
+      "bank": "seylan",
+      "merchant": "GALIS",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-seylan-3",
+      "bank": "seylan",
+      "merchant": "COOL PLANET",
+      "pipelineAScore": 79,
+      "pipelineBScore": 79,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-seylan-4",
+      "bank": "seylan",
+      "merchant": "AMANTE",
+      "pipelineAScore": 86,
+      "pipelineBScore": 86,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-seylan-5",
+      "bank": "seylan",
+      "merchant": "SUNIMALS",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-nsb-1",
+      "bank": "nsb",
+      "merchant": "Spend and Win with your NSB Mastercard Debit Card",
+      "pipelineAScore": 100,
+      "pipelineBScore": 100,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-nsb-2",
+      "bank": "nsb",
+      "merchant": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    },
+    {
+      "id": "holdout-nsb-3",
+      "bank": "nsb",
+      "merchant": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card",
+      "pipelineAScore": 93,
+      "pipelineBScore": 93,
+      "appliedCorrections": []
+    }
+  ]
+}

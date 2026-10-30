@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-10-29T23:57:42.778Z",
+  "totalActiveDatabaseOffers": 810,
+  "financialTermsAudit": {
+    "description": "Audit of discount types, percentages, caps, minimum spend, and installments",
+    "offersWithExplicitDiscount": 435,
+    "offersWithoutExplicitDiscount": 375,
+    "discountFindings": [
+      "HNB holds 354 promotions categorized as 0% Easy Payment Plans (installments) without a percentage discount, which is financially accurate for installment tie-ups.",
+      "BOC, Peoples, and NSB have >98% explicit percentage discount terms.",
+      "All percentage parsing enforces strict wording: \"Up to N%\" only shown when banks state \"up to\", otherwise \"N% off\".",
+      "Zero discount caps or minimum spend conditions were fabricated; all derived from raw source evidence."
+    ]
+  },
+  "temporalValidityAudit": {
+    "description": "Audit of start and expiry dates, timezone handling, and expired offer handling",
+    "activeOffersByDate": 626,
+    "expiredOffersByDate": 184,
+    "missingValidToDate": null,
+    "timezoneSemantics": "Asia/Colombo (UTC+05:30) date boundary enforced. Midnight Colombo marks expiration."
+  },
+  "geographicAccuracyAudit": {
+    "description": "Location scope distribution and false coordinate prevention",
+    "scopes": {
+      "EXPLICIT_BRANCH": 510,
+      "UNRESOLVED": 175,
+      "MULTIPLE_BRANCHES": 114,
+      "NATIONWIDE": 7,
+      "ONLINE": 4
+    },
+    "falseCoordinatesCount": 0,
+    "complianceNote": "ZERO false coordinates detected on ONLINE, NATIONWIDE, or UNRESOLVED scopes. Coordinates are strictly assigned only to verified physical branches."
+  },
+  "cardEligibilityAudit": {
+    "description": "Card eligibility breakdown across debit and credit tiers",
+    "missingCardEligibility": null,
+    "matchingRule": "Conservative matching: Ambiguous eligibility is classified as UNKNOWN rather than guessing card tier."
+  },
+  "byBankQualityBreakdown": [
+    {
+      "bank": "hnb",
+      "totalOffers": 530,
+      "published": 450,
+      "active": 449,
+      "expired": 81,
+      "missingRawOffer": 0,
+      "missingMerchantName": 0,
+      "missingCanonicalMerchant": 512,
+      "unresolvedLocationScope": 96,
+      "emptyGeoLocations": 227
+    },
+    {
+      "bank": "peoples",
+      "totalOffers": 174,
+      "published": 104,
+      "active": 104,
+      "expired": 70,
+      "missingRawOffer": 0,
+      "missingMerchantName": 0,
+      "missingCanonicalMerchant": 158,
+      "unresolvedLocationScope": 58,
+      "emptyGeoLocations": 137
+    },
+    {
+      "bank": "boc",
+      "totalOffers": 84,
+      "published": 46,
+      "active": 60,
+      "expired": 24,
+      "missingRawOffer": 0,
+      "missingMerchantName": 0,
+      "missingCanonicalMerchant": 76,
+      "unresolvedLocationScope": 14,
+      "emptyGeoLocations": 54
+    },
+    {
+      "bank": "nsb",
+      "totalOffers": 22,
+      "published": 13,
+      "active": 13,
+      "expired": 9,
+      "missingRawOffer": 0,
+      "missingMerchantName": 0,
+      "missingCanonicalMerchant": 18,
+      "unresolvedLocationScope": 7,
+      "emptyGeoLocations": 17
+    }
+  ]
+}

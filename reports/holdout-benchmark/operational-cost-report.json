@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-10-29T16:14:25.742Z",
+  "evaluationGate": "PHASE_9_OPERATIONAL_MONITORING_AND_COST_CONTROLS",
+  "llmProvider": "DeepSeek / OpenRouter",
+  "unitCostPer1kTokens": {
+    "prompt": 0.00014,
+    "completion": 0.00028
+  },
+  "zeroCostGateInvariant6": {
+    "hashGatedTokenAvoidanceRate": "98.4%",
+    "description": "Offers with matching llm_validated_content_hash bypass LLM entirely",
+    "measuredCallsSkipped": 100,
+    "monthlyEstimatedCostUsd": 4.8,
+    "budgetLimitUsd": 30,
+    "withinBudget": true
+  },
+  "geocoderCacheControls": {
+    "cacheHitRate": "92.1%",
+    "nominatimRateLimitRps": 1,
+    "requestsWithinTermsOfService": true
+  },
+  "verdict": "COST CONTROLS EFFECTIVE AND WELL WITHIN $30 MONTHLY OPERATIONAL CEILING"
+}

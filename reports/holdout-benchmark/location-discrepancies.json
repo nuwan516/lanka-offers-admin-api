@@ -1,0 +1,1314 @@
+[
+  {
+    "id": "holdout-hnb-1",
+    "bank": "hnb",
+    "merchant": "Lotus Estate Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Colombo, Sri Lanka"
+    ],
+    "location": "Colombo Website: www.joesresorts.com",
+    "title": "20% off on BB, HB and FB basis at Lotus Estate Colombo",
+    "descSnippet": "20% off (from rack rates) on Bed & Breakfast, Half Board, Full Board basis  Cannot be combined with ",
+    "rawTextSnippet": "20% off on BB, HB and FB basis at Lotus Estate Colombo\n20% off (from rack rates) on Bed & Breakfast,"
+  },
+  {
+    "id": "holdout-hnb-2",
+    "bank": "hnb",
+    "merchant": "Foody.lk by Softlogic",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [
+      "Foody.lk by Softlogic, Sri Lanka"
+    ],
+    "location": null,
+    "title": "20% off at Foody.lk by Softlogic (Every Friday)",
+    "descSnippet": "20% off on online orders made via Foody.lk at, Burger King Popeyes Baskin Robbins Delifrance Crystal",
+    "rawTextSnippet": "20% off at Foody.lk by Softlogic (Every Friday)\n20% off on online orders made via Foody.lk at, Burge"
+  },
+  {
+    "id": "holdout-hnb-4",
+    "bank": "hnb",
+    "merchant": "Siddhalepa Ayurveda Hospital",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Debit Cards, Sri Lanka"
+    ],
+    "location": "Mt. Lavinia",
+    "title": "20% off on room rate for in-door patients at Siddhalepa Ayurveda Hospital",
+    "descSnippet": "20% off on room rate for in-door patients  Cannot be combined with other offers",
+    "rawTextSnippet": "20% off on room rate for in-door patients at Siddhalepa Ayurveda Hospital\n20% off on room rate for i"
+  },
+  {
+    "id": "holdout-hnb-5",
+    "bank": "hnb",
+    "merchant": "Elephant Reach Hotel",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 2,
+    "addresses": [
+      "Yala Special Terms, Sri Lanka",
+      "Resident Visa Holde, Sri Lanka"
+    ],
+    "location": "Yala",
+    "title": "20% off on FB and HB basis at Elephant Reach Hotel ",
+    "descSnippet": "20% off (from rack rates) on Full Bord and Half Board basis  Cannot be combined with other offers Su",
+    "rawTextSnippet": "20% off on FB and HB basis at Elephant Reach Hotel \n20% off (from rack rates) on Full Bord and Half "
+  },
+  {
+    "id": "holdout-boc-1",
+    "bank": "boc",
+    "merchant": "CLOVE VILLA",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "CLOVE VILLA, Sri Lanka"
+    ],
+    "location": null,
+    "title": "CLOVE VILLA",
+    "descSnippet": "Reservations : 077 847 7227 | 081 221 2999 40% off on local resident rates for BOC Credit & Debit Ca",
+    "rawTextSnippet": "CLOVE VILLA\nReservations : 077 847 7227 | 081 221 2999 40% off on local resident rates for BOC Credi"
+  },
+  {
+    "id": "holdout-boc-2",
+    "bank": "boc",
+    "merchant": "Hotel Casamara",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Hotel Casamara, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Hotel Casamara",
+    "descSnippet": "20% off on local resident rates for BOC Credit & Debit Cardholders Inquiries: 081 222 4688 | 081 222",
+    "rawTextSnippet": "Hotel Casamara\n20% off on local resident rates for BOC Credit & Debit Cardholders Inquiries: 081 222"
+  },
+  {
+    "id": "holdout-boc-3",
+    "bank": "boc",
+    "merchant": "Hibiscus Beach Hotel & Villas",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Hibiscus Beach Hotel & Villas, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Hibiscus Beach Hotel & Villas",
+    "descSnippet": "20% off on local resident rates for BOC Credit Cardholders Inquiries: 034 223 9900 | 034 223 9901 Fr",
+    "rawTextSnippet": "Hibiscus Beach Hotel & Villas\n20% off on local resident rates for BOC Credit Cardholders Inquiries: "
+  },
+  {
+    "id": "holdout-boc-4",
+    "bank": "boc",
+    "merchant": "Hillcrest Ella",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Hillcrest Ella, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Hillcrest Ella",
+    "descSnippet": "Inquiries: 074 005 0483 25% off for BOC Credit & Debit Cardholders From 01st October to 30th Novembe",
+    "rawTextSnippet": "Hillcrest Ella\nInquiries: 074 005 0483 25% off for BOC Credit & Debit Cardholders From 01st October "
+  },
+  {
+    "id": "holdout-boc-5",
+    "bank": "boc",
+    "merchant": "Trio Lodge Habarana",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Trio Lodge Habarana, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Trio Lodge Habarana",
+    "descSnippet": "35% off for BOC Credit Cardholders Inquiries: 071 137 9105 From 24th September to 20th December 2026",
+    "rawTextSnippet": "Trio Lodge Habarana\n35% off for BOC Credit Cardholders Inquiries: 071 137 9105 From 24th September t"
+  },
+  {
+    "id": "holdout-sampath-1",
+    "bank": "sampath",
+    "merchant": "Amaya Lake Dambulla",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Amaya Resorts &amp; Spas",
+    "descSnippet": "32% Discount on double and triple room bookings on half board & full board stays at Amaya Lake Dambu",
+    "rawTextSnippet": "Amaya Resorts &amp; Spas\n32% Discount on double and triple room bookings on half board & full board "
+  },
+  {
+    "id": "holdout-sampath-2",
+    "bank": "sampath",
+    "merchant": "Amaya Hills Kandy",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Amaya Resorts &amp; Spas",
+    "descSnippet": "38% Discount on double and triple room bookings on half board & full board stays at Amaya Hills Kand",
+    "rawTextSnippet": "Amaya Resorts &amp; Spas\n38% Discount on double and triple room bookings on half board & full board "
+  },
+  {
+    "id": "holdout-sampath-3",
+    "bank": "sampath",
+    "merchant": "Amaya Beach Pasikudah",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Amaya Resorts &amp; Spas",
+    "descSnippet": "38% Discount on double and triple room bookings on half board stays at Amaya Beach Pasikudah f or Sa",
+    "rawTextSnippet": "Amaya Resorts &amp; Spas\n38% Discount on double and triple room bookings on half board stays at Amay"
+  },
+  {
+    "id": "holdout-sampath-4",
+    "bank": "sampath",
+    "merchant": "Everton Holidays",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Everton Holidays (Pvt) Ltd",
+    "descSnippet": "25% Discount at Everton Holidays Boutique Villas for Sampath Mastercard and Visa Credit Cardholders.",
+    "rawTextSnippet": "Everton Holidays (Pvt) Ltd\n25% Discount at Everton Holidays Boutique Villas for Sampath Mastercard a"
+  },
+  {
+    "id": "holdout-sampath-5",
+    "bank": "sampath",
+    "merchant": "Sigiriya Kingdom Resort",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Rathmalgahaela Road, Vihara Junction, Dambulla, Dambulla"
+    ],
+    "location": "Dambulla",
+    "title": "Sigiriya Kingdom Resort",
+    "descSnippet": "15% Discount on double and triple room bookings on Half board and full board at Sigiriya Kingdom Res",
+    "rawTextSnippet": "Sigiriya Kingdom Resort\n15% Discount on double and triple room bookings on Half board and full board"
+  },
+  {
+    "id": "holdout-peoples-1",
+    "bank": "peoples",
+    "merchant": "Siddhalepa Ayurveda Hospital",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Siddhalepa Ayurveda Hospital, Sri Lanka"
+    ],
+    "location": "Siddhalepa Ayurveda Hospital",
+    "title": "Siddhalepa Ayurveda Hospital – 20% Off – Credit",
+    "descSnippet": "20% Credit-20% off on room rate for in-door patients\" Minimum Bill Value - 10,000/- Maximum Bill Val",
+    "rawTextSnippet": "Siddhalepa Ayurveda Hospital – 20% Off – Credit\n20% Credit-20% off on room rate for in-door patients"
+  },
+  {
+    "id": "holdout-peoples-2",
+    "bank": "peoples",
+    "merchant": "Siddhalepa Clinics",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Siddhalepa Clinics, Sri Lanka"
+    ],
+    "location": "Siddhalepa Clinics",
+    "title": "Siddhalepa Clinics – 15% Off – Credit",
+    "descSnippet": "15% Minimum Bill Value - 10,000/- (Only Treatments) Maximum Bill Value - 50,000/- Minimum Bill Value",
+    "rawTextSnippet": "Siddhalepa Clinics – 15% Off – Credit\n15% Minimum Bill Value - 10,000/- (Only Treatments) Maximum Bi"
+  },
+  {
+    "id": "holdout-peoples-3",
+    "bank": "peoples",
+    "merchant": "Siddhalepa Ayurveda Hospital",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Siddhalepa Ayurveda Hospital, Sri Lanka"
+    ],
+    "location": "Siddhalepa Ayurveda Hospital",
+    "title": "Siddhalepa Ayurveda Hospital – 20% Off – Debit",
+    "descSnippet": "20% Minimum Bill Value - 10,000/- Maximum Bill Value Rs.50,000/- Minimum Bill Value – 10,000/-Maximu",
+    "rawTextSnippet": "Siddhalepa Ayurveda Hospital – 20% Off – Debit\n20% Minimum Bill Value - 10,000/- Maximum Bill Value "
+  },
+  {
+    "id": "holdout-peoples-5",
+    "bank": "peoples",
+    "merchant": "Amaara Sky Hotel - Kandy",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Amaara Sky Hotel - Kandy, Sri Lanka"
+    ],
+    "location": "Amaara Sky Hotel - Kandy",
+    "title": "Amaara Sky Hotel – Kandy – 40% off – Credit",
+    "descSnippet": "40% Book Online: www.amaarahotels.com Promo Code: PBCC Book Online: www.amaarahotels.comPromo Code: ",
+    "rawTextSnippet": "Amaara Sky Hotel – Kandy – 40% off – Credit\n40% Book Online: www.amaarahotels.com Promo Code: PBCC B"
+  },
+  {
+    "id": "holdout-seylan-1",
+    "bank": "seylan",
+    "merchant": "GALIS",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 3,
+    "addresses": [
+      "Pelawatta - 773, Pannipitiya Road, Pelawatta ,Battaramulla. (, Sri Lanka",
+      "Nugegoda- 132, High Level Road, Nugegoda. (, Sri Lanka",
+      "Kandy- 497, Peradeniya Road, Kandy. (, Sri Lanka"
+    ],
+    "location": "Pelawatta - 773",
+    "title": "GALIS",
+    "descSnippet": "20% off for Seylan Credit Cards & 10% Debit Cards Pelawatta - 773, Pannipitiya Road, Pelawatta ,Batt",
+    "rawTextSnippet": "GALIS\n20% off for Seylan Credit Cards & 10% Debit Cards\nPelawatta - 773, Pannipitiya Road, Pelawatta"
+  },
+  {
+    "id": "holdout-seylan-3",
+    "bank": "seylan",
+    "merchant": "COOL PLANET",
+    "goldScope": "NATIONWIDE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": null,
+    "title": "COOL PLANET",
+    "descSnippet": "25% off on Total Bill for Credit Cards, 10% off on Total Bill for Debit Cards Offer valid at All Coo",
+    "rawTextSnippet": "COOL PLANET\n25% off on Total Bill for Credit Cards, 10% off on Total Bill for Debit Cards"
+  },
+  {
+    "id": "holdout-seylan-4",
+    "bank": "seylan",
+    "merchant": "AMANTE",
+    "goldScope": "NATIONWIDE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": null,
+    "title": "AMANTE",
+    "descSnippet": "25% off for Credit Cards & 10% off Debit Cards on total bill Maximum transaction limit Rs.50,000/- O",
+    "rawTextSnippet": "AMANTE\n25% off for Credit Cards & 10% off Debit Cards on total bill"
+  },
+  {
+    "id": "holdout-seylan-5",
+    "bank": "seylan",
+    "merchant": "SUNIMALS",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "13 King's Street , Kandy, Sri Lanka"
+    ],
+    "location": "13 King's Street",
+    "title": "SUNIMALS",
+    "descSnippet": "15% off on total bill for Credit Cards, 10% off on total bill for Debit Cards General terms and cond",
+    "rawTextSnippet": "SUNIMALS\n15% off on total bill for Credit Cards, 10% off on total bill for Debit Cards\n13 King's Str"
+  },
+  {
+    "id": "holdout-nsb-1",
+    "bank": "nsb",
+    "merchant": "Spend and Win with your NSB Mastercard Debit Card",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [
+      "Spend and Win with your NSB Mastercard Debit Card, Sri Lanka"
+    ],
+    "location": "Spend and Win with your NSB Mastercard Debit Card",
+    "title": "Spend and Win with your NSB Mastercard Debit Card!",
+    "descSnippet": "Spend and Win, merchant vouchers worth Rs. 1 million Promo period – 10th to 31st December 2025 100 w",
+    "rawTextSnippet": "Spend and Win with your NSB Mastercard Debit Card!\nSpend and Win, merchant vouchers worth Rs. 1 mill"
+  },
+  {
+    "id": "holdout-nsb-2",
+    "bank": "nsb",
+    "merchant": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 4,
+    "addresses": [
+      "both Debit and Credit Cards, Sri Lanka"
+    ],
+    "location": "both Debit and Credit Cards",
+    "title": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card!",
+    "descSnippet": "Discount : 20% Off (both Debit and Credit Cards) Duration : 8th Dec. and 9th Dec 2025 Brands : KELLY",
+    "rawTextSnippet": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card!\nDiscount : 20% Off (both Debit "
+  },
+  {
+    "id": "holdout-nsb-3",
+    "bank": "nsb",
+    "merchant": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card, Sri Lanka"
+    ],
+    "location": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card",
+    "title": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card!",
+    "descSnippet": "Exclusively for NSB Mastercard Debit cards 20% off on Ayurveda Body Massages 15% off on Korean Grade",
+    "rawTextSnippet": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card!\nExclusively for NSB M"
+  },
+  {
+    "id": "holdout-nsb-4",
+    "bank": "nsb",
+    "merchant": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card, Sri Lanka"
+    ],
+    "location": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card",
+    "title": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card!",
+    "descSnippet": "10% discount on the F&B Offer Period – 1st to 31st December 2025 customer bill which will be entitle",
+    "rawTextSnippet": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card!\n10% d"
+  },
+  {
+    "id": "holdout-nsb-5",
+    "bank": "nsb",
+    "merchant": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 3,
+    "addresses": [
+      "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card, Sri Lanka"
+    ],
+    "location": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card",
+    "title": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card!",
+    "descSnippet": "Amaya Resorts and Spas (up-to 30%) Amaya Hills – Kandy – 30% Amaya Lake – Dambulla – 25% Amaya Beach",
+    "rawTextSnippet": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card!\nAmaya Resorts and Spas (up"
+  },
+  {
+    "id": "holdout-combank-1",
+    "bank": "combank",
+    "merchant": "Save 20% on Cinnamon Life Oktoberfest tickets with your ComBank Credit Card",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Save 20% on Cinnamon Life Oktoberfest tickets with your ComBank Credit Card!",
+    "descSnippet": "Up to 20% Off Enjoy a 20% savings on Cinnamon Life Oktoberfest ticket purchases using your ComBank C",
+    "rawTextSnippet": "Save 20% on Cinnamon Life Oktoberfest tickets with your ComBank Credit Card!\nUp to 20% Off Enjoy a 2"
+  },
+  {
+    "id": "holdout-combank-2",
+    "bank": "combank",
+    "merchant": "Order your favourite food on Uber Eats with ComBank Credit Cards",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": null,
+    "title": "Order your favourite food on Uber Eats with ComBank Credit Cards",
+    "descSnippet": "Up to 30% Off Offer – 30% discount for Credit Cards Offer valid from 12th to 27th October 2026 Minim",
+    "rawTextSnippet": "Order your favourite food on Uber Eats with ComBank Credit Cards\nUp to 30% Off Offer – 30% discount "
+  },
+  {
+    "id": "holdout-combank-3",
+    "bank": "combank",
+    "merchant": "Order your favourite food on Uber Eats with ComBank Credit and Debit Cards",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": null,
+    "title": "Order your favourite food on Uber Eats with ComBank Credit and Debit Cards",
+    "descSnippet": "Up to 65% Off Offer - 65% discount for Credit and Debit Cards Offer valid only for New Uber Eats use",
+    "rawTextSnippet": "Order your favourite food on Uber Eats with ComBank Credit and Debit Cards\nUp to 65% Off Offer - 65%"
+  },
+  {
+    "id": "holdout-combank-4",
+    "bank": "combank",
+    "merchant": "Via Torino Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Enjoy the art of dining at Via Torino Colombo with ComBank Credit and Debit Cards",
+    "descSnippet": "Up to 15% Off Offer–15% discount for Credit Cards and Debit Cards Offer valid till 31st October 2026",
+    "rawTextSnippet": "Enjoy the art of dining at Via Torino Colombo with ComBank Credit and Debit Cards\nUp to 15% Off Offe"
+  },
+  {
+    "id": "holdout-combank-5",
+    "bank": "combank",
+    "merchant": "Courtyard by Marriott Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Enjoy the art of dining at Courtyard by Marriott Colombo with ComBank Credit Cards",
+    "descSnippet": "Up to 10% Off Offer –10% discount for Credit Cards Offer applicable for Daily Lunch & Dinner. Only W",
+    "rawTextSnippet": "Enjoy the art of dining at Courtyard by Marriott Colombo with ComBank Credit Cards\nUp to 10% Off Off"
+  },
+  {
+    "id": "holdout-ndb-2",
+    "bank": "ndb",
+    "merchant": "Domino’s Pizza",
+    "goldScope": "NATIONWIDE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": "All Outlets",
+    "title": "Domino’s Pizza Buy 1 Get 1",
+    "descSnippet": "Buy 1 Get 1 Free pizza across all Domino’s outlets  ",
+    "rawTextSnippet": "Domino’s Pizza Buy 1 Get 1\nBuy 1 Get 1 Free pizza across all Domino’s outlets\nAll Outlets"
+  },
+  {
+    "id": "holdout-ndb-3",
+    "bank": "ndb",
+    "merchant": "Hilton Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Hilton Colombo, Colombo 02, Sri Lanka"
+    ],
+    "location": "Colombo 02",
+    "title": "Hilton Colombo Savings",
+    "descSnippet": "Dining discount at Hilton Colombo, Colombo 02  ",
+    "rawTextSnippet": "Hilton Colombo Savings\nDining discount at Hilton Colombo, Colombo 02\nColombo 02"
+  },
+  {
+    "id": "holdout-ndb-4",
+    "bank": "ndb",
+    "merchant": "Gourmet Bakery",
+    "goldScope": "UNRESOLVED",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": ".",
+    "title": "Gourmet Bakery Discount",
+    "descSnippet": "10% off on cakes and breads  ",
+    "rawTextSnippet": "Gourmet Bakery Discount\n10% off on cakes and breads\n."
+  },
+  {
+    "id": "holdout-ndb-5",
+    "bank": "ndb",
+    "merchant": "Wasi.lk",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": "https://www.wasi.lk",
+    "title": "Wasi.lk Online Electronics",
+    "descSnippet": "Order online at www.wasi.lk for 20% savings  ",
+    "rawTextSnippet": "Wasi.lk Online Electronics\nOrder online at www.wasi.lk for 20% savings\nhttps://www.wasi.lk"
+  },
+  {
+    "id": "holdout-dfcc-1",
+    "bank": "dfcc",
+    "merchant": "Cinnamon Lakeside",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Cinnamon Lakeside, No. 115, Sir Chittampalam A. Gardiner Mawatha, Colombo 02, Sri Lanka"
+    ],
+    "location": "No. 115, Sir Chittampalam A. Gardiner Mawatha, Colombo 02",
+    "title": "Cinnamon Lakeside Dining",
+    "descSnippet": "20% off on dining at Cinnamon Lakeside, No. 115, Sir Chittampalam A. Gardiner Mawatha, Colombo 02  ",
+    "rawTextSnippet": "Cinnamon Lakeside Dining\n20% off on dining at Cinnamon Lakeside, No. 115, Sir Chittampalam A. Gardin"
+  },
+  {
+    "id": "holdout-dfcc-2",
+    "bank": "dfcc",
+    "merchant": "Barista",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 2,
+    "addresses": [
+      "No. 34, Galle Road, Colombo 03, Sri Lanka",
+      "Level 2, Kandy City Centre, Kandy, Sri Lanka"
+    ],
+    "location": "Colombo 03, Kandy",
+    "title": "Barista Coffee Outlets",
+    "descSnippet": "Visit Barista Coffee outlets: No. 34, Galle Road, Colombo 03; Level 2, Kandy City Centre, Kandy  ",
+    "rawTextSnippet": "Barista Coffee Outlets\nVisit Barista Coffee outlets: No. 34, Galle Road, Colombo 03; Level 2, Kandy "
+  },
+  {
+    "id": "holdout-dfcc-3",
+    "bank": "dfcc",
+    "merchant": "Lanka Hospitals Diagnostics",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Batticaloa, Sri Lanka"
+    ],
+    "location": "Batticaloa",
+    "title": "Lanka Hospitals Diagnostics",
+    "descSnippet": "15% discount on diagnostics at Lanka Hospitals in Batticaloa  ",
+    "rawTextSnippet": "Lanka Hospitals Diagnostics\n15% discount on diagnostics at Lanka Hospitals in Batticaloa\nBatticaloa"
+  },
+  {
+    "id": "holdout-dfcc-4",
+    "bank": "dfcc",
+    "merchant": "Uber Eats",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": "www.ubereats.com",
+    "title": "Uber Eats Savings",
+    "descSnippet": "Get Rs. 300 off on Uber Eats app with promo code DFCCEATS  ",
+    "rawTextSnippet": "Uber Eats Savings\nGet Rs. 300 off on Uber Eats app with promo code DFCCEATS\nwww.ubereats.com"
+  },
+  {
+    "id": "holdout-dfcc-5",
+    "bank": "dfcc",
+    "merchant": "SPAR",
+    "goldScope": "UNRESOLVED",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": "Selected SPAR Supermarkets",
+    "title": "SPAR Supermarket Promotion",
+    "descSnippet": "Available only at selected SPAR supermarkets in the Western province  ",
+    "rawTextSnippet": "SPAR Supermarket Promotion\nAvailable only at selected SPAR supermarkets in the Western province\nSele"
+  },
+  {
+    "id": "holdout-pabc-1",
+    "bank": "pabc",
+    "merchant": "The Fortress Resort & Spa",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "The Fortress Resort & Spa, Koggala, Habaraduwa, Sri Lanka"
+    ],
+    "location": "Koggala, Habaraduwa",
+    "title": "The Fortress Resort & Spa Koggala",
+    "descSnippet": "30% off on luxury stays at The Fortress Resort & Spa, Koggala, Habaraduwa  ",
+    "rawTextSnippet": "The Fortress Resort & Spa Koggala\n30% off on luxury stays at The Fortress Resort & Spa, Koggala, Hab"
+  },
+  {
+    "id": "holdout-pabc-2",
+    "bank": "pabc",
+    "merchant": "TGI Fridays",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "TGI Fridays, No. 23, Canal Row, Fort, Colombo 01, Sri Lanka"
+    ],
+    "location": "No. 23, Canal Row, Fort, Colombo 01",
+    "title": "TGI Fridays Colombo",
+    "descSnippet": "Enjoy 20% off at TGI Fridays, No. 23, Canal Row, Fort, Colombo 01  ",
+    "rawTextSnippet": "TGI Fridays Colombo\nEnjoy 20% off at TGI Fridays, No. 23, Canal Row, Fort, Colombo 01\nNo. 23, Canal "
+  },
+  {
+    "id": "holdout-pabc-3",
+    "bank": "pabc",
+    "merchant": "Eric Rajapakse Opticians",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Eric Rajapakse Opticians, Negombo, Sri Lanka"
+    ],
+    "location": "Negombo",
+    "title": "Eric Rajapakse Opticians",
+    "descSnippet": "15% off on spectacle frames in Negombo for Pan Asia cardholders  ",
+    "rawTextSnippet": "Eric Rajapakse Opticians\n15% off on spectacle frames in Negombo for Pan Asia cardholders\nNegombo"
+  },
+  {
+    "id": "holdout-pabc-4",
+    "bank": "pabc",
+    "merchant": "Daraz",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": "www.daraz.lk",
+    "title": "Daraz Online Shopping",
+    "descSnippet": "Valid for online purchases at www.daraz.lk with Pan Asia Credit Cards  ",
+    "rawTextSnippet": "Daraz Online Shopping\nValid for online purchases at www.daraz.lk with Pan Asia Credit Cards\nwww.dara"
+  },
+  {
+    "id": "holdout-pabc-5",
+    "bank": "pabc",
+    "merchant": "Singer",
+    "goldScope": "NATIONWIDE",
+    "goldBranches": 0,
+    "addresses": [],
+    "location": "All Singer Mega Outlets",
+    "title": "Singer Mega Stores Nationwide",
+    "descSnippet": "15% off at all Singer Mega outlets across Sri Lanka with Pan Asia cards  ",
+    "rawTextSnippet": "Singer Mega Stores Nationwide\n15% off at all Singer Mega outlets across Sri Lanka with Pan Asia card"
+  },
+  {
+    "id": "holdout-bm-hnb-1-percentage-dining",
+    "bank": "hnb",
+    "merchant": "Hilton Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Hilton Colombo, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Hilton Colombo 25% Off with HNB Cards",
+    "descSnippet": "25% off on buffet dining  ",
+    "rawTextSnippet": "Merchant: Hilton Colombo Offer: 25% off on buffet dining Period: Valid from 01st January 2026 to 31s"
+  },
+  {
+    "id": "holdout-bm-hnb-2-online-ecommerce",
+    "bank": "hnb",
+    "merchant": "Daraz",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Daraz, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Daraz Online Shopping Bonanza",
+    "descSnippet": "20% off on online purchases at www.daraz.lk with HNB Cards  ",
+    "rawTextSnippet": "Merchant: Daraz Offer: 20% off on online purchases at www.daraz.lk with HNB Cards Period: Valid from"
+  },
+  {
+    "id": "holdout-bm-hnb-3-installments-exclusions",
+    "bank": "hnb",
+    "merchant": "Abans",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Abans, Sri Lanka"
+    ],
+    "location": null,
+    "title": "0% Installments at Abans",
+    "descSnippet": "0% interest installments up to 24 months with HNB Credit Cards  ",
+    "rawTextSnippet": "Merchant: Abans Offer: 0% interest installments up to 24 months with HNB Credit Cards Eligibility: A"
+  },
+  {
+    "id": "holdout-bm-hnb-4-cashback-debit",
+    "bank": "hnb",
+    "merchant": "Lanka IOC",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Lanka IOC, Sri Lanka"
+    ],
+    "location": null,
+    "title": "5% Cashback on Fuel with HNB Debit Cards",
+    "descSnippet": "5% cashback on fuel purchases at Lanka IOC stations islandwide  ",
+    "rawTextSnippet": "Merchant: Lanka IOC Offer: 5% cashback on fuel purchases at Lanka IOC stations islandwide Eligibilit"
+  },
+  {
+    "id": "holdout-bm-boc-1-dining-percentage",
+    "bank": "boc",
+    "merchant": "Shangri-La Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Shangri-La Colombo, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Shangri-La Colombo",
+    "descSnippet": "20% off for BOC Credit and Debit Cardholders at Shangri-La Colombo. Valid from 01st March 2026 to 31",
+    "rawTextSnippet": "Expiration date : 31 Dec 2026 20% off for BOC Credit and Debit Cardholders at Shangri-La Colombo. Va"
+  },
+  {
+    "id": "holdout-bm-boc-2-supermarket-debit-only",
+    "bank": "boc",
+    "merchant": "Cargills Food City",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Cargills Food City, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Cargills Food City",
+    "descSnippet": "10% discount for BOC Visa Debit Cardholders on fresh produce. Minimum transaction Rs. 2,500. Valid u",
+    "rawTextSnippet": "Expiration date : 31 Dec 2026 10% discount for BOC Visa Debit Cardholders on fresh produce. Minimum "
+  },
+  {
+    "id": "holdout-bm-boc-3-multi-branch-retail",
+    "bank": "boc",
+    "merchant": "Odel",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Odel, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Odel",
+    "descSnippet": "25% off for BOC Mastercard Credit Cardholders at Odel Colombo, Kandy and Galle branches. Valid until",
+    "rawTextSnippet": "Expiration date : 31 Dec 2026 25% off for BOC Mastercard Credit Cardholders at Odel Colombo, Kandy a"
+  },
+  {
+    "id": "holdout-bm-boc-4-expired-promotion",
+    "bank": "boc",
+    "merchant": "Old Promenade Cafe",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Old Promenade Cafe, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Old Promenade Cafe",
+    "descSnippet": "15% off at Promenade Cafe with BOC Cards. Offer expired on 31st December 2024.  ",
+    "rawTextSnippet": "Expiration date : 31 Dec 2024 15% off at Promenade Cafe with BOC Cards. Offer expired on 31st Decemb"
+  },
+  {
+    "id": "holdout-bm-sampath-1-supermarket-spend-tier",
+    "bank": "sampath",
+    "merchant": "Keells Super",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Keells Fresh Produce Savings",
+    "descSnippet": "20% off for Sampath Visa Signature Credit Cardholders. Minimum spend Rs. 4,000.  Minimum spend requi",
+    "rawTextSnippet": "List item: {\"id\":301,\"title\":\"Keells Fresh Produce Savings\",\"company_name\":\"Keells Super\",\"short_dis"
+  },
+  {
+    "id": "holdout-bm-sampath-2-up-to-cap-branches",
+    "bank": "sampath",
+    "merchant": "House of Fashion",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "House of Fashion Up to 30% Off",
+    "descSnippet": "Up to 30% off for Sampath Platinum Credit Cards. Maximum discount Rs. 5,000. Minimum bill Rs. 7,500 ",
+    "rawTextSnippet": "List item: {\"id\":302,\"title\":\"House of Fashion Up to 30% Off\",\"company_name\":\"House of Fashion\",\"sho"
+  },
+  {
+    "id": "holdout-bm-sampath-3-installments-electronics",
+    "bank": "sampath",
+    "merchant": "Singer Sri Lanka",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Apple iPhone 0% Installments at Singer",
+    "descSnippet": "0% interest installment plan up to 24 months with Sampath Mastercard World Credit Cards.  ",
+    "rawTextSnippet": "List item: {\"id\":303,\"title\":\"Apple iPhone 0% Installments at Singer\",\"company_name\":\"Singer Sri Lan"
+  },
+  {
+    "id": "holdout-bm-sampath-4-online-app-promo",
+    "bank": "sampath",
+    "merchant": "PickMe",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "PickMe Food Rs. 500 Off",
+    "descSnippet": "Enjoy Rs. 500 off on online orders via PickMe mobile app using promo code SAMPATH500. Credit cards o",
+    "rawTextSnippet": "List item: {\"id\":304,\"title\":\"PickMe Food Rs. 500 Off\",\"company_name\":\"PickMe\",\"short_discount\":\"Rs."
+  },
+  {
+    "id": "holdout-bm-ndb-1-supermarket-percentage",
+    "bank": "ndb",
+    "merchant": "Keells Super",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Colombo, Sri Lanka"
+    ],
+    "location": "Colombo",
+    "title": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000.",
+    "descSnippet": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000.  Minimum ",
+    "rawTextSnippet": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000."
+  },
+  {
+    "id": "holdout-bm-ndb-2-up-to-hotel-tier",
+    "bank": "ndb",
+    "merchant": "Heritance Kandalama",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Dambulla, Sri Lanka"
+    ],
+    "location": "Dambulla",
+    "title": "Up to 35% savings on luxury rooms for NDB Visa Signature Credit Cardholders. Prior reservation required.",
+    "descSnippet": "Up to 35% savings on luxury rooms for NDB Visa Signature Credit Cardholders. Prior reservation requi",
+    "rawTextSnippet": "Up to 35% savings on luxury rooms for NDB Visa Signature Credit Cardholders. Prior reservation requi"
+  },
+  {
+    "id": "holdout-bm-ndb-3-installments-nationwide",
+    "bank": "ndb",
+    "merchant": "Damro",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Damro, Sri Lanka"
+    ],
+    "location": "Damro",
+    "title": "0% interest installments up to 24 months with NDB Credit Cards across all Damro showrooms.",
+    "descSnippet": "0% interest installments up to 24 months with NDB Credit Cards across all Damro showrooms.  ",
+    "rawTextSnippet": "0% interest installments up to 24 months with NDB Credit Cards across all Damro showrooms."
+  },
+  {
+    "id": "holdout-bm-ndb-4-online-debit",
+    "bank": "ndb",
+    "merchant": "Daraz",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Online only, Sri Lanka"
+    ],
+    "location": "Online only",
+    "title": "15% off for NDB Visa Debit Cards on Daraz online shopping. Use promo code NDBDARAZ.",
+    "descSnippet": "15% off for NDB Visa Debit Cards on Daraz online shopping. Use promo code NDBDARAZ.  ",
+    "rawTextSnippet": "15% off for NDB Visa Debit Cards on Daraz online shopping. Use promo code NDBDARAZ."
+  },
+  {
+    "id": "holdout-bm-dfcc-1-shopping-spend-bounds",
+    "bank": "dfcc",
+    "merchant": "Singer Mega",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Singer Mega",
+    "descSnippet": "15% savings at Singer Mega with DFCC Credit Cards. Minimum spend Rs. 10,000.  Minimum spend required",
+    "rawTextSnippet": "{\"cardType\":\"Credit Card\",\"offerText\":\"15% savings at Singer Mega with DFCC Credit Cards. Minimum sp"
+  },
+  {
+    "id": "holdout-bm-dfcc-2-online-ecommerce",
+    "bank": "dfcc",
+    "merchant": "Wasi.lk",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Wasi.lk",
+    "descSnippet": "20% savings on www.wasi.lk online orders for DFCC Mastercard Credit Cardholders.  ",
+    "rawTextSnippet": "{\"cardType\":\"Credit Card\",\"offerText\":\"20% savings on www.wasi.lk online orders for DFCC Mastercard "
+  },
+  {
+    "id": "holdout-bm-dfcc-3-specific-card-world-tier",
+    "bank": "dfcc",
+    "merchant": "Galle Face Hotel",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "25% off at Galle Face Hotel exclusively for DFCC World Mastercard cardholders",
+    "descSnippet": "25% off dining at Galle Face Hotel exclusively for DFCC World Mastercard cardholders. Prior reservat",
+    "rawTextSnippet": "{\"cardType\":\"Credit Card\",\"offerText\":\"25% off dining at Galle Face Hotel exclusively for DFCC World"
+  },
+  {
+    "id": "holdout-bm-seylan-1-dining-percentage",
+    "bank": "seylan",
+    "merchant": "Hilton Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "2 Sir Chittampalam A Gardiner Mawatha, Colombo 02, Sri Lanka"
+    ],
+    "location": "2 Sir Chittampalam A Gardiner Mawatha",
+    "title": "Hilton Colombo",
+    "descSnippet": "20% discount on food bill with Seylan Credit Cards. Minimum spend Rs. 3,500. Minimum spend Rs. 3,500",
+    "rawTextSnippet": "20% discount on food bill with Seylan Credit Cards. Minimum spend Rs. 3,500."
+  },
+  {
+    "id": "holdout-bm-seylan-2-up-to-discount-cap",
+    "bank": "seylan",
+    "merchant": "Softlogic Max",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": "Colombo",
+    "title": "Softlogic Max",
+    "descSnippet": "Up to 20% discount with Seylan Visa Platinum Credit Cards. Maximum discount Rs. 5,000. Minimum spend",
+    "rawTextSnippet": "Up to 20% discount with Seylan Visa Platinum Credit Cards. Maximum discount Rs. 5,000. Minimum spend"
+  },
+  {
+    "id": "holdout-bm-seylan-3-debit-supermarket",
+    "bank": "seylan",
+    "merchant": "Arpico Supercentre",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": "Islandwide",
+    "title": "Arpico Supercentre",
+    "descSnippet": "10% discount for Seylan Visa Debit Cards on total bill every Friday. Minimum bill Rs. 3,000.  Minimu",
+    "rawTextSnippet": "10% discount for Seylan Visa Debit Cards on total bill every Friday. Minimum bill Rs. 3,000."
+  },
+  {
+    "id": "holdout-bm-seylan-4-multi-branch-resort",
+    "bank": "seylan",
+    "merchant": "Jetwing Hotels",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": "Negombo, Galle, Yala",
+    "title": "Jetwing Hotels",
+    "descSnippet": "30% off on room bookings at Jetwing Blue Negombo, Jetwing Lighthouse Galle and Jetwing Yala with Sey",
+    "rawTextSnippet": "30% off on room bookings at Jetwing Blue Negombo, Jetwing Lighthouse Galle and Jetwing Yala with Sey"
+  },
+  {
+    "id": "holdout-bm-peoples-1-supermarket-spend-bounds",
+    "bank": "peoples",
+    "merchant": "Cargills Food City",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Cargills Food City, Sri Lanka"
+    ],
+    "location": "Cargills Food City",
+    "title": "15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500.",
+    "descSnippet": "15% 15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500.  M",
+    "rawTextSnippet": "15% 15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500."
+  },
+  {
+    "id": "holdout-bm-peoples-2-debit-supermarket",
+    "bank": "peoples",
+    "merchant": "Glomark Supermarket",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Glomark Supermarket, Sri Lanka"
+    ],
+    "location": "Glomark Supermarket",
+    "title": "10% off for Peoples Bank Debit Cardholders on fresh fruits & vegetables. Minimum spend Rs. 2,000.",
+    "descSnippet": "10% 10% off for Peoples Bank Debit Cardholders on fresh fruits & vegetables. Minimum spend Rs. 2,000",
+    "rawTextSnippet": "10% 10% off for Peoples Bank Debit Cardholders on fresh fruits & vegetables. Minimum spend Rs. 2,000"
+  },
+  {
+    "id": "holdout-bm-peoples-3-installments-electronics",
+    "bank": "peoples",
+    "merchant": "Abans Electronics",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Abans Electronics, Sri Lanka"
+    ],
+    "location": "Abans Electronics",
+    "title": "0% interest installment plans up to 36 months for Peoples Bank Credit Cards. Minimum transaction Rs. 25,000.",
+    "descSnippet": "0% Installments 0% interest installment plans up to 36 months for Peoples Bank Credit Cards. Minimum",
+    "rawTextSnippet": "0% Installments 0% interest installment plans up to 36 months for Peoples Bank Credit Cards. Minimum"
+  },
+  {
+    "id": "holdout-bm-pabc-1-shopping-spend-bounds",
+    "bank": "pabc",
+    "merchant": "Nolimit",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "20% OFF at Nolimit",
+    "descSnippet": "20% OFF at Nolimit for Pan Asia Mastercard Credit Cardholders. Minimum spend Rs. 5,000. Valid until ",
+    "rawTextSnippet": "{\"imageUrl\":\"https://www.pabcbank.com/card.jpg\",\"imageAlt\":\"Nolimit Clothing\",\"discount\":\"20% OFF\",\""
+  },
+  {
+    "id": "holdout-bm-pabc-2-discount-cap-supermarket",
+    "bank": "pabc",
+    "merchant": "Softlogic Glomark",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Up to 25% OFF at Softlogic Glomark",
+    "descSnippet": "Up to 25% OFF at Softlogic Glomark for Pan Asia Black Mastercard Credit Cardholders. Maximum discoun",
+    "rawTextSnippet": "{\"imageUrl\":\"https://www.pabcbank.com/glomark.jpg\",\"imageAlt\":\"Glomark\",\"discount\":\"Up to 25% OFF\",\""
+  },
+  {
+    "id": "holdout-bm-pabc-3-online-ecommerce",
+    "bank": "pabc",
+    "merchant": "kapruka.com",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "15% OFF at Kapruka",
+    "descSnippet": "15% OFF on online shopping via kapruka.com with Pan Asia Credit Cards. Valid until 31st December 202",
+    "rawTextSnippet": "{\"imageUrl\":\"https://www.pabcbank.com/kapruka.jpg\",\"imageAlt\":\"Kapruka\",\"discount\":\"15% OFF\",\"validi"
+  },
+  {
+    "id": "holdout-bm-nsb-1-debit-supercentre",
+    "bank": "nsb",
+    "merchant": "Arpico Supercentre",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Arpico Supercentre 10% Discount",
+    "descSnippet": "Get 10% discount at Arpico Supercentre with NSB Visa Debit Cards. Minimum bill Rs. 3,000. Promo peri",
+    "rawTextSnippet": "Get 10% discount at Arpico Supercentre with NSB Visa Debit Cards. Minimum bill Rs. 3,000. Promo peri"
+  },
+  {
+    "id": "holdout-bm-nsb-2-credit-supermarket",
+    "bank": "nsb",
+    "merchant": "Keells Super",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Keells Super 15% Off",
+    "descSnippet": "15% off on total bill at Keells Super for NSB Mastercard Credit Cardholders. Minimum bill Rs. 4,000.",
+    "rawTextSnippet": "15% off on total bill at Keells Super for NSB Mastercard Credit Cardholders. Minimum bill Rs. 4,000."
+  },
+  {
+    "id": "holdout-bm-nsb-3-nationwide-footwear",
+    "bank": "nsb",
+    "merchant": "DSI",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "DSI Footwear 10% Discount",
+    "descSnippet": "10% discount across all DSI showrooms islandwide with NSB Credit and Debit Cards. Valid until 31st D",
+    "rawTextSnippet": "10% discount across all DSI showrooms islandwide with NSB Credit and Debit Cards. Valid until 31st D"
+  },
+  {
+    "id": "holdout-bm-combank-1-dining-percentage",
+    "bank": "combank",
+    "merchant": "Pizza Hut",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Pizza Hut 25% Off with ComBank Credit Cards",
+    "descSnippet": "25% Off Merchant: Pizza Hut 25% discount for Commercial Bank Credit Cards Minimum spend Rs. 2,500 re",
+    "rawTextSnippet": "Offer valid until 31st December 2026 25% Off Merchant: Pizza Hut 25% discount for Commercial Bank Cr"
+  },
+  {
+    "id": "holdout-bm-combank-2-up-to-supermarket-cap",
+    "bank": "combank",
+    "merchant": "Keells",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Up to 20% off at Keells with ComBank Visa Signature",
+    "descSnippet": "Up to 20% Off Merchant: Keells Up to 20% discount with ComBank Visa Signature Credit Cards Minimum s",
+    "rawTextSnippet": "Valid until 31st December 2026 Up to 20% Off Merchant: Keells Up to 20% discount with ComBank Visa S"
+  },
+  {
+    "id": "holdout-bm-combank-3-installments-electronics",
+    "bank": "combank",
+    "merchant": "Singer Sri Lanka",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "0% installments up to 24 months at Singer with ComBank Credit Cards",
+    "descSnippet": "0% Installments Merchant: Singer Sri Lanka 0% interest installment schemes up to 24 months for ComBa",
+    "rawTextSnippet": "Valid until 31st December 2026 0% Installments Merchant: Singer Sri Lanka 0% interest installment sc"
+  },
+  {
+    "id": "holdout-bm-combank-4-online-ecommerce",
+    "bank": "combank",
+    "merchant": "Daraz",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Unlock great deals on online purchases via Daraz with ComBank Credit Cards",
+    "descSnippet": "15% Off Merchant: Daraz 15% discount for online orders at www.daraz.lk with ComBank Credit Cards Mer",
+    "rawTextSnippet": "Valid until 31st December 2026 15% Off Merchant: Daraz 15% discount for online orders at www.daraz.l"
+  },
+  {
+    "id": "holdout-shared-hnb-kingsbury",
+    "bank": "hnb",
+    "merchant": "The Kingsbury",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "The Kingsbury, Sri Lanka"
+    ],
+    "location": null,
+    "title": "20% off at The Kingsbury for HNB Cards",
+    "descSnippet": "Enjoy 20% off with HNB Visa Signature Credit Cards. Minimum spend Rs. 5,000.  ",
+    "rawTextSnippet": "Merchant: The Kingsbury. Offer: Enjoy 20% off with HNB Visa Signature Credit Cards. Minimum spend Rs"
+  },
+  {
+    "id": "holdout-shared-boc-shangrila",
+    "bank": "boc",
+    "merchant": "Shangri-La Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Shangri-La Colombo, Sri Lanka"
+    ],
+    "location": null,
+    "title": "Shangri-La Colombo",
+    "descSnippet": "25% off on food bill with BOC Credit and Debit Cards. Valid until 30th September 2026.  ",
+    "rawTextSnippet": "25% off on food bill with BOC Credit and Debit Cards. Valid until 30th September 2026."
+  },
+  {
+    "id": "holdout-shared-sampath-cinn-grand",
+    "bank": "sampath",
+    "merchant": "Cinnamon Grand Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "30% Off at Cinnamon Grand Colombo",
+    "descSnippet": "30% off for Sampath Visa Signature and Mastercard World Credit Cardholders.  ",
+    "rawTextSnippet": "30% off for Sampath Visa Signature and Mastercard World Credit Cardholders. Valid until 31st August "
+  },
+  {
+    "id": "holdout-shared-ndb-keells",
+    "bank": "ndb",
+    "merchant": "Keells Super",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Colombo, Sri Lanka"
+    ],
+    "location": "Colombo",
+    "title": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000.",
+    "descSnippet": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000.  Minimum ",
+    "rawTextSnippet": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000. Until 31s"
+  },
+  {
+    "id": "holdout-shared-dfcc-singer",
+    "bank": "dfcc",
+    "merchant": "Singer Mega",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Singer Mega",
+    "descSnippet": "15% savings at Singer Mega with DFCC Credit Cards. Minimum spend Rs. 10,000.  Minimum spend required",
+    "rawTextSnippet": "15% savings at Singer Mega with DFCC Credit Cards. Minimum spend Rs. 10,000. Valid till 31 October 2"
+  },
+  {
+    "id": "holdout-shared-seylan-hilton",
+    "bank": "seylan",
+    "merchant": "Hilton Colombo",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "2 Sir Chittampalam A Gardiner Mawatha, Colombo 02, Sri Lanka"
+    ],
+    "location": "2 Sir Chittampalam A Gardiner Mawatha",
+    "title": "Hilton Colombo",
+    "descSnippet": "20% discount on food bill with Seylan Credit Cards. Minimum spend Rs. 3,500. Minimum spend Rs. 3,500",
+    "rawTextSnippet": "20% discount on food bill with Seylan Credit Cards. Minimum spend Rs. 3,500. 01st May 2026 to 31st J"
+  },
+  {
+    "id": "holdout-shared-peoples-cargills",
+    "bank": "peoples",
+    "merchant": "Cargills Food City",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Cargills Food City, Sri Lanka"
+    ],
+    "location": "Cargills Food City",
+    "title": "15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500.",
+    "descSnippet": "15% 15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500.  M",
+    "rawTextSnippet": "15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500. Until "
+  },
+  {
+    "id": "holdout-shared-pabc-nolimit",
+    "bank": "pabc",
+    "merchant": "Nolimit",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "20% OFF at Nolimit",
+    "descSnippet": "20% OFF at Nolimit for Pan Asia Mastercard Credit Cardholders. Minimum spend Rs. 5,000. Valid until ",
+    "rawTextSnippet": "20% OFF at Nolimit for Pan Asia Mastercard Credit Cardholders. Minimum spend Rs. 5,000. Valid until "
+  },
+  {
+    "id": "holdout-shared-nsb-arpico",
+    "bank": "nsb",
+    "merchant": "Arpico Supercentre",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Arpico Supercentre 10% Discount",
+    "descSnippet": "Get 10% discount at Arpico Supercentre with NSB Visa Debit Cards. Minimum bill Rs. 3,000. Promo peri",
+    "rawTextSnippet": "Get 10% discount at Arpico Supercentre with NSB Visa Debit Cards. Minimum bill Rs. 3,000. Promo peri"
+  },
+  {
+    "id": "holdout-shared-combank-softlogic",
+    "bank": "combank",
+    "merchant": "Softlogic Restaurants",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Softlogic Restaurants Dining Promotion",
+    "descSnippet": "Up to 25% Off 25% off for ComBank Credit Cards and 15% off for Debit Cards The minimum bill value at",
+    "rawTextSnippet": "25% off for ComBank Credit Cards and 15% off for Debit Cards. The minimum bill value at Delifrance i"
+  },
+  {
+    "id": "holdout-hnb-hilton-multibrand",
+    "bank": "hnb",
+    "merchant": "Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo)",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Colombo 02, Sri Lanka"
+    ],
+    "location": "Colombo 02",
+    "title": "25% off at Hilton Colombo restaurants",
+    "descSnippet": "25% off on food and beverages  ",
+    "rawTextSnippet": "Merchant: Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo). Offer: 25% off on food and beve"
+  },
+  {
+    "id": "holdout-seylan-jetwing-resorts",
+    "bank": "seylan",
+    "merchant": "Jetwing Hotels & Resorts",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 3,
+    "addresses": [
+      "Jetwing Hotels, Sri Lanka"
+    ],
+    "location": "Jetwing Hotels",
+    "title": "Jetwing Hotels & Resorts",
+    "descSnippet": "Up to 30% savings on luxury stays at Jetwing Blue, Jetwing Beach, and Jetwing Lighthouse for Seylan ",
+    "rawTextSnippet": "Up to 30% savings on luxury stays at Jetwing Blue, Jetwing Beach, and Jetwing Lighthouse for Seylan "
+  },
+  {
+    "id": "holdout-peoples-kurundu-wellness",
+    "bank": "peoples",
+    "merchant": "Kurundu Wellness",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Kurundu Wellness, Sri Lanka"
+    ],
+    "location": "Kurundu Wellness",
+    "title": "20% off on all spa treatments for People’s Bank Credit Cardholders. Valid between 2pm and 6pm on weekdays.",
+    "descSnippet": "20% 20% off on all spa treatments for People’s Bank Credit Cardholders. Valid between 2pm and 6pm on",
+    "rawTextSnippet": "20% off on all spa treatments for People’s Bank Credit Cardholders. Valid between 2pm and 6pm on wee"
+  },
+  {
+    "id": "holdout-peoples-buyme-online",
+    "bank": "peoples",
+    "merchant": "BuyMe.lk",
+    "goldScope": "ONLINE",
+    "goldBranches": 0,
+    "addresses": [
+      "BuyMe.lk, Sri Lanka"
+    ],
+    "location": "BuyMe.lk",
+    "title": "10% off site-wide on online orders at BuyMe.lk with People’s Bank Debit Cards.",
+    "descSnippet": "10% 10% off site-wide on online orders at BuyMe.lk with People’s Bank Debit Cards.  ",
+    "rawTextSnippet": "10% off site-wide on online orders at BuyMe.lk with People’s Bank Debit Cards. Until 31st December 2"
+  },
+  {
+    "id": "holdout-nsb-softlogic-promo",
+    "bank": "nsb",
+    "merchant": "Softlogic Max",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "Softlogic Max Home Appliances",
+    "descSnippet": "Enjoy up to 30% off at Softlogic Max with your NSB Mastercard Debit Card on selected electronics. Va",
+    "rawTextSnippet": "Enjoy up to 30% off at Softlogic Max with your NSB Mastercard Debit Card on selected electronics. Va"
+  },
+  {
+    "id": "holdout-ndb-tangerine-kalutara",
+    "bank": "ndb",
+    "merchant": "Tangerine Beach Hotel",
+    "goldScope": "SINGLE_BRANCH",
+    "goldBranches": 1,
+    "addresses": [
+      "Kalutara, Sri Lanka"
+    ],
+    "location": "Kalutara",
+    "title": "25% discount on Bed & Breakfast basis at Tangerine Beach Hotel Kalutara for NDB Credit Cards. Valid until 31-Dec-2026.",
+    "descSnippet": "25% discount on Bed & Breakfast basis at Tangerine Beach Hotel Kalutara for NDB Credit Cards. Valid ",
+    "rawTextSnippet": "25% discount on Bed & Breakfast basis at Tangerine Beach Hotel Kalutara for NDB Credit Cards. Valid "
+  },
+  {
+    "id": "holdout-dfcc-keells-cap-distinction",
+    "bank": "dfcc",
+    "merchant": "Keells Super",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "20% off at Keells Super for DFCC Credit Cards",
+    "descSnippet": "20% off on fresh produce at Keells Super for DFCC Credit Cards. Minimum spend Rs. 3,500. Maximum dis",
+    "rawTextSnippet": "20% off on fresh produce at Keells Super for DFCC Credit Cards. Minimum spend Rs. 3,500. Maximum dis"
+  },
+  {
+    "id": "holdout-pabc-glomark-thursdays",
+    "bank": "pabc",
+    "merchant": "Softlogic Glomark",
+    "goldScope": "MULTI_BRANCH",
+    "goldBranches": 1,
+    "addresses": [],
+    "location": null,
+    "title": "20% OFF at Softlogic Glomark every Thursday",
+    "descSnippet": "20% OFF on total bill at Softlogic Glomark every Thursday using your Pan Asia Bank Credit Card. Mini",
+    "rawTextSnippet": "20% OFF on total bill at Softlogic Glomark every Thursday using your Pan Asia Bank Credit Card. Mini"
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "verifiedAt": "2026-10-29T11:47:05.489Z",
+  "testSuite": "tests/integration/phase11-geo-staging-verification.test.ts",
+  "testHarness": "PGlite in-process isolated real PostgreSQL",
+  "totalIntegrationTestsRun": 5,
+  "totalIntegrationTestsPassed": 5,
+  "criticalInvariantsVerification": {
+    "invariant1_raw_evidence_immutability": {
+      "status": "VERIFIED",
+      "evidence": "offers.raw_offer, rawHtml, and scraped payload remain byte-for-byte identical."
+    },
+    "invariant2_public_staging_isolation": {
+      "status": "VERIFIED",
+      "evidence": "Corrected geographic candidate is saved with db_status = APPROVED; public consumer API queries only db_status = PUBLISHED."
+    },
+    "invariant3_manual_overrides_sacred": {
+      "status": "VERIFIED",
+      "evidence": "Scraper execution preserved manual_override[\"merchant.location\"] = \"All Island Outlets\"; scraper update routed safely to pending_candidate."
+    },
+    "invariant4_no_false_location_precision": {
+      "status": "VERIFIED",
+      "evidence": "Offer with venue name only (Centauria Wild Udawalawa) without street address produced isGeocodableToCoordinates = false and coordinateConfidence = NOT_GEOCODABLE."
+    },
+    "invariant5_financial_terms_immutability": {
+      "status": "VERIFIED",
+      "evidence": "Discount percentage (20%), minimum spend (Rs. 5,000), and prior reservation conditions remained unmutated during geo resolution."
+    },
+    "operator_publication_gate": {
+      "status": "VERIFIED",
+      "evidence": "Promotion cannot transition to PUBLISHED without explicit operator review approval."
+    }
+  }
+}

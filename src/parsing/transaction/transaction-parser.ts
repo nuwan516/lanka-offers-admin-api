@@ -16,8 +16,12 @@ import { TransactionRange } from '@/core/types/offers';
 
 export type DiscountQualifier = 'UP_TO' | 'FLAT' | 'TIERED' | 'STARTING_AT' | 'ADDITIONAL' | 'FIXED_AMOUNT';
 
+export type MinimumSpendState = 'NO_MINIMUM_SPECIFIED' | 'EXPLICIT_MINIMUM' | 'UNKNOWN_OR_AMBIGUOUS';
+
 export interface ParsedFinancialTerms {
   minimum_transaction_amount: number | null;
+  minimum_spend_state: MinimumSpendState;
+  minimum_spend_condition: string | null;
   maximum_transaction_amount: number | null;
   maximum_discount_amount: number | null;
   discount_percentage: number | null;
@@ -67,6 +71,8 @@ export function parseFinancialTerms(text: string): ParsedFinancialTerms {
   if (!text || typeof text !== 'string') {
     return {
       minimum_transaction_amount: null,
+      minimum_spend_state: 'NO_MINIMUM_SPECIFIED',
+      minimum_spend_condition: null,
       maximum_transaction_amount: null,
       maximum_discount_amount: null,
       discount_percentage: null,
@@ -108,8 +114,8 @@ export function parseFinancialTerms(text: string): ParsedFinancialTerms {
   // ── 2. Maximum Discount Amount (Discount Cap) ────────────────────────────────
   // Must ONLY match discount cap, NEVER transaction amount
   let maxDiscountAmount: number | null = null;
-  const maxDiscountPattern = /(?:maximum|max)\s+discount(?:\s+amount|\s+value)?(?:\s+(?:is|of|at|capped\s+at))?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
-  const discountCapPattern = /discount\s+(?:is\s+)?capped\s+at\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+  const maxDiscountPattern = /(?:maximum|max)\s+discount(?:\s+(?:cap|amount|value))?(?:\s+(?:is|of|at|capped\s+at))?\s*[:=\-–—\s]+\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+  const discountCapPattern = /(?:discount\s+)?(?:is\s+)?capped\s+at\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
 
   const maxDiscountMatch = text.match(maxDiscountPattern) || text.match(discountCapPattern);
   if (maxDiscountMatch) {
@@ -118,16 +124,58 @@ export function parseFinancialTerms(text: string): ParsedFinancialTerms {
 
   // ── 3. Minimum Transaction Amount ───────────────────────────────────────────
   let minTxAmount: number | null = null;
-  const minTxPattern = /(?:minimum|min)\s+(?:bill|spend|transaction|purchase)(?:\s+value|\s+amount)?(?:\s+at\s+[^.:]+?)?(?:\s+(?:is|of|required))?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
-  const minTxMatch = text.match(minTxPattern);
-  if (minTxMatch) {
-    minTxAmount = parseCurrencyAmount(minTxMatch[1]);
+  let minSpendState: MinimumSpendState = 'NO_MINIMUM_SPECIFIED';
+  let minSpendCondition: string | null = null;
+
+  // Check for cumulative spend versus per-transaction spend
+  if (/cumulative\s+(?:spend|spending|bill|purchases?)/i.test(text)) {
+    warnings.push('Cumulative spend requirement detected across promo period');
+    minSpendCondition = 'Cumulative spend requirement';
+  }
+
+  // Check for explicit "no minimum spend"
+  if (/(?:no\s+minimum\s+(?:spend|bill|purchase|transaction)|any\s+(?:bill\s+value|transaction\s+amount|purchase\s+amount)|without\s+(?:any\s+)?minimum\s+spend)/i.test(text)) {
+    minSpendState = 'NO_MINIMUM_SPECIFIED';
+    minTxAmount = null;
+    minSpendCondition = 'Explicitly stated no minimum spend requirement';
+  } else {
+    // 1. Standard "minimum spend/bill/transaction/purchase/order/invoice/booking" pattern
+    const minTxPattern = /(?:minimum|min)\s+(?:total\s+)?(?:bill|spend|transaction|purchase|invoice|order|booking)(?:\s+(?:value|amount|threshold))?(?:\s+at\s+[^.:]+?)?(?:\s+(?:is|of|required))?\s*[:=\-–—\s]+\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+
+    // 2. "Eligible transaction threshold" / "minimum threshold of"
+    const thresholdPattern = /(?:eligible\s+transaction\s+threshold|minimum\s+(?:spend\s+)?threshold)(?:\s+of)?\s*[:=\-–—\s]+\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+
+    // 3. "Bills/purchases/transactions of/exceeding/above/over Rs. X"
+    const exceedingPattern = /(?:on\s+|for\s+)?(?:bills?|purchases?|transactions?|orders?|invoices?)\s+(?:of|exceeding|above|over|and\s+above)\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+
+    // 4. "Rs. X and above / or more on total bill"
+    const andAbovePattern = /(?:Rs\.?|LKR)\s*([\d,]+(?:\.\d+)?)\s*(?:and\s+above|or\s+more|\+)\s*(?:on\s+total\s+bill|on\s+bill|for\s+bill|per\s+transaction|per\s+bill)?/i;
+
+    // 5. Installment minimum transaction ("minimum installment transaction Rs. 25,000")
+    const installmentMinPattern = /minimum\s+(?:installment\s+)?(?:transaction|bill|amount|value)(?:\s+for\s+installments?)?\s*[:=\-–—\s]+\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+
+    const minMatch = text.match(minTxPattern) ||
+                     text.match(thresholdPattern) ||
+                     text.match(installmentMinPattern) ||
+                     text.match(exceedingPattern) ||
+                     text.match(andAbovePattern);
+
+    if (minMatch) {
+      minTxAmount = parseCurrencyAmount(minMatch[1]);
+      if (minTxAmount !== null && minTxAmount > 0) {
+        minSpendState = 'EXPLICIT_MINIMUM';
+        minSpendCondition = minMatch[0].trim();
+      }
+    } else if (/(?:minimum\s+(?:spend|bill|purchase)|conditions?\s+apply\s+on\s+bill\s+value)/i.test(text)) {
+      minSpendState = 'UNKNOWN_OR_AMBIGUOUS';
+      warnings.push('Ambiguous minimum spend mentioned in text without extractable numeric threshold');
+    }
   }
 
   // ── 4. Maximum Transaction Amount ───────────────────────────────────────────
   // CRITICAL: Must match transaction/bill/spend limits, NEVER "maximum discount"
   let maxTxAmount: number | null = null;
-  const maxTxPattern = /(?:maximum|max)\s+(?:bill|spend|transaction|purchase)(?:\s+value|\s+amount)?(?:\s+at\s+[^.:]+?)?(?:\s+(?:is|of))?\s*[:-]?\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
+  const maxTxPattern = /(?:maximum|max)\s+(?:total\s+)?(?:bill|spend|transaction|purchase|order)(?:\s+(?:value|amount|limit))?(?:\s+at\s+[^.:]+?)?(?:\s+(?:is|of))?\s*[:=\-–—\s]+\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:k|mn|million|lakh))?)(?:\/-)?/i;
   const maxTxMatch = text.match(maxTxPattern);
   if (maxTxMatch) {
     maxTxAmount = parseCurrencyAmount(maxTxMatch[1]);
@@ -136,7 +184,7 @@ export function parseFinancialTerms(text: string): ParsedFinancialTerms {
   // ── 5. Range Pattern ("Rs. 10,000 to Rs. 50,000") ───────────────────────────
   // Only evaluate range if min or max tx amount wasn't already explicitly matched
   if (minTxAmount === null && maxTxAmount === null) {
-    const rangeMatch = text.match(/(?:Rs\.?|LKR)\s*([\d,]+(?:\.\d+)?(?:\s*(?:Million|Lakh|Mn|k|m))?)\s*(?:to|[-–])\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:Million|Lakh|Mn|k|m))?)(?:\/-)?/i);
+    const rangeMatch = text.match(/(?:Rs\.?|LKR)\s*([\d,]+(?:\.\d+)?(?:\s*(?:Million|Lakh|Mn|k|m))?)\s*(?:to|[-–—])\s*(?:Rs\.?|LKR)?\s*([\d,]+(?:\.\d+)?(?:\s*(?:Million|Lakh|Mn|k|m))?)(?:\/-)?/i);
     if (rangeMatch) {
       // Validate that this range isn't adjacent to "discount" or "date" words
       const preContext = text.substring(Math.max(0, (rangeMatch.index ?? 0) - 20), rangeMatch.index ?? 0);
@@ -150,6 +198,10 @@ export function parseFinancialTerms(text: string): ParsedFinancialTerms {
         }
         minTxAmount = rMin;
         maxTxAmount = rMax;
+        if (minTxAmount !== null && minTxAmount > 0) {
+          minSpendState = 'EXPLICIT_MINIMUM';
+          minSpendCondition = rangeMatch[0].trim();
+        }
       }
     }
   }
@@ -177,6 +229,8 @@ export function parseFinancialTerms(text: string): ParsedFinancialTerms {
 
   return {
     minimum_transaction_amount: minTxAmount,
+    minimum_spend_state: minSpendState,
+    minimum_spend_condition: minSpendCondition,
     maximum_transaction_amount: maxTxAmount,
     maximum_discount_amount: maxDiscountAmount,
     discount_percentage: discountPercentage,

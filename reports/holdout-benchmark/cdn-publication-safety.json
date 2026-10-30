@@ -1,0 +1,31 @@
+{
+  "auditedAt": "2026-10-29T18:26:26.395Z",
+  "evaluationGate": "TASK_2_CDN_PUBLICATION_SAFETY",
+  "backendApiHeadersAudited": {
+    "listingEndpoints": {
+      "path": "/api/offers, /api/offers/nearby",
+      "cacheControl": "public, max-age=30, s-maxage=60, stale-while-revalidate=30",
+      "vary": "Accept-Encoding, Origin",
+      "verifiedInCode": true
+    },
+    "detailEndpoint": {
+      "path": "/api/offers/:id",
+      "cacheControl": "public, max-age=15, s-maxage=30, stale-while-revalidate=15",
+      "vary": "Accept-Encoding, Origin",
+      "verifiedInCode": true
+    },
+    "errorAndHealthEndpoints": {
+      "path": "/api/health, errorHandler (4xx/5xx)",
+      "cacheControl": "no-cache, no-store, must-revalidate",
+      "verifiedInCode": true
+    }
+  },
+  "edgeInvalidationExposureAnalysis": {
+    "operatorWithdrawalWindow": "Maximum 60 seconds (s-maxage=60) during active CDN caching if cache-tag purge is not triggered",
+    "staleWhileRevalidateGrace": "30 seconds background revalidation ceiling",
+    "naturalExpiryProtection": "Filtered deterministically at database query level ((valid_to IS NULL OR valid_to >= CURRENT_DATE)) and validated by client clocks",
+    "withdrawnPromotionRisk": "CRITICAL FINDING: Withdrawn or disabled promotions can remain visible to edge users for up to 60s without an active Cloudflare purge call. Client date filtering cannot detect manual withdrawal.",
+    "requiredMitigation": "Emit Cloudflare Cache-Tag: offer-{id}, bank-{bank} on detail responses and execute Cloudflare API purge on operator withdrawal action."
+  },
+  "verdict": "BACKEND-API CACHE-CONTROL HEADERS VERIFIED; EDGE STALENESS WINDOW CONFINED TO 60 SECONDS"
+}

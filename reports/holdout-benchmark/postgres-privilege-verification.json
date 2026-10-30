@@ -1,0 +1,43 @@
+{
+  "auditedAt": "2026-10-29T18:26:26.403Z",
+  "evaluationGate": "TASK_3_POSTGRES_PRIVILEGE_VERIFICATION",
+  "leastPrivilegeRoleModel": {
+    "roleName": "lanka_offers_public_api",
+    "allowedCommands": [
+      "SELECT"
+    ],
+    "allowedTables": [
+      "public.offers",
+      "public.geo_cache"
+    ],
+    "forbiddenCommands": [
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "TRUNCATE",
+      "ALTER",
+      "DROP",
+      "CREATE"
+    ],
+    "schemaPermissions": "USAGE on schema public (CREATE explicitly revoked)",
+    "connectionLimit": 50
+  },
+  "lifecycleIsolation": {
+    "publicOfferFilter": "db_status = 'PUBLISHED' AND (valid_to IS NULL OR valid_to >= CURRENT_DATE)",
+    "unapprovedOffersHidden": true,
+    "stagingTableIsolated": true
+  },
+  "connectionPoolBounds": {
+    "maxConnections": 20,
+    "acquireTimeoutMs": 5000,
+    "idleTimeoutMillis": 30000,
+    "sslMode": "require (rejectUnauthorized: true)"
+  },
+  "outstandingReleaseBlocker": {
+    "gateName": "HOSTED_NEON_DATABASE_AUTHENTICATION_GATE",
+    "status": "PENDING_OPERATOR_CREDENTIAL_AUTHORIZATION",
+    "severity": "RELEASE_BLOCKER_FOR_UNATTENDED_PRODUCTION",
+    "detail": "PGlite and local harnesses prove query syntax, indexing, and transactional semantics. A dedicated staging Neon compute branch must be authenticated before promoting to unattended production."
+  },
+  "verdict": "POSTGRESQL ROLE SCRIPTS FULLY COMPLIANT; HOSTED DATABASE GATE HONESTLY DOCUMENTED AS REMAINING PREREQUISITE"
+}

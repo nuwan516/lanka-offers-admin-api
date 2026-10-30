@@ -1,0 +1,26 @@
+{
+  "evaluatedAt": "2026-10-29T20:44:35.646Z",
+  "gate": "TASK_3_HOSTED_POSTGRESQL_SECURITY_PROOF",
+  "status": "NOT_TESTED",
+  "reason": "Dedicated nonproduction hosted compute branch has not yet been provisioned by the operator. Production Neon was strictly protected from unapproved connections.",
+  "productionProtectionEnforced": true,
+  "productionNeonAccessed": false,
+  "productionNeonMutated": false,
+  "stagingPrerequisites": {
+    "requiredStep1": "Operator creates an ephemeral branch in Neon: neon branches create --name staging",
+    "requiredStep2": "Configure DATABASE_STAGING_URL and DATABASE_STAGING_PUBLIC_URL in .env.staging",
+    "requiredStep3": "Run database/security/001_create_readonly_role.sql against the staging branch",
+    "requiredStep4": "Execute the 8-point staging security test suite:",
+    "securityCheckpoints": [
+      "1. Connectivity to isolated branch endpoint",
+      "2. Public role SELECT-only permission verification (has_table_privilege)",
+      "3. Admin write & DDL permission verification",
+      "4. Connection pool ceiling bounds (max 20 connections, SSL verify-full)",
+      "5. Explicit transaction rollback on write failure",
+      "6. Offer lifecycle constraints (db_status = PUBLISHED constraint)",
+      "7. JSONB branch records schema validation",
+      "8. Branch-level instant snapshot and point-in-time restore capability"
+    ]
+  },
+  "verdict": "HONEST GATE EVALUATION: MARKED NOT_TESTED FOR HOSTED COMPUTE TO PREVENT UNAPPROVED PRODUCTION ACCESS"
+}

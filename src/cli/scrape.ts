@@ -404,12 +404,18 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
             const uStatus = report.unifiedValidation.qualityGate.status;
             if (uStatus === 'VALIDATED') {
               lifecycleStatus = 'APPROVED';
+            } else if (uStatus === 'EXPIRED') {
+              lifecycleStatus = 'EXPIRED';
             } else if (uStatus === 'INVALID') {
               lifecycleStatus = 'REJECTED';
             } else {
               lifecycleStatus = 'REVIEW_REQUIRED';
             }
           } else {
+            const isExpired = Boolean(
+              report?.ruleValidation.errors.length &&
+              report.ruleValidation.errors.every(e => e.field === 'validityPeriods' && e.message.includes('expired'))
+            );
             const quality = decideOfferQuality({
               ruleValid: report?.ruleValidation.valid ?? true,
               ruleErrorCount: report?.ruleValidation.errors.length ?? 0,
@@ -419,13 +425,17 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
               llmStatus: report?.llmValidation?.issues.includes('BUDGET_BLOCKED') ? 'skipped_budget'
                 : report?.llmValidation?.issues.includes('LLM_VALIDATION_FAILED') ? 'review_required'
                 : report?.llmValidation ? 'validated' : null,
+              isExpired,
             });
             lifecycleStatus =
               quality === 'AUTO_APPROVE' ? 'APPROVED' :
+              quality === 'EXPIRE' ? 'EXPIRED' :
               quality === 'REJECT' ? 'REJECTED' : 'REVIEW_REQUIRED';
           }
 
-          const result = await upsertOffer(offer, runId, { lifecycleStatus }, fencingToken);
+          const stagedOffer = report?.unifiedValidation?.effectiveOffer ?? offer;
+          const rawOffer = offer;
+          const result = await upsertOffer(stagedOffer, runId, { lifecycleStatus }, fencingToken, rawOffer);
           if (result.isNew) dbNew++;
           else if (result.isChanged) dbChanged++;
           else dbUnchanged++;

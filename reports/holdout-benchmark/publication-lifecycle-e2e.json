@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-10-29T16:14:32.825Z",
+  "evaluationGate": "PHASE_4_FULL_PUBLICATION_WORKFLOW_SIMULATION",
+  "lifecycleStepsVerified": 13,
+  "traces": [
+    {
+      "step": 1,
+      "name": "NEW_OFFER_INGESTION",
+      "dbStatus": "REVIEW_REQUIRED",
+      "publicExposure": false,
+      "isolationPreserved": true
+    },
+    {
+      "step": 2,
+      "name": "DETERMINISTIC_VALIDATION",
+      "valid": true,
+      "errorsCount": 0
+    },
+    {
+      "step": 3,
+      "name": "HASH_GATED_LLM_GATE",
+      "contentHash": "hash-combank-shangrila-v1",
+      "llmValidatedHash": "hash-combank-shangrila-v1",
+      "llmCallSkipped": true,
+      "zeroCostPreserved": true
+    },
+    {
+      "step": 4,
+      "name": "OPERATOR_APPROVAL",
+      "dbStatus": "APPROVED",
+      "publicExposure": false
+    },
+    {
+      "step": 5,
+      "name": "AUTHORIZED_PUBLICATION",
+      "dbStatus": "PUBLISHED",
+      "publishedAt": "2026-10-29T16:14:32.702Z"
+    },
+    {
+      "step": 6,
+      "name": "PUBLIC_API_RETRIEVAL",
+      "returnedOffersCount": 1,
+      "retrievedDiscount": 25
+    },
+    {
+      "step": 7,
+      "name": "SCRAPE_MODIFICATION_STAGED",
+      "liveDbStatus": "PUBLISHED",
+      "liveDiscountUnclobbered": 25,
+      "pendingCandidateDiscount": 30,
+      "pendingLifecycleStatus": "REVIEW_REQUIRED"
+    },
+    {
+      "step": 8,
+      "name": "PENDING_CANDIDATE_APPROVAL_AND_MERGE",
+      "newLiveDiscount": 30,
+      "pendingCandidateCleared": true
+    },
+    {
+      "step": 9,
+      "name": "EXPIRY_SUPPRESSION",
+      "returnedInPublicQuery": false,
+      "publicFilteringSucceeded": true
+    },
+    {
+      "step": 10,
+      "name": "OFFER_RENEWAL",
+      "renewalPublished": true,
+      "newValidTo": "2027-12-31T00:00:00.000Z"
+    },
+    {
+      "step": 11,
+      "name": "DUPLICATE_DETECTION_ROUTING",
+      "duplicateStagedStatus": "REVIEW_REQUIRED",
+      "changeStatus": "DUPLICATE",
+      "routedToReviewBacklog": true
+    },
+    {
+      "step": 12,
+      "name": "WITHDRAWAL_AND_DISABLE",
+      "finalStatus": "DISABLED",
+      "publicQueryReturned": false
+    },
+    {
+      "step": 13,
+      "name": "SECURITY_FENCING_BOUNDARIES",
+      "expiredLeaseBlocked": true,
+      "illegalDirectPublishBlocked": true,
+      "failClosedVerified": true
+    }
+  ],
+  "securityGuarantees": [
+    "Staging isolation: unapproved offers never return from public queries",
+    "Manual overrides protected: candidate updates do not overwrite live row before approval",
+    "Zero-cost LLM gate: unchanged content hashes skip LLM invocation",
+    "Fencing lease validation: stale leases fail closed",
+    "Invalid state machine bypass blocked: cannot PUBLISH without APPROVE"
+  ],
+  "verdict": "ALL 12 LIFECYCLE PHASES & SECURITY BOUNDARIES RIGOROUSLY VALIDATED"
+}

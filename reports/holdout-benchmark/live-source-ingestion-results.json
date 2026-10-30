@@ -1,0 +1,350 @@
+{
+  "generatedAt": "2026-10-29T17:47:02.342Z",
+  "evaluationGate": "PHASE_3_REAL_SOURCE_INGESTION_REHEARSAL",
+  "totalBanksEvaluated": 10,
+  "probeResults": {
+    "hnb": {
+      "bank": "hnb",
+      "url": "https://venus.hnb.lk/api/get_all_web_card_promos?page=1&cardType=all",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 1009,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "sampath": {
+      "bank": "sampath",
+      "url": "https://www.sampath.lk/sampath-cards/credit-card-offer",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 4727,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "boc": {
+      "bank": "boc",
+      "url": "https://www.boc.lk/personal-banking/card-offers",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 1712,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "peoples": {
+      "bank": "peoples",
+      "url": "https://www.peoplesbank.lk/special-offers/",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 2678,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "seylan": {
+      "bank": "seylan",
+      "url": "https://www.seylan.lk/promotions/cards",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 5395,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "ndb": {
+      "bank": "ndb",
+      "url": "https://www.ndbbank.com/cards/card-offers",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 1036,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "dfcc": {
+      "bank": "dfcc",
+      "url": "https://www.dfcc.lk/dfcc-card-offers/today-promotions",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 1239,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "pabc": {
+      "bank": "pabc",
+      "url": "https://www.pabcbank.com/card-offers/",
+      "statusCode": 307,
+      "reachable": true,
+      "latencyMs": 347,
+      "statusText": "Temporary Redirect",
+      "tlsSecure": true
+    },
+    "nsb": {
+      "bank": "nsb",
+      "url": "https://www.nsb.lk/category/card-offers/",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 553,
+      "statusText": "OK",
+      "tlsSecure": true
+    },
+    "combank": {
+      "bank": "combank",
+      "url": "https://www.combank.lk/rewards-promotions",
+      "statusCode": 200,
+      "reachable": true,
+      "latencyMs": 1116,
+      "statusText": "OK",
+      "tlsSecure": true
+    }
+  },
+  "bankSummaries": {
+    "hnb": {
+      "bank": "hnb",
+      "displayName": "Hatton National Bank",
+      "probeResult": {
+        "bank": "hnb",
+        "url": "https://venus.hnb.lk/api/get_all_web_card_promos?page=1&cardType=all",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 1009,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 9,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 10,
+        "invalid": 3
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "sampath": {
+      "bank": "sampath",
+      "displayName": "Sampath Bank",
+      "probeResult": {
+        "bank": "sampath",
+        "url": "https://www.sampath.lk/sampath-cards/credit-card-offer",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 4727,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 10,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 11,
+        "invalid": 2
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "boc": {
+      "bank": "boc",
+      "displayName": "Bank of Ceylon",
+      "probeResult": {
+        "bank": "boc",
+        "url": "https://www.boc.lk/personal-banking/card-offers",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 1712,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 9,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 10,
+        "invalid": 3
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "peoples": {
+      "bank": "peoples",
+      "displayName": "People's Bank",
+      "probeResult": {
+        "bank": "peoples",
+        "url": "https://www.peoplesbank.lk/special-offers/",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 2678,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 10,
+        "changed": 1,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 12,
+        "invalid": 1
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "seylan": {
+      "bank": "seylan",
+      "displayName": "Seylan Bank",
+      "probeResult": {
+        "bank": "seylan",
+        "url": "https://www.seylan.lk/promotions/cards",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 5395,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 10,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 11,
+        "invalid": 2
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "ndb": {
+      "bank": "ndb",
+      "displayName": "NDB Bank",
+      "probeResult": {
+        "bank": "ndb",
+        "url": "https://www.ndbbank.com/cards/card-offers",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 1036,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 10,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 11,
+        "invalid": 2
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "dfcc": {
+      "bank": "dfcc",
+      "displayName": "DFCC Bank",
+      "probeResult": {
+        "bank": "dfcc",
+        "url": "https://www.dfcc.lk/dfcc-card-offers/today-promotions",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 1239,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 10,
+        "changed": 1,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 12,
+        "invalid": 1
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "pabc": {
+      "bank": "pabc",
+      "displayName": "Pan Asia Bank",
+      "probeResult": {
+        "bank": "pabc",
+        "url": "https://www.pabcbank.com/card-offers/",
+        "statusCode": 307,
+        "reachable": true,
+        "latencyMs": 347,
+        "statusText": "Temporary Redirect",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 10,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 11,
+        "invalid": 2
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "nsb": {
+      "bank": "nsb",
+      "displayName": "National Savings Bank",
+      "probeResult": {
+        "bank": "nsb",
+        "url": "https://www.nsb.lk/category/card-offers/",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 553,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 6,
+        "changed": 1,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 8,
+        "invalid": 5
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    },
+    "combank": {
+      "bank": "combank",
+      "displayName": "Commercial Bank of Ceylon",
+      "probeResult": {
+        "bank": "combank",
+        "url": "https://www.combank.lk/rewards-promotions",
+        "statusCode": 200,
+        "reachable": true,
+        "latencyMs": 1116,
+        "statusText": "OK",
+        "tlsSecure": true
+      },
+      "ingestionMetrics": {
+        "discovered": 13,
+        "new": 7,
+        "changed": 0,
+        "duplicate": 1,
+        "expired": 1,
+        "reviewRequired": 8,
+        "invalid": 5
+      },
+      "rehearsalSource": "AUTHENTIC_RAW_SNAPSHOT_REPLAY",
+      "databaseIsolation": "PGLITE_ISOLATED_STAGE_VERIFIED"
+    }
+  },
+  "stagingVerification": {
+    "totalOffersStaged": 93,
+    "publishedOffersCount": 0,
+    "stagingIsolationPreserved": true
+  },
+  "invariantsConfirmed": [
+    "Invariant #1: Immutable raw_offer evidence preserved without fabrication",
+    "Invariant #2: Public staging isolation verified (zero records published during rehearsal)",
+    "Invariant #5: Conservative card and discount validation enforced"
+  ],
+  "verdict": "REAL-SOURCE INGESTION REHEARSAL COMPLETED WITH ZERO PRODUCTION LEAKS"
+}

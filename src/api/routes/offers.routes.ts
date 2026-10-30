@@ -39,7 +39,7 @@ router.get('/offers', async (req: Request, res: Response) => {
               pending_candidate IS NOT NULL AS has_pending_candidate, pending_lifecycle_status,
               created_at, updated_at, scrape_run_id, content_hash, geo_locations, geo_status
            FROM offers ${q.whereSql}
-           ORDER BY updated_at DESC
+           ORDER BY updated_at DESC, id ASC
            LIMIT $${i++} OFFSET $${i}`
         : `SELECT id, unique_id, bank, source_url, title, category, card_type,
               merchant_name, merchant_location, canonical_merchant, location_scope,
@@ -47,7 +47,7 @@ router.get('/offers', async (req: Request, res: Response) => {
               geo_locations, geo_status, raw_offer, rule_passed, db_status,
               created_at, updated_at
            FROM offers ${q.whereSql}
-           ORDER BY updated_at DESC
+           ORDER BY updated_at DESC, id ASC
            LIMIT $${i++} OFFSET $${i}`,
       [...q.params, lim, off]
     ),
@@ -191,6 +191,21 @@ router.post('/offers/reconcile-expired', async (req: Request, res: Response) => 
     expiredCount: result.expiredCount,
     sampleOfferIds: result.sampleOfferIds ?? [],
   });
+});
+
+router.post('/offers/:id/rollback', async (req: Request, res: Response) => {
+  const { actor = 'admin:rollback', reason, expectedUpdatedAt } = req.body ?? {};
+  const { rollbackSingleOffer } = await import('@/infrastructure/db/rollback-operations');
+  const result = await rollbackSingleOffer(String(req.params.id), { actor, reason, expectedUpdatedAt });
+  if (result.outcome === 'not_found') {
+    res.status(404).json(result);
+    return;
+  }
+  if (result.outcome === 'conflict') {
+    res.status(409).json(result);
+    return;
+  }
+  res.json(result);
 });
 
 export const offerRoutes = router;

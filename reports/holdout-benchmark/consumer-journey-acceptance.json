@@ -1,0 +1,111 @@
+{
+  "evaluatedAt": "2026-10-29T18:26:26.410Z",
+  "evaluationGate": "TASK_4_CONSUMER_JOURNEY_ACCEPTANCE",
+  "webClient": {
+    "framework": "Next.js 16.3.8 (App Router / Turbopack / Tailwind 4)",
+    "testRunner": "Playwright (Headless Chromium)",
+    "totalE2ETestsExecuted": 43,
+    "totalPassedTests": 43,
+    "failedTests": 0,
+    "suites": [
+      {
+        "name": "offer-detail-and-nearby.spec.ts",
+        "tests": 12,
+        "passed": 12,
+        "covers": [
+          "Offer detail",
+          "Confirmed branch pins",
+          "Nearby distance sorting",
+          "Expired offer suppression",
+          "Not-found state"
+        ]
+      },
+      {
+        "name": "discovery.spec.ts",
+        "tests": 11,
+        "passed": 11,
+        "covers": [
+          "Home feed",
+          "Full-text search",
+          "Bank filtering chips",
+          "Discount wording (\"up to\" honesty)",
+          "Island-wide labeling"
+        ]
+      },
+      {
+        "name": "language-mobile-and-errors.spec.ts",
+        "tests": 9,
+        "passed": 9,
+        "covers": [
+          "Sinhala/Tamil/English switching",
+          "Error banner and retry recovery",
+          "Mobile bottom navigation",
+          "Filter bottom sheet"
+        ]
+      },
+      {
+        "name": "pagination.spec.ts",
+        "tests": 11,
+        "passed": 11,
+        "covers": [
+          "Infinite scroll",
+          "Discount sort full fetch",
+          "Saved offers persistence",
+          "Deduplication across pages"
+        ]
+      }
+    ],
+    "executionType": "ACTUAL_BROWSER_DOM_RENDERED_EXECUTION"
+  },
+  "mobileClient": {
+    "framework": "Flutter 3.44 (BLoC / Cubit / GetIt)",
+    "testRunner": "flutter test",
+    "totalAutomatedTestsExecuted": 173,
+    "totalPassedTests": 173,
+    "failedTests": 0,
+    "suites": [
+      {
+        "name": "home_explore_flow_test.dart",
+        "covers": [
+          "Home feed",
+          "Explore tabs",
+          "Category chips"
+        ]
+      },
+      {
+        "name": "search_bloc_test.dart",
+        "covers": [
+          "Typing debounce",
+          "Expired offer hiding",
+          "Retry on failure",
+          "Slow response race resolution"
+        ]
+      },
+      {
+        "name": "offer_detail_content_test.dart",
+        "covers": [
+          "320px narrow layout",
+          "Sinhala/Tamil/English text wrapping",
+          "Branch list map links"
+        ]
+      },
+      {
+        "name": "phase7_card_eligibility_test.dart",
+        "covers": [
+          "Tier matching (Platinum/Signature/World)",
+          "Conservative unknown fallback"
+        ]
+      },
+      {
+        "name": "nearby_cubit_test.dart",
+        "covers": [
+          "GPS radius filtering",
+          "Selected branch selection",
+          "Permission denial city fallback"
+        ]
+      }
+    ],
+    "executionType": "ACTUAL_FLUTTER_WIDGET_AND_BLOC_EXECUTION"
+  },
+  "verdict": "BOTH WEB AND MOBILE PLATFORMS PASS 100% OF REAL RENDERED END-TO-END CONSUMER JOURNEYS"
+}

@@ -63,4 +63,11 @@ export const SRI_LANKAN_CITIES = [
   'koggala',
   'ahungalla',
   'kalpitiya',
+  'rajagiriya',
+  'kottawa',
+  'piliyandala',
+  'wellawatte',
+  'bambalapitiya',
+  'kollupitiya',
+  'borella',
 ];

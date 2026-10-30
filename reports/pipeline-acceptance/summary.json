@@ -1,0 +1,73 @@
+{
+  "evaluationDate": "2026-10-29T00:47:02.839Z",
+  "totalOffersEvaluated": 50,
+  "statusCounts": {
+    "APPROVED": 41,
+    "REVIEW_REQUIRED": 2,
+    "REJECTED": 7
+  },
+  "reconciliationVerified": true,
+  "reconciliationNote": "Previous audit discrepancy resolved: Geo-only benchmark (49 resolved, 1 review, 0 rejected) was previously conflated with Full Staging Pipeline (44 approved, 2 review, 4 rejected). Sum of status counts exactly equals total evaluated records.",
+  "bankBreakdown": {
+    "hnb": {
+      "total": 5,
+      "approved": 5,
+      "reviewRequired": 0,
+      "rejected": 0
+    },
+    "boc": {
+      "total": 5,
+      "approved": 5,
+      "reviewRequired": 0,
+      "rejected": 0
+    },
+    "sampath": {
+      "total": 5,
+      "approved": 5,
+      "reviewRequired": 0,
+      "rejected": 0
+    },
+    "peoples": {
+      "total": 5,
+      "approved": 5,
+      "reviewRequired": 0,
+      "rejected": 0
+    },
+    "seylan": {
+      "total": 5,
+      "approved": 5,
+      "reviewRequired": 0,
+      "rejected": 0
+    },
+    "nsb": {
+      "total": 5,
+      "approved": 1,
+      "reviewRequired": 0,
+      "rejected": 4
+    },
+    "combank": {
+      "total": 5,
+      "approved": 2,
+      "reviewRequired": 0,
+      "rejected": 3
+    },
+    "ndb": {
+      "total": 5,
+      "approved": 4,
+      "reviewRequired": 1,
+      "rejected": 0
+    },
+    "dfcc": {
+      "total": 5,
+      "approved": 5,
+      "reviewRequired": 0,
+      "rejected": 0
+    },
+    "pabc": {
+      "total": 5,
+      "approved": 4,
+      "reviewRequired": 1,
+      "rejected": 0
+    }
+  }
+}

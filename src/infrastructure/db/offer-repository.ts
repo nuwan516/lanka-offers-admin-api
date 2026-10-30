@@ -201,7 +201,7 @@ export interface OfferLifecycleDecision {
 const NEW_CHANGE_STATUS: OfferChangeStatus = 'NEW';
 const CHANGED_CHANGE_STATUS: OfferChangeStatus = 'CHANGED';
 
-function offerColumnValues(offer: Offer) {
+function offerColumnValues(offer: Offer, rawOfferSource?: Offer) {
   const validity = offer.validityPeriods?.[0];
   return {
     validFrom: validity?.validFrom ?? null,
@@ -209,7 +209,8 @@ function offerColumnValues(offer: Offer) {
     discount: offer.offer?.discountPercentage?.toString() ?? null,
     cardEligibility: JSON.stringify(offer.cardEligibility ?? {}),
     geoLocations: JSON.stringify(offer.merchant?.geocodedLocations ?? []),
-    rawOffer: JSON.stringify(offer),
+    rawOffer: JSON.stringify(rawOfferSource ?? offer),
+    candidateJson: JSON.stringify(offer),
   };
 }
 
@@ -220,6 +221,7 @@ function offerColumnValues(offer: Offer) {
  *  - Same `unique_id` + same `content_hash` → NO WRITE at all (zero-cost
  *    control invariant — not even `updated_at` bumps).
  *  - New identity → inserted directly with the caller's quality decision.
+ *    Stores effective offer in columns, preserving rawOfferSource in `raw_offer`.
  *  - Changed identity, currently PUBLISHED → the live published columns are
  *    left untouched; the new candidate is staged into `pending_candidate`
  *    for review/approval instead of silently going live.
@@ -235,7 +237,8 @@ export async function upsertOffer(
   offer: Offer,
   runId: string,
   decision: OfferLifecycleDecision,
-  fencingToken?: FencingToken
+  fencingToken?: FencingToken,
+  rawOffer?: Offer
 ): Promise<UpsertResult> {
   return withTransaction(async (client) => {
     if (fencingToken) {
@@ -246,7 +249,7 @@ export async function upsertOffer(
       [offer.uniqueId]
     );
     const existing = existingRes.rows[0];
-    const cols = offerColumnValues(offer);
+    const cols = offerColumnValues(offer, rawOffer);
 
     if (!existing) {
       const insertRes = await client.query<{ id: string }>(
@@ -278,7 +281,7 @@ export async function upsertOffer(
          SET pending_candidate = $2, pending_lifecycle_status = $3, pending_change_status = 'CHANGED',
              scrape_run_id = $4, updated_at = NOW()
          WHERE id = $1`,
-        [existing.id, cols.rawOffer, decision.lifecycleStatus, runId]
+        [existing.id, cols.candidateJson, decision.lifecycleStatus, runId]
       );
       return { id: existing.id, isNew: false, isChanged: true, isUnchanged: false, status: 'CHANGED', staged: true };
     }

@@ -14,6 +14,7 @@ import {
   type OfferLifecycleStatus,
   type OfferReviewAction,
 } from '@/domain/offer-lifecycle';
+import { validateSourceProvenance } from '@/domain/source-provenance';
 import { type FencingToken, assertActiveLease } from './offer-repository';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -203,6 +204,14 @@ export async function transitionOffer(
       await client.query(`UPDATE offers SET manual_override = $2, updated_at = NOW() WHERE id = $1`, [offerId, JSON.stringify(mergedOverride)]);
     }
 
+    if (action === 'APPROVE' || action === 'APPROVE_WITH_CORRECTIONS') {
+      const candidate = row.pending_candidate ?? row.raw_offer;
+      const prov = validateSourceProvenance(candidate, row.raw_offer);
+      if (!prov.valid) {
+        throw new WorkflowError(`Cannot ${action} offer: failed server-side provenance validation (${prov.reason})`);
+      }
+    }
+
     // PUBLISH must never be a bare status flip — it has to go through the
     // same merge + re-validate logic as the dedicated sync endpoint, or a
     // direct PUBLISH call would mark an offer live without ever writing its
@@ -287,6 +296,13 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
   }
 
   const candidate = row.pending_candidate ?? row.raw_offer;
+  const prov = validateSourceProvenance(candidate, row.raw_offer);
+  if (!prov.valid) {
+    await logHistory(client, offerId, 'sync_failed', row.db_status, row.db_status,
+      { provenanceError: prov.reason }, 'server-side provenance validation failed before publish');
+    return { offerId, outcome: 'failed', reason: prov.reason ?? 'SYNTHETIC_PROVENANCE_REJECTED' };
+  }
+
   const effective = computeEffectiveOffer(candidate, row.manual_override);
   const ruleResult = new OfferValidator().validate(effective);
 
