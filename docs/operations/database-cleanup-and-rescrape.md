@@ -129,14 +129,33 @@ All 10 bank promotion endpoints were probed live:
 
 **Outcome**: 100% of all 10 bank endpoints are live and responsive.
 
-### 5.2 Fresh Scrapes Executed
+### 5.2 Fresh Scrapes Executed Across All Ten Banks
 Fresh scrapes were executed through the full ingestion pipeline (capture → parsing → normalization → date validation → financial validation → deduplication → dry-run export):
+
+| Bank | Raw Found | Duplicates Removed | Normalized | Validated | Expired | Validation Pass Rate | Duration |
+|---|---|---|---|---|---|---|---|
+| **HNB** | 2,039 | 1,045 | 994 | 976 | 18 | 98.19% | 142.9 s |
+| **BOC** | 85 | 0 | 85 | 85 | 0 | 100.0% | 34.9 s |
+| **People's** | 201 | 0 | 201 | 195 | 6 | 97.01% | 200.8 s |
+| **NSB** | 22 | 0 | 22 | 14 | 8 | 63.64% | 29.9 s |
+| **Seylan** | 319 | 0 | 319 | 310 | 9 | 97.18% | 408.5 s |
+| **ComBank** | 66 | 0 | 66 | 66 | 0 | 100.0% | 23.1 s |
+| **PABC** | 34 | 0 | 34 | 34 | 0 | 100.0% | 28.1 s |
+| **Sampath** | 254 | 127 | 127 | 120 | 7 | 94.49% | 303.6 s |
+| **NDB** | 166 | 42 | 124 | 123 | 1 | 99.19% | 657.1 s |
+| **DFCC** | 4 | 0 | 4 | 1 | 3 | 25.00% | 1106.5 s |
+| **Total** | **3,190** | **1,214** | **1,976** | **1,924** | **52** | **97.37%** | **2,935.4 s** |
 
 - **HNB**: 2,039 raw offers scraped across 14 categories. 1,045 cross-category duplicates removed. **994 normalized offers**, **976 passed validation**, 18 expired/invalid. Artifacts exported to `output/dry-runs/hnb/`.
 - **BOC**: 85 raw offers scraped across 13 categories. **85 normalized offers**, **85 passed validation (100% pass rate)**. Artifacts exported to `output/dry-runs/boc/`.
 - **People's Bank**: 201 raw offers scraped across 12 categories. **201 normalized offers**, **195 passed validation**, 6 expired. Artifacts exported to `output/dry-runs/peoples/`.
 - **NSB**: 22 raw offers scraped. **22 normalized offers**, **14 passed validation**, 8 expired. Artifacts exported to `output/dry-runs/nsb/`.
 - **Seylan Bank**: 319 raw offers scraped across 24 categories. **319 normalized offers**, **310 passed validation**, 9 expired. Artifacts exported to `output/dry-runs/seylan/`.
+- **Commercial Bank**: 66 raw offers scraped. **66 normalized offers**, **66 passed validation (100% pass rate)**. Artifacts exported to `output/dry-runs/combank/`.
+- **Pan Asia Bank (PABC)**: 34 raw offers scraped. **34 normalized offers**, **34 passed validation (100% pass rate)**. Artifacts exported to `output/dry-runs/pabc/`.
+- **Sampath Bank**: 254 raw offers scraped across 13 categories. 127 category catch-all duplicates removed. **127 normalized offers**, **120 passed validation**, 7 expired. Artifacts exported to `output/dry-runs/sampath/`.
+- **NDB Bank**: 166 raw offers scraped across 18 categories. 42 cross-category duplicates removed. **124 normalized offers**, **123 passed validation**, 1 expired. Artifacts exported to `output/dry-runs/ndb/`.
+- **DFCC Bank**: 4 active offers extracted from rendered promo hubs. **4 normalized offers**, **1 passed validation**, 3 past-due expired. Artifacts exported to `output/dry-runs/dfcc/`.
 
 ---
 
