@@ -80,6 +80,10 @@ function wrapEl($: any, el: any) {
       if (found.length === 0) return null;
       return wrapEl($, found.get(0));
     },
+    querySelectorAll: (sel: string) => {
+      const found = $el.find(sel).toArray();
+      return found.map((c: any) => wrapEl($, c));
+    },
     get textContent() {
       return $el.text();
     },

@@ -125,6 +125,7 @@ export const PEOPLES_CATEGORIES: BankCategory[] = [
   peoplesCategory(10, 'Visa', 'visa', 'credit'),
   peoplesCategory(11, 'Clothing', 'clothing', 'credit'),
   peoplesCategory(12, 'Others', 'others', 'credit'),
+  peoplesCategory(13, 'Book Store', 'book-store', 'both'),
 ];
 
 // ─── Seylan ───────────────────────────────────────────────────────────────────
@@ -154,6 +155,8 @@ export const SEYLAN_CATEGORIES: BankCategory[] = [
   { id: 22, name: 'Jewelry', slug: 'jewelry', url: 'https://www.seylan.lk/promotions/cards/jewelry', sourceType: 'html', detailRequired: true },
   { id: 23, name: 'Affinity Cards', slug: 'affinity-cards', url: 'https://www.seylan.lk/promotions/cards/affinity-cards', sourceType: 'html', detailRequired: true },
   { id: 24, name: 'Harasara', slug: 'harasara', url: 'https://www.seylan.lk/promotions/cards/harasara', sourceType: 'html', detailRequired: true },
+  { id: 25, name: 'Banquets & Events', slug: 'banquets-events', url: 'https://www.seylan.lk/promotions/cards/banquets-events', sourceType: 'html', detailRequired: true },
+  { id: 26, name: 'Shoes & Accessories', slug: 'shoes-accessories', url: 'https://www.seylan.lk/promotions/cards/shoes-accessories', sourceType: 'html', detailRequired: true },
   // Catch-all LAST: the hub paginates through every offer, so offers in
   // removed/renamed categories are still captured. Dedupe keeps categorized
   // copies because Seylan uniqueIds derive from the detail-page slug.

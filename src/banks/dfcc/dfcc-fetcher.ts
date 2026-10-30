@@ -170,8 +170,10 @@ function extractDFCCPromotionsFromListing(): DFCCListItem[] {
   return cards.map((card) => {
     const link = card.tagName === 'A' ? card : card.querySelector('a[href*="cards-promotions"], a[href*="promotion"], a');
     const detailUrl = link?.getAttribute('href') || '';
-    const imgElements = Array.from(card.querySelectorAll('img')) as any[];
-    const validImg = imgElements.find((im) => !im.src.endsWith('.svg') && !im.src.includes('arrow') && !im.alt?.toLowerCase().includes('relivenet'));
+    const imgElements = typeof card.querySelectorAll === 'function'
+      ? Array.from(card.querySelectorAll('img'))
+      : (card.querySelector?.('img') ? [card.querySelector('img')] : []);
+    const validImg = (imgElements as any[]).find((im) => !im.src?.endsWith('.svg') && !im.src?.includes('arrow') && !im.alt?.toLowerCase().includes('relivenet'));
 
     return {
       cardType: card.querySelector('.tag, .card-tags p, [class*="tag"], .badge')?.textContent?.trim() ?? '',
