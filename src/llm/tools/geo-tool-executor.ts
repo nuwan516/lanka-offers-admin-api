@@ -11,7 +11,7 @@ import { determineLocationScope } from '@/domain/location-scope';
 import { assessAddressQuality, sanitizeAddressString } from '@/geo/address-quality';
 import { GeoOfferContext } from '@/geo/geo-evidence';
 import { GeoCache } from '@/infrastructure/cache/geo-cache';
-import { validateGeoValidationProposal, GeoValidationProposal } from '@/llm/schemas/geo-validation.schema';
+import { validateGeoValidationProposal } from '@/llm/schemas/geo-validation.schema';
 
 export interface ToolExecutionStats {
   totalCalls: number;

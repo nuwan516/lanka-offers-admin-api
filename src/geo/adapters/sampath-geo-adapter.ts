@@ -74,7 +74,7 @@ export class SampathGeoAdapter implements IGeoAdapter {
   }
 
   private appendCityIfMissing(address: string, city: string): string {
-    let cleaned = address.replace(/,\s*([A-Za-z]+)\s*,\s*\1\s*$/i, ', $1');
+    const cleaned = address.replace(/,\s*([A-Za-z]+)\s*,\s*\1\s*$/i, ', $1');
     if (!city || !city.trim()) return cleaned;
     const c = city.trim();
     if (cleaned.toLowerCase().includes(c.toLowerCase())) {

@@ -64,6 +64,17 @@ export interface ImageInfo {
   localPath?: string;
 }
 
+export interface VerifiedImageInfo {
+  sourceUrl: string;
+  storageKey: string;
+  contentHash: string;
+  mimeType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+  sizeBytes: number;
+  width?: number;
+  height?: number;
+  verifiedAt: string;
+}
+
 //  Core Entities
 
 export interface Merchant {
@@ -129,6 +140,9 @@ export interface Offer {
   transactionRange: TransactionRange;
   cardEligibility: CardEligibility;
   images: { logo: ImageInfo | null; gallery: ImageInfo[]; images: ImageInfo[] };
+  /** Verified content-addressed image. Absolute filesystem paths never enter offer evidence. */
+  verifiedImage?: VerifiedImageInfo | null;
+  imageVerificationStatus?: 'VERIFIED' | 'MISSING' | 'REJECTED' | 'FAILED' | 'PRESERVED';
   validityPeriods: Validity[];
   contentHash: string;
   rawHtml?: string;

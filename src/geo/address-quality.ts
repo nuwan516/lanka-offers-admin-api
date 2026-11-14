@@ -108,7 +108,6 @@ export function assessAddressQuality(input: {
     .filter((a) => a.length > 0);
 
   const matchedInvalid: string[] = [];
-  const reasons: string[] = [];
 
   // Check candidate validity
   const validCandidates: string[] = [];

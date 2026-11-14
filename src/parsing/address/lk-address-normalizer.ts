@@ -9,7 +9,6 @@
  */
 
 import {
-  COLOMBO_POSTAL_ZONES,
   SRI_LANKA_DISTRICTS,
   findColomboPostalZone,
   findCommercialHub,

@@ -86,7 +86,7 @@ export class ValidationPipeline {
 
   async validateOffer(
     offer: Offer,
-    rawData?: Partial<RawValidationData> | unknown,
+    rawData?: Partial<RawValidationData>,
   ): Promise<ValidationPipelineReport> {
     const ruleValidation = this.ruleValidator.validate(offer);
     const weakReason = hasWeakExtraction(offer, ruleValidation);
@@ -116,7 +116,7 @@ export class ValidationPipeline {
         offer,
         [],
         null,
-        rawData as any
+        rawData
       );
     } catch {
       // Gracefully preserve pipeline resilience
@@ -137,7 +137,7 @@ export class ValidationPipeline {
 
   async validateBatch(
     offers: Offer[],
-    rawDataByOfferId: Record<string, Partial<RawValidationData> | unknown> = {},
+    rawDataByOfferId: Record<string, Partial<RawValidationData>> = {},
   ): Promise<ValidationPipelineReport[]> {
     // LLM calls dominate batch time — run them with bounded parallelism.
     // Results keep input order because pool.all resolves positionally.

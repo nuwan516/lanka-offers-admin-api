@@ -131,7 +131,7 @@ export function determineLocationScope(input: {
   description?: string | null;
   merchantName?: string | null;
   addresses?: string[];
-  geoLocations?: any[];
+  geoLocations?: unknown[];
 }): LocationScopeResult {
   const loc = (input.location ?? '').trim();
   const title = (input.title ?? '').trim();

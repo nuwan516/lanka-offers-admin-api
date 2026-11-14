@@ -3,7 +3,6 @@ import { FieldCorrectionProposal, EvidenceSnippet } from '@/llm/schemas/offer-va
 import { EDITABLE_FIELD_PATHS, ManualOverride } from '@/domain/effective-offer';
 import {
   verifyEvidenceTokens,
-  verifyNumericEvidence,
   verifySemanticNumericEvidence,
   detectUpToSemantics,
 } from './offer-evidence';

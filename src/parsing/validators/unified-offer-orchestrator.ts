@@ -142,7 +142,17 @@ export class UnifiedOfferOrchestrator {
 
     // ─── Step 1: Rule-level failure check ───────────────────────────────────
     if (!ruleRes.valid) {
-      const geoResult = await this.evaluateGeo(candidate, rawData, 0, 0);
+      // Field-level invalidity must not disable the independent geo pipeline.
+      // A malformed date or financial field can make an offer ineligible for
+      // publication, but it does not erase source-grounded location evidence.
+      // Keep the offer INVALID while still allowing geo classification to
+      // recover an ONLINE/branch scope for diagnostics and later review.
+      const geoResult = await this.evaluateGeo(
+        candidate,
+        rawData,
+        this.config.maxAttempts,
+        this.config.maxToolCallsPerOffer
+      );
       return {
         offerId: candidate.uniqueId,
         bankCode: candidate.source,
@@ -428,7 +438,16 @@ export class UnifiedOfferOrchestrator {
       maxToolsTotal: Math.max(0, remainingTools),
       geocodingDryRun: true,
     });
-    const geoRes = await orchestrator.processOffer(offer, rawData as any);
+    const completeRawData: RawValidationData | undefined = rawData
+      ? {
+          rawHtml: rawData.rawHtml ?? null,
+          rawText: rawData.rawText ?? null,
+          rawListItem: rawData.rawListItem ?? null,
+          rawDetail: rawData.rawDetail ?? null,
+          sourceUrl: rawData.sourceUrl ?? null,
+        }
+      : undefined;
+    const geoRes = await orchestrator.processOffer(offer, completeRawData);
     return {
       scope: geoRes.finalScope,
       isPhysicalVenue: geoRes.addressQuality !== 'ONLINE_ONLY' && geoRes.addressQuality !== 'INVALID',
@@ -483,7 +502,7 @@ export class UnifiedOfferOrchestrator {
     offer: Offer,
     evidence: EvidenceSnippet[],
     executor: OfferToolExecutor,
-    previousFailures: string[]
+    _previousFailures: string[]
   ): Promise<FullOfferValidationProposal | null> {
     // Tool call 1: Read raw offer
     await executor.executeTool('get_raw_offer', { offerId: offer.uniqueId });
@@ -520,9 +539,13 @@ export class UnifiedOfferOrchestrator {
       addresses: offer.merchant?.addresses,
       location: offer.merchant?.location,
     });
-    const locationScope = (scopeCheck.scope === 'DISTRICT_REGION' || scopeCheck.scope === 'SELECTED_OUTLETS')
+    const locationScope = scopeCheck.scope === 'DISTRICT_REGION' || scopeCheck.scope === 'SELECTED_OUTLETS'
       ? 'AREA_ONLY'
-      : (scopeCheck.scope as any);
+      : scopeCheck.scope;
+    const supportedNetworks = new Set(['Visa', 'Mastercard', 'Amex', 'UnionPay', 'JCB']);
+    const networks = offer.cardEligibility.networks.filter(
+      (network): network is 'Visa' | 'Mastercard' | 'Amex' | 'UnionPay' | 'JCB' => supportedNetworks.has(network)
+    );
 
     const proposal: FullOfferValidationProposal = {
       offerId: offer.uniqueId,
@@ -551,7 +574,7 @@ export class UnifiedOfferOrchestrator {
       },
       cardEligibility: {
         cardTypes: offer.cardEligibility.cardTypes.includes('Credit Card') ? ['Credit Card'] : ['Debit Card'],
-        networks: offer.cardEligibility.networks.length > 0 ? (offer.cardEligibility.networks as any) : ['Visa'],
+        networks: networks.length > 0 ? networks : ['Visa'],
         evidenceIds: evidence.slice(0, 2).map((s) => s.id),
       },
       validityDates: {

@@ -18,6 +18,15 @@ export interface LlmToolSessionConfig {
   abortSignal?: AbortSignal;
 }
 
+interface GeminiPart {
+  text?: string;
+  functionCall?: { name: string; args: Record<string, unknown> };
+  functionResponse?: {
+    name: string;
+    response: { output: unknown };
+  };
+}
+
 export interface ModelToolCallResult {
   proposal: FullOfferValidationProposal | null;
   toolCallsExecuted: number;
@@ -107,8 +116,8 @@ When you have collected necessary evidence, output ONLY a valid JSON object matc
     availableSnippetIds: evidence.slice(0, 10).map((s) => s.id),
   });
 
-  let toolCallsThisSession = 0;
-  let totalTokens = 0;
+  const toolCallsThisSession = 0;
+  const totalTokens = 0;
 
   try {
     if (provider === 'gemini') {
@@ -198,7 +207,7 @@ async function executeGeminiToolLoop(
 
   const contents: Array<{
     role: 'user' | 'model' | 'function';
-    parts: Array<Record<string, unknown>>;
+    parts: GeminiPart[];
   }> = [
     {
       role: 'user',
@@ -213,10 +222,7 @@ async function executeGeminiToolLoop(
     const response = await axios.post<{
       candidates: Array<{
         content: {
-          parts: Array<{
-            text?: string;
-            functionCall?: { name: string; args: Record<string, unknown> };
-          }>;
+          parts: GeminiPart[];
         };
       }>;
       usageMetadata?: {
@@ -275,7 +281,7 @@ async function executeGeminiToolLoop(
     // Append model's tool calls to contents
     contents.push({
       role: 'model',
-      parts: parts as any,
+      parts,
     });
 
     // Execute each function call
