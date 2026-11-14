@@ -21,6 +21,24 @@ export interface LlmToolSessionConfig {
   maxInputTokens?: number;
 }
 
+interface GeminiPart {
+  text?: string;
+  functionCall?: { name: string; args: Record<string, unknown> };
+  functionResponse?: {
+    name: string;
+    response: { output: unknown };
+  };
+}
+
+interface GeminiPart {
+  text?: string;
+  functionCall?: { name: string; args: Record<string, unknown> };
+  functionResponse?: {
+    name: string;
+    response: { output: unknown };
+  };
+}
+
 export interface ModelToolCallResult {
   proposal: FullOfferValidationProposal | null;
   toolCallsExecuted: number;
@@ -155,6 +173,9 @@ ONLY include fields in "corrections" that actually need correction. Do not repea
     })),
   });
 
+  const toolCallsThisSession = 0;
+  const totalTokens = 0;
+
   try {
     if (provider === 'gemini') {
       return await executeGeminiToolLoop(
@@ -249,7 +270,7 @@ async function executeGeminiToolLoop(
 
   const contents: Array<{
     role: 'user' | 'model' | 'function';
-    parts: Array<Record<string, unknown>>;
+    parts: GeminiPart[];
   }> = [
     {
       role: 'user',
@@ -267,10 +288,7 @@ async function executeGeminiToolLoop(
     const response = await axios.post<{
       candidates: Array<{
         content: {
-          parts: Array<{
-            text?: string;
-            functionCall?: { name: string; args: Record<string, unknown> };
-          }>;
+          parts: GeminiPart[];
         };
       }>;
       usageMetadata?: {
@@ -327,7 +345,7 @@ async function executeGeminiToolLoop(
 
     contents.push({
       role: 'model',
-      parts: parts as any,
+      parts,
     });
 
     for (const fc of functionCalls) {

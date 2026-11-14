@@ -21,7 +21,7 @@ import { LocationScope } from '@/domain/location-scope';
 import { AddressQuality, assessAddressQuality } from '@/geo/address-quality';
 import { buildGeoOfferContext, GeoOfferContext } from '@/geo/geo-evidence';
 import { GeoToolExecutor } from '@/llm/tools/geo-tool-executor';
-import { GeoValidationProposal, ProposedAddressItem, validateGeoValidationProposal } from '@/llm/schemas/geo-validation.schema';
+import { GeoValidationProposal, validateGeoValidationProposal } from '@/llm/schemas/geo-validation.schema';
 import { GeoCorrectionValidator, GeoCorrectionPatch } from '@/geo/geo-correction-validator';
 import { GeocodingVerifier, CoordinateVerificationResult } from '@/geo/geocoding-verifier';
 import { Geocoder } from '@/infrastructure/geo/geocoder';
@@ -134,9 +134,19 @@ export class ValidationOrchestrator {
     let needsHumanReview = false;
 
     // ─── Stage 2: Fast-Path vs Validation Required ────────────────────────────
+    // A high-confidence address-quality assessment is not enough to skip geo
+    // validation when the scope classifier could not resolve the offer. This
+    // occurs for scraped pages whose merchant address is marketing text: the
+    // text can be confidently identified as contaminated while the offer still
+    // contains grounded venue evidence that the mocked/live validator can use.
+    // Keeping UNRESOLVED on the deterministic fast path permanently suppresses
+    // that recovery and incorrectly turns physical offers into review-only
+    // records.
     const canSkipLlm =
       this.mode === 'deterministic-only' ||
-      (!qualityAssessment.needsLlmValidation && qualityAssessment.confidence === 'HIGH');
+      (initialScope !== LocationScope.UNRESOLVED &&
+        !qualityAssessment.needsLlmValidation &&
+        qualityAssessment.confidence === 'HIGH');
 
     if (!canSkipLlm && (this.mode === 'hybrid-mocked' || this.mode === 'hybrid-live')) {
       diagnostics.push('Validation required (Ambiguity or low confidence detected)');

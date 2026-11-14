@@ -57,7 +57,7 @@ export class BankParserRulesRepository {
     return result.rows[0];
   }
 
-  public async updateRule(id: string, updates: Record<string, any>): Promise<BankParserRule | null> {
+  public async updateRule(id: string, updates: Record<string, unknown>): Promise<BankParserRule | null> {
     const result = await pool.query<BankParserRule>(
       `UPDATE bank_parser_rules SET
          field         = COALESCE($1, field),

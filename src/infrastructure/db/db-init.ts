@@ -72,6 +72,27 @@ export async function initDatabaseSchemas(): Promise<void> {
   await pool.query('CREATE EXTENSION IF NOT EXISTS postgis;');
   await pool.query('ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom geography(Point, 4326);');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_offers_geom_gist ON offers USING GIST (geom);');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_offers_db_status_valid_to ON offers (db_status, valid_to);');
+  // Denormalized branches for index-assisted nearby (ST_DWithin) — see offer-branches.ts
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS offer_branches (
+      id               UUID             PRIMARY KEY DEFAULT gen_random_uuid(),
+      offer_id         UUID             NOT NULL REFERENCES offers(id) ON DELETE CASCADE,
+      branch_name      TEXT,
+      branch_address   TEXT,
+      lat              DOUBLE PRECISION NOT NULL,
+      lng              DOUBLE PRECISION NOT NULL,
+      confidence       REAL,
+      geom             geography(Point, 4326) NOT NULL,
+      created_at       TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+      updated_at       TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+      CHECK (lat BETWEEN -90.0 AND 90.0),
+      CHECK (lng BETWEEN -180.0 AND 180.0)
+    )
+  `);
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_offer_branches_offer_id ON offer_branches (offer_id);');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_offer_branches_geom_gist ON offer_branches USING GIST (geom);');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_offer_branches_lat_lng ON offer_branches (lat, lng);');
   await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS failure_classification TEXT;');
   await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS job_id TEXT;');
   await pool.query('ALTER TABLE scrape_runs ADD COLUMN IF NOT EXISTS lease_generation BIGINT;');
@@ -165,6 +186,15 @@ export async function initDatabaseSchemas(): Promise<void> {
   await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ`);
   await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS approved_at  TIMESTAMPTZ`);
   await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS rejected_at  TIMESTAMPTZ`);
+  await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_source_url   TEXT`);
+  await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_storage_key  TEXT`);
+  await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_content_hash TEXT`);
+  await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_mime_type    TEXT`);
+  await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_size_bytes   INTEGER`);
+  await pool.query(`ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_url          TEXT`);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS offers_image_content_key_idx ON offers (image_content_hash) WHERE image_content_hash IS NOT NULL`,
+  );
   await pool.query(`UPDATE offers SET db_status = 'PUBLISHED' WHERE db_status = 'active'`);
   await pool.query(`UPDATE offers SET db_status = 'DISABLED' WHERE db_status = 'disabled'`);
   await pool.query(`UPDATE offers SET db_status = 'EXPIRED'  WHERE db_status = 'expired'`);

@@ -10,7 +10,6 @@ import {
 import {
   buildOfferEvidenceSnippets,
   verifyEvidenceTokens,
-  verifyNumericEvidence,
   verifySemanticNumericEvidence,
   detectUpToSemantics,
 } from '@/parsing/validators/offer-evidence';
@@ -468,7 +467,7 @@ export class OfferToolExecutor {
 
       case 'validate_correction_patch': {
         const fieldPath = String(args.fieldPath ?? '');
-        const isAllowlisted = EDITABLE_FIELD_PATHS.includes(fieldPath as any);
+        const isAllowlisted = EDITABLE_FIELD_PATHS.some((editablePath) => editablePath === fieldPath);
         const evidenceIds = Array.isArray(args.evidenceIds) ? args.evidenceIds.map(String) : [];
         const missingEvidenceIds = evidenceIds.filter((id) => !this.evidenceSnippets.some((s) => s.id === id));
 

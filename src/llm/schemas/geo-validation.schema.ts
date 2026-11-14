@@ -7,7 +7,6 @@
 
 import { z } from 'zod';
 import { LocationScope } from '@/domain/location-scope';
-import { AddressQuality } from '@/geo/address-quality';
 
 // ─── Zod Enums & Schemas ───────────────────────────────────────────────────────
 

@@ -20,7 +20,9 @@ export interface BOCRawOffer {
   location?: string | null;
   addresses?: string[];
   contactNumbers?: string[];
-  description: string[];
+  description: string[] | string;
+  rawHtml?: string;
+  offer?: { description?: string };
   /** Injected by scraper with category context. */
   _categoryName?: string;
   _categoryId?: number;
@@ -41,7 +43,7 @@ export function parseBOCOffer(raw: BOCRawOffer): Offer | null {
 
   const descriptionText = Array.isArray(raw.description)
     ? raw.description.join('\n')
-    : (typeof raw.description === 'string' ? raw.description : ((raw as any).rawHtml || (raw as any).offer?.description || ''));
+    : (typeof raw.description === 'string' ? raw.description : (raw.rawHtml || raw.offer?.description || ''));
   const promoDetails = stripHtml(descriptionText);
 
   // ── Unique ID ────────────────────────────────────────────────────────────────

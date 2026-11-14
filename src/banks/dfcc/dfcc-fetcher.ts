@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import * as cheerio from 'cheerio';
 import { BankCategory } from '@/config/banks';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import { HttpClient } from '@/infrastructure/http/http-client';
@@ -158,23 +156,22 @@ export function extractDFCCPromotionsFromHtml(html: string): DFCCListItem[] {
 }
 
 function extractDFCCPromotionsFromListing(): DFCCListItem[] {
-  const doc = (globalThis as any).document;
+  const doc = globalThis.document;
 
-  let cards = Array.from(doc.querySelectorAll('a.cardd')) as any[];
-  if (cards.length === 0) cards = Array.from(doc.querySelectorAll('a[href*="cards-promotions"]')) as any[];
-  if (cards.length === 0) cards = Array.from(doc.querySelectorAll('.promotion-item')) as any[];
+  // Fallback chain mirrors the tested legacy scraper: prefer the current
+  // a.cardd markup, but degrade gracefully if a category page is still on
+  // an older/different template.
+  let cards = Array.from(doc.querySelectorAll('a.cardd'));
+  if (cards.length === 0) cards = Array.from(doc.querySelectorAll('a[href*="cards-promotions"]'));
+  if (cards.length === 0) cards = Array.from(doc.querySelectorAll('.promotion-item'));
   if (cards.length === 0) {
-    cards = Array.from(doc.querySelectorAll('article, [class*="card"][class*="offer"], [class*="promo"]')) as any[];
+    cards = Array.from(doc.querySelectorAll('article, [class*="card"][class*="offer"], [class*="promo"]'));
   }
 
   return cards.map((card) => {
     const link = card.tagName === 'A' ? card : card.querySelector('a[href*="cards-promotions"], a[href*="promotion"], a');
     const detailUrl = link?.getAttribute('href') || '';
-    const imgElements = typeof card.querySelectorAll === 'function'
-      ? Array.from(card.querySelectorAll('img'))
-      : (card.querySelector?.('img') ? [card.querySelector('img')] : []);
-    const validImg = (imgElements as any[]).find((im) => !im.src?.endsWith('.svg') && !im.src?.includes('arrow') && !im.alt?.toLowerCase().includes('relivenet'));
-
+    const img = card.querySelector<HTMLImageElement>('.offerMainImage, img, figure img');
     return {
       cardType: card.querySelector('.tag, .card-tags p, [class*="tag"], .badge')?.textContent?.trim() ?? '',
       offerText: card.querySelector('.cardOfferText, .card-title, h4, h5')?.textContent?.trim() ?? '',
@@ -188,7 +185,7 @@ function extractDFCCPromotionsFromListing(): DFCCListItem[] {
 }
 
 function extractDFCCPromotionDetail(): DFCCDetailPage {
-  const doc = (globalThis as any).document;
+  const doc = globalThis.document;
   const terms = Array.from(doc.querySelectorAll([
     '.pageMainBlock-description p',
     '.pageMainBlock-description li',
@@ -199,16 +196,16 @@ function extractDFCCPromotionDetail(): DFCCDetailPage {
     '[class*="terms"] p',
     '[class*="terms"] li',
   ].join(',')))
-    .map((block: any) => block.textContent?.trim())
-    .filter((text: string) => text && text.length > 10 && text.length < 500)
+    .map((block) => block.textContent?.trim())
+    .filter((text): text is string => Boolean(text && text.length > 10 && text.length < 500))
     .filter((text: string) => !/About Us|Investor|Media Center|DFCC Bank|Contact Us|Corporate Information/i.test(text));
 
-  const pdfLink = doc.querySelector('a[href$=".pdf"], a[href*=".pdf"]') as any;
+  const pdfLink = doc.querySelector<HTMLAnchorElement>('a[href$=".pdf"], a[href*=".pdf"]');
 
   return {
     title: doc.querySelector('.pageMainBlock-main-title-1')?.textContent?.trim() ?? '',
     description: doc.querySelector('.pageMainBlock-description p')?.textContent?.trim() ?? '',
-    image: doc.querySelector('.pageMainBlock-image-block img')?.src ?? '',
+    image: doc.querySelector<HTMLImageElement>('.pageMainBlock-image-block img')?.src ?? '',
     termsAndConditions: Array.from(new Set(terms)).slice(0, 30) as string[],
     rawText: doc.querySelector('main')?.textContent?.trim() ?? doc.body?.innerText ?? '',
     termsAndConditionsPdfUrl: pdfLink?.href ?? null,

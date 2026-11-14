@@ -219,8 +219,7 @@ export function determineLocationScope(input: {
   description?: string | null;
   merchantName?: string | null;
   addresses?: string[];
-  geoLocations?: any[];
-  terms?: string[];
+  geoLocations?: unknown[];
 }): LocationScopeResult {
   let loc = (input.location ?? '').trim();
   // Filter out noise in location string

@@ -275,22 +275,6 @@ function extractTransactionRange(text: string, context?: Record<string, unknown>
   return { min: txMin, max: txMax, currency: 'LKR' };
 }
 
-function parseAmount(str: string): number | null {
-  const num = parseFloat(str.replace(/[^\d.]/g, ''));
-  if (isNaN(num)) return null;
-
-  if (/million|mn|m/i.test(str)) {
-      return num * 1_000_000;
-  }
-  if (/lakh/i.test(str)) {
-      return num * 100_000;
-  }
-  if (/k/i.test(str)) {
-      return num * 1_000;
-  }
-  return num;
-}
-
 function extractInstallmentPlans(text: string): InstallmentPlan[] {
   const plans: InstallmentPlan[] = [];
   const m1 = text.match(/(\d+(?:\.\d+)?)\s*%\s+(?:interest\s+)?(?:for\s+)?(\d+(?:\s*,\s*\d+)*(?:\s*&\s*\d+)?)\s*months/i);

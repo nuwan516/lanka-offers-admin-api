@@ -10,11 +10,12 @@ import {
   WorkflowError,
   reconcileExpiredOffers,
 } from '@/infrastructure/db/offer-workflow-repository';
-import { PUBLIC_LIFECYCLE_STATUSES, LIFECYCLE_STATUSES, type OfferReviewAction } from '@/domain/offer-lifecycle';
+import { PUBLIC_LIFECYCLE_STATUSES, type OfferReviewAction } from '@/domain/offer-lifecycle';
 import { buildOfferListQuery, sanitizePublicOffer } from '@/api/offer-query-scope';
 import { computeThreeWayDiff } from '@/domain/offer-diff';
 import { getDuplicateCandidatesForOffer } from '@/infrastructure/db/duplicate-repository';
 import { statsRepository } from '@/infrastructure/repositories/stats.repository';
+import { directLifecyclePatchError } from '@/domain/publication/lifecycle-patch-policy';
 
 const router = Router();
 
@@ -77,26 +78,10 @@ router.get('/offers/:id', async (req: Request, res: Response) => {
 });
 
 router.patch('/offers/:id', async (req: Request, res: Response) => {
-  const { db_status } = req.body as { db_status?: string };
-  if (db_status && !(LIFECYCLE_STATUSES as string[]).includes(db_status)) {
-    res.status(400).json({ error: `Invalid status. Must be one of: ${LIFECYCLE_STATUSES.join(', ')}` });
-    return;
-  }
-  if (db_status === 'PUBLISHED') {
-    res.status(400).json({
-      error: 'Direct transition to PUBLISHED via PATCH is prohibited to protect public consumer safety. Use POST /api/sync/:id or POST /api/offers/:id/transition with action PUBLISH to enforce validation and candidate synchronization.',
-    });
-    return;
-  }
-  const result = await pool.query(
-    `UPDATE offers SET db_status = COALESCE($1, db_status), updated_at = NOW() WHERE id = $2 RETURNING id, db_status`,
-    [db_status, req.params.id]
-  );
-  if (!result.rows.length) {
-    res.status(404).json({ error: 'Offer not found' });
-    return;
-  }
-  res.json(result.rows[0]);
+  // Lifecycle status changes must go through transitionOffer so that the
+  // legal transition, review history, fencing, and publication re-validation
+  // are enforced. A PATCH must never be a second lifecycle API.
+  res.status(400).json({ error: directLifecyclePatchError(req.body) });
 });
 
 router.get('/offers/:id/review', async (req: Request, res: Response) => {

@@ -37,16 +37,21 @@ export const VALIDATION_RULES = [
   { id: 'category_present',       field: 'category',                    description: 'category must not be empty',                                    severity: 'warning', group: 'Offer quality' },
 ];
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export function getValueAtPath(obj: Record<string, unknown>, path: string): unknown {
   const parts = path.split('.');
   let current: unknown = obj;
   for (const part of parts) {
-    if (current == null) return undefined;
+    if (!isRecord(current)) return undefined;
     const m = part.match(/^(\w+)\[(\d+)\]$/);
     if (m) {
-      current = (current as any)[m[1]]?.[parseInt(m[2], 10)];
+      const collection = current[m[1]];
+      current = Array.isArray(collection) ? collection[parseInt(m[2], 10)] : undefined;
     } else {
-      current = (current as any)[part];
+      current = current[part];
     }
   }
   return current;
@@ -54,7 +59,7 @@ export function getValueAtPath(obj: Record<string, unknown>, path: string): unkn
 
 export function evalCustomRule(rule: CustomRule, offer: Record<string, unknown>): { passed: boolean; message?: string } {
   const v = getValueAtPath(offer, rule.field_path);
-  const c = rule.config as any;
+  const c = rule.config;
   const label = rule.field_path;
   switch (rule.operator) {
     case 'required':
@@ -64,22 +69,22 @@ export function evalCustomRule(rule: CustomRule, offer: Record<string, unknown>)
       if (!v || String(v).trim().length === 0) return { passed: false, message: `${label} must not be empty` };
       break;
     case 'min':
-      if (v !== null && v !== undefined && Number(v) < c.min) return { passed: false, message: `${label} must be ≥ ${c.min} (got: ${v})` };
+      if (v !== null && v !== undefined && Number(v) < Number(c.min)) return { passed: false, message: `${label} must be ≥ ${c.min} (got: ${v})` };
       break;
     case 'max':
-      if (v !== null && v !== undefined && Number(v) > c.max) return { passed: false, message: `${label} must be ≤ ${c.max} (got: ${v})` };
+      if (v !== null && v !== undefined && Number(v) > Number(c.max)) return { passed: false, message: `${label} must be ≤ ${c.max} (got: ${v})` };
       break;
     case 'between':
-      if (v !== null && v !== undefined && (Number(v) < c.min || Number(v) > c.max)) return { passed: false, message: `${label} must be between ${c.min} and ${c.max} (got: ${v})` };
+      if (v !== null && v !== undefined && (Number(v) < Number(c.min) || Number(v) > Number(c.max))) return { passed: false, message: `${label} must be between ${c.min} and ${c.max} (got: ${v})` };
       break;
     case 'matches':
-      if (v !== null && v !== undefined && !new RegExp(c.pattern).test(String(v))) return { passed: false, message: `${label} must match /${c.pattern}/ (got: ${v})` };
+      if (v !== null && v !== undefined && !new RegExp(String(c.pattern ?? '')).test(String(v))) return { passed: false, message: `${label} must match /${c.pattern}/ (got: ${v})` };
       break;
     case 'min_length':
-      if (String(v ?? '').length < c.length) return { passed: false, message: `${label} must be ≥ ${c.length} chars (got: ${String(v ?? '').length})` };
+      if (String(v ?? '').length < Number(c.length)) return { passed: false, message: `${label} must be ≥ ${c.length} chars (got: ${String(v ?? '').length})` };
       break;
     case 'max_length':
-      if (String(v ?? '').length > c.length) return { passed: false, message: `${label} exceeds ${c.length} chars` };
+      if (String(v ?? '').length > Number(c.length)) return { passed: false, message: `${label} exceeds ${c.length} chars` };
       break;
     case 'not_expired': {
       if (v) {
@@ -89,14 +94,14 @@ export function evalCustomRule(rule: CustomRule, offer: Record<string, unknown>)
       break;
     }
     case 'lte_field': {
-      const other = getValueAtPath(offer, c.other_field);
+      const other = getValueAtPath(offer, String(c.other_field ?? ''));
       if (v !== null && v !== undefined && other !== null && other !== undefined) {
         if (String(v) > String(other)) return { passed: false, message: `${label} (${v}) must be ≤ ${c.other_field} (${other})` };
       }
       break;
     }
     case 'gte_field': {
-      const other = getValueAtPath(offer, c.other_field);
+      const other = getValueAtPath(offer, String(c.other_field ?? ''));
       if (v !== null && v !== undefined && other !== null && other !== undefined) {
         if (String(v) < String(other)) return { passed: false, message: `${label} (${v}) must be ≥ ${c.other_field} (${other})` };
       }
@@ -106,8 +111,9 @@ export function evalCustomRule(rule: CustomRule, offer: Record<string, unknown>)
       const arr = Array.isArray(v) ? v : [];
       if (arr.length > 0) {
         const today = new Date().toISOString().split('T')[0];
-        const hasValid = arr.some((item: any) => {
-          const d = item?.[c.date_field];
+        const dateField = String(c.date_field ?? '');
+        const hasValid = arr.some((item: unknown) => {
+          const d = isRecord(item) ? item[dateField] : undefined;
           return d && String(d) >= today;
         });
         if (!hasValid) return { passed: false, message: `All ${label}[].${c.date_field} dates are in the past — offer is fully expired` };
@@ -196,8 +202,8 @@ export class RuleConfigRepository {
   }
 
   public async getBuiltinRules() {
-    const result = await pool.query('SELECT * FROM custom_rules WHERE is_builtin = true ORDER BY created_at');
-    return result.rows.map((r: any) => ({
+    const result = await pool.query<CustomRule>('SELECT * FROM custom_rules WHERE is_builtin = true ORDER BY created_at');
+    return result.rows.map((r) => ({
       id: r.builtin_id ?? r.id,
       field: r.field_path,
       description: r.description ?? r.name,
@@ -264,7 +270,7 @@ export class RuleConfigRepository {
     return result.rows[0];
   }
 
-  public async updateCustomRule(id: string, updates: Record<string, any>): Promise<CustomRule | null> {
+  public async updateCustomRule(id: string, updates: Record<string, unknown>): Promise<CustomRule | null> {
     const banksUpdate = 'banks' in updates
       ? (Array.isArray(updates.banks) && updates.banks.length > 0 ? updates.banks : null)
       : undefined;

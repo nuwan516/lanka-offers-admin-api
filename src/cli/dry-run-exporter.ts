@@ -167,16 +167,16 @@ export function exportDryRunArtifacts(input: DryRunExportInput): {
 
   const total = input.normalizedOffers.length || 1;
   const qualityCategories = Object.keys(categoryMap) as ExtendedQualityCategory[];
-  const categoriesSummary: DryRunQualitySummary['categories'] = {} as any;
-
-  for (const cat of qualityCategories) {
-    const ids = categoryMap[cat];
-    categoriesSummary[cat] = {
-      count: ids.length,
-      percentage: Math.round((ids.length / total) * 100),
-      sampleIds: ids.slice(0, 10),
-    };
-  }
+  const categoriesSummary = Object.fromEntries(
+    qualityCategories.map((category) => {
+      const ids = categoryMap[category];
+      return [category, {
+        count: ids.length,
+        percentage: Math.round((ids.length / total) * 100),
+        sampleIds: ids.slice(0, 10),
+      }];
+    })
+  ) as DryRunQualitySummary['categories'];
 
   const qualityReport: DryRunQualitySummary = {
     bank: input.bank,

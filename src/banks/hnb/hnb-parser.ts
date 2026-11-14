@@ -17,6 +17,7 @@ export interface HNBDetailResponse {
     content: string;     // HTML with offer details
     thumb?: string;      // Thumbnail image path
     assets?: unknown[];
+    rawHtml?: string;
 }
 
 export interface HNBListItem {
@@ -39,16 +40,17 @@ export interface HNBListItem {
  */
 export function parseHNBDetail(
     id: string,
-    detailResponse: HNBDetailResponse | Record<string, any>,
+    detailResponse: HNBDetailResponse | Record<string, unknown>,
     categoryName: string,
     categoryId: number
 ): Offer | null {
-    const rawObj = detailResponse as Record<string, any>;
-    const title = rawObj.title ?? '';
-    const from = rawObj.from ?? '';
-    const to = rawObj.to ?? '';
-    const cardType = rawObj.cardType ?? '';
-    const content = rawObj.content ?? rawObj.rawHtml ?? '';
+    const rawObj = detailResponse as Record<string, unknown>;
+    const stringValue = (key: string): string => typeof rawObj[key] === 'string' ? rawObj[key] : '';
+    const title = stringValue('title');
+    const from = stringValue('from');
+    const to = stringValue('to');
+    const cardType = stringValue('cardType');
+    const content = stringValue('content') || stringValue('rawHtml');
 
     // Strip HTML for text extraction
     const plainText = stripHtml(content);
@@ -85,7 +87,7 @@ export function parseHNBDetail(
     const installmentPlans = extractInstallmentPlans(plainText);
 
     // 7. Images (from content HTML + thumb)
-    const images = extractImages(content, rawObj.thumb);
+    const images = extractImages(content, stringValue('thumb') || undefined);
 
     // 8. Unique ID
     const uniqueId = `hnb_${id}`;

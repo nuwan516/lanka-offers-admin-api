@@ -152,11 +152,6 @@ function sourceIdFromUrl(url: string): string | null {
   return clean.split('/').filter(Boolean).at(-1) ?? null;
 }
 
-function extractDiscount(text: string): number | null {
-  const match = text.match(/(\d+(?:\.\d+)?)\s*%/);
-  return match ? parseFloat(match[1]) : null;
-}
-
 function extractApplicableCards(text: string): string[] {
   return extractCardTypes(text);
 }

@@ -17,12 +17,13 @@
 import 'dotenv/config';
 import { pool, closePool } from './db-client';
 import { parsePeriod } from '@/parsing/period/period-engine';
-import { PeriodType, Offer } from '@/core/types/offers';
+import { CardEligibility, PeriodType, Offer } from '@/core/types/offers';
 import { OfferValidator } from '@/parsing/validators/offer-validator';
 import { extractMerchantName as extractNSBMerchant } from '@/banks/nsb/nsb-parser';
 import { parseHNBDetail } from '@/banks/hnb/hnb-parser';
 import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
 import { determineLocationScope } from '@/domain/location-scope';
+import { LocationScope } from '@/domain/location-scope';
 import { reconcileExpiredOffers } from './offer-workflow-repository';
 
 export interface RenormalizeResult {
@@ -39,6 +40,20 @@ export interface RenormalizeResult {
   expiredReconciled: number;
 }
 
+type StoredOfferEvidence = Offer & {
+  description?: string;
+  addresses?: string[];
+  geoLocations?: unknown[];
+  locationScope?: LocationScope;
+};
+
+interface ManualOverrideFields {
+  merchant_name?: string;
+  merchant_location?: string;
+  canonical_merchant?: string;
+  location_scope?: LocationScope;
+}
+
 export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
   const rows = await pool.query<{
     id: string;
@@ -49,13 +64,13 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
     merchant_location: string | null;
     valid_from: string | null;
     valid_to: string | null;
-    card_eligibility: any;
-    raw_offer: any;
-    manual_override: any;
+    card_eligibility: Partial<CardEligibility> | null;
+    raw_offer: StoredOfferEvidence;
+    manual_override: ManualOverrideFields | null;
     db_status: string;
     canonical_merchant: string | null;
-    location_scope: string | null;
-    geo_locations: any;
+    location_scope: LocationScope | null;
+    geo_locations: unknown[] | null;
   }>(`SELECT id, unique_id, bank, title, merchant_name, merchant_location, valid_from::text, valid_to::text, card_eligibility, raw_offer, manual_override, db_status, canonical_merchant, location_scope, geo_locations FROM offers`);
 
   console.log(`[Renormalize] Found ${rows.rows.length} offers in database.`);
@@ -126,6 +141,9 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
 
     const cleanedCardEligibility = {
       ...(row.card_eligibility || {}),
+      cardTypes: row.card_eligibility?.cardTypes ?? raw.cardEligibility.cardTypes ?? [],
+      networks: row.card_eligibility?.networks ?? raw.cardEligibility.networks ?? [],
+      restrictions: row.card_eligibility?.restrictions ?? raw.cardEligibility.restrictions ?? [],
       includedCards: incAfter,
       excludedCards: excAfter,
     };
@@ -158,7 +176,9 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
               hnbAmbiguousPreserved++;
             }
           }
-        } catch {}
+        } catch {
+          // Preserve the existing merchant when legacy HNB evidence cannot be reparsed.
+        }
       }
     }
 
@@ -205,7 +225,7 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
     }
 
     // 6. Location Scope determination (respect manual override)
-    let locationScope = row.location_scope || 'UNRESOLVED';
+    let locationScope: LocationScope = row.location_scope ?? LocationScope.UNRESOLVED;
     if (manual.location_scope) {
       locationScope = manual.location_scope;
     } else {
@@ -224,25 +244,21 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
       hasChanges = true;
     }
 
-    // 7. Update raw_offer JSON structure
-    const updatedRawOffer: Offer = {
+    // 7. Build an in-memory validation candidate without mutating immutable raw_offer evidence.
+    const updatedRawOffer: StoredOfferEvidence = {
       ...raw,
       uniqueId: row.unique_id,
       merchant: {
         ...(raw.merchant || {}),
-        name: newMerchant,
-        location: newLocation ?? undefined,
-        canonicalName: canonicalMerchant ?? undefined,
+        name: newMerchant ?? row.title,
+        location: newLocation,
       },
-      locationScope: locationScope as any,
-      validityPeriods: [
-        {
-          periodType: PeriodType.OFFER,
-          validFrom: newValidFrom,
-          validTo: newValidTo,
-          raw: textForPeriod.slice(0, 200),
-        },
-      ],
+      locationScope,
+      validityPeriods: raw.validityPeriods.map((period, index) =>
+        index === 0
+          ? { ...period, validFrom: newValidFrom, validTo: newValidTo }
+          : period
+      ),
       cardEligibility: cleanedCardEligibility,
     };
 
@@ -260,12 +276,11 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
              canonical_merchant = $5,
              location_scope = $6,
              card_eligibility = $7,
-             raw_offer = $8,
-             rule_passed = $9,
-             rule_errors = $10,
-             rule_warnings = $11,
+             rule_passed = $8,
+             rule_errors = $9,
+             rule_warnings = $10,
              updated_at = NOW()
-         WHERE id = $12`,
+         WHERE id = $11`,
         [
           newValidFrom,
           newValidTo,
@@ -274,7 +289,6 @@ export async function renormalizeAllOffers(): Promise<RenormalizeResult> {
           canonicalMerchant,
           locationScope,
           JSON.stringify(cleanedCardEligibility),
-          JSON.stringify(updatedRawOffer),
           validation.valid,
           JSON.stringify(validation.errors),
           JSON.stringify(validation.warnings),

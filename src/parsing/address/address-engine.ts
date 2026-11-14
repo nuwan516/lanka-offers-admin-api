@@ -192,7 +192,7 @@ function stripTrailing(text: string): string {
     // trailing "-" is left behind after "... - Contact No: ..." is stripped
     return text
         .replace(/\s*(?:General\s+)?terms\s*(?:and|&)\s*conditions.*$/i, '')
-        .replace(/[-,.:;()\[\]\s\u200B\uFEFF]+$/, '')
+        .replace(/[-,.:;()[\]\s\u200B\uFEFF]+$/, '')
         .trim();
 }
 
