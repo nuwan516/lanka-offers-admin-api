@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as cheerio from 'cheerio';
 import { HttpClient } from '@/infrastructure/http/http-client';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
@@ -57,7 +56,7 @@ export class SampathFetcher {
       try {
         if (!this.cachedAllPromos) {
           const browserUrl = `${SampathFetcher.BASE_WEB_URL}/sampath-cards/credit-card-offer`;
-          const rawItems = await this.browser.extract<Record<string, any>[]>(
+          const rawItems = await this.browser.extract<Record<string, unknown>[]>(
             browserUrl,
             extractRawNuxtPromotionsFromPage,
             {
@@ -270,9 +269,16 @@ function buildPeriodText(entries: Array<{ heading: string; content: string }>): 
  * In-browser extractor executed in Puppeteer context.
  * Returns raw objects directly without relying on Node-only closures.
  */
-export function extractRawNuxtPromotionsFromPage(): Record<string, any>[] {
-  const w = (globalThis as any).window;
-  const doc = (globalThis as any).document;
+export function extractRawNuxtPromotionsFromPage(): Record<string, unknown>[] {
+  const w = globalThis.window as Window & {
+    __NUXT__?: {
+      state?: {
+        home?: { cardPromotions?: Record<string, unknown>[] };
+        promotion?: { cardPromotions?: Record<string, unknown>[] };
+      };
+    };
+  };
+  const doc = globalThis.document;
 
   const statePromos =
     (Array.isArray(w?.__NUXT__?.state?.home?.cardPromotions) && w.__NUXT__.state.home.cardPromotions.length > 0)
@@ -287,7 +293,7 @@ export function extractRawNuxtPromotionsFromPage(): Record<string, any>[] {
   if (doc) {
     const cardElements = Array.from(
       doc.querySelectorAll('.card-promo-slider .hooper-slide, .aliya-resort-and-spa-box, [class*="offer-card"]'),
-    ) as any[];
+    );
 
     return cardElements
       .map((el, i) => {
@@ -326,8 +332,11 @@ export function extractSampathPromotionsFromPage(): SampathListItem[] {
  * depending on a rigid array position or exact key casing.
  * Fully unpacks cards_new metadata, terms, and date timestamps.
  */
-export function normalizeNuxtPromoItem(p: Record<string, any>): SampathListItem {
-  const id = p.id ?? p.uat_id ?? p.slug ?? `sampath_${Math.random().toString(36).slice(2, 7)}`;
+export function normalizeNuxtPromoItem(p: Record<string, unknown>): SampathListItem {
+  const rawId = p.id ?? p.uat_id ?? p.slug;
+  const id = typeof rawId === 'string' || typeof rawId === 'number'
+    ? rawId
+    : `sampath_${Math.random().toString(36).slice(2, 7)}`;
 
   // Unpack cards_new if present
   let partnerFromCards: string | undefined;
@@ -392,7 +401,7 @@ export function normalizeNuxtPromoItem(p: Record<string, any>): SampathListItem 
     : undefined;
 
   const detailUrl = p.detail_url
-    ? p.detail_url
+    ? String(p.detail_url)
     : p.slug
     ? `/sampath-cards/credit-card-offer/${p.slug}`
     : p.id
@@ -410,9 +419,9 @@ export function normalizeNuxtPromoItem(p: Record<string, any>): SampathListItem 
     city: p.city ? String(p.city) : undefined,
     detail_url: detailUrl,
     image_url: imageUrl,
-    expire_on: p.expire_on || p.valid_to,
-    display_on: p.display_on || p.valid_from,
-    eligible_cards: cards.map((c: any) => String(c).replace(/<[^>]*>/g, '').trim()),
+    expire_on: toStringOrNumber(p.expire_on || p.valid_to),
+    display_on: toStringOrNumber(p.display_on || p.valid_from),
+    eligible_cards: cards.map((c: unknown) => String(c).replace(/<[^>]*>/g, '').trim()),
     eligible_card_categories: typeof p.eligible_card_categories === 'string'
       ? p.eligible_card_categories.replace(/<[^>]*>/g, '').trim()
       : eligibleCardsFromCards || cards.join(', '),
@@ -426,6 +435,10 @@ export function normalizeNuxtPromoItem(p: Record<string, any>): SampathListItem 
       ? String(p.contact_no || p.phone || p.reservation_number || contactFromCards).replace(/<[^>]*>/g, '').trim()
       : undefined,
   };
+}
+
+function toStringOrNumber(value: unknown): string | number | undefined {
+  return typeof value === 'string' || typeof value === 'number' ? value : undefined;
 }
 
 /**

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as cheerio from 'cheerio';
 import { BankCategory } from '@/config/banks';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
@@ -112,7 +111,7 @@ export function parseNDBDetailHtml(html: string, raw: NDBRawOffer): Partial<NDBR
     : [];
 
   return {
-    location: address && !/^[.\-]+$/.test(address) ? address : raw.location,
+    location: address && !/^[.-]+$/.test(address) ? address : raw.location,
     phoneNumbers: phones.length > 0 ? phones : raw.phoneNumbers,
     website: website || raw.website,
     cardType: typeMatch?.[1]?.trim() || raw.cardType,
@@ -122,30 +121,30 @@ export function parseNDBDetailHtml(html: string, raw: NDBRawOffer): Partial<NDBR
 }
 
 function extractNDBOffersFromPage(): NDBRawOffer[] {
-  const doc = (globalThis as any).document;
+  const doc = globalThis.document;
   const results: NDBRawOffer[] = [];
-  const antCards = Array.from(doc.querySelectorAll('.ant-col.DesktopBlock_col__2q7cK')) as any[];
+  const antCards = Array.from(doc.querySelectorAll('.ant-col.DesktopBlock_col__2q7cK'));
 
   for (const container of antCards) {
     const card = container.querySelector('.ant-card');
     if (!card) continue;
     const phones = Array.from(card.querySelectorAll('.PromotionMobile_phone__3t2ws li'))
-      .map((li: any) => li.textContent?.trim())
-      .filter(Boolean);
+      .map((li) => li.textContent?.trim())
+      .filter((phone): phone is string => Boolean(phone));
     results.push({
       merchantName: card.querySelector('.ant-card-meta-title')?.textContent?.trim() ?? '',
-      website: card.querySelector('.PromotionMobile_website__5kRF6')?.href ?? '',
+      website: card.querySelector<HTMLAnchorElement>('.PromotionMobile_website__5kRF6')?.href ?? '',
       location: card.querySelector('.PromotionMobile_merchantDescription__1BkVS > span.ant-typography')?.textContent?.trim() ?? '',
       phoneNumbers: phones,
       offerDetails: card.querySelector('.PromotionMobile_details__z7myj h5.ant-typography')?.textContent?.trim() ?? '',
       validity: card.querySelector('.PromotionMobile_validity__39zdc span.ant-typography')?.textContent?.trim() ?? '',
-      coverImage: card.querySelector('.ant-card-cover img.PromotionMobile_cover__2YUwz')?.src ?? '',
-      merchantLogo: card.querySelector('.PromotionMobile_avatar__11ePi img')?.src ?? '',
-      termsAndConditionsPdfUrl: card.querySelector('.PromotionMobile_terms__3OCeo a[href*=".pdf"]')?.href ?? null,
+      coverImage: card.querySelector<HTMLImageElement>('.ant-card-cover img.PromotionMobile_cover__2YUwz')?.src ?? '',
+      merchantLogo: card.querySelector<HTMLImageElement>('.PromotionMobile_avatar__11ePi img')?.src ?? '',
+      termsAndConditionsPdfUrl: card.querySelector<HTMLAnchorElement>('.PromotionMobile_terms__3OCeo a[href*=".pdf"]')?.href ?? null,
     });
   }
 
-  const bootstrapCards = Array.from(doc.querySelectorAll('.col-12.col-md-6.col-lg-4')) as any[];
+  const bootstrapCards = Array.from(doc.querySelectorAll('.col-12.col-md-6.col-lg-4'));
   for (const container of bootstrapCards) {
     const card = container.querySelector('.offer-card') || container.querySelector('.ant-card');
     if (!card) continue;
@@ -156,11 +155,11 @@ function extractNDBOffersFromPage(): NDBRawOffer[] {
       offerDetails: card.querySelector('.card-title.ndbcolor')?.textContent?.trim() ?? '',
       cardType: card.querySelector('.text-muted')?.textContent?.trim() ?? '',
       validity: card.querySelector('.offer-date')?.textContent?.replace(/\s+/g, ' ').trim() ?? '',
-      coverImage: card.querySelector('.card-img-top:not(.offercompanylogo)')?.src ?? '',
-      merchantLogo: card.querySelector('.offercompanylogo')?.src ?? '',
+      coverImage: card.querySelector<HTMLImageElement>('.card-img-top:not(.offercompanylogo)')?.src ?? '',
+      merchantLogo: card.querySelector<HTMLImageElement>('.offercompanylogo')?.src ?? '',
       phone: phoneMatch ? phoneMatch[1].trim() : '',
-      detailUrl: container.querySelector('a[href*="/offer-details/"]')?.href ?? '',
-      termsAndConditionsPdfUrl: card.querySelector('a[href*=".pdf"]')?.href ?? null,
+      detailUrl: container.querySelector<HTMLAnchorElement>('a[href*="/offer-details/"]')?.href ?? '',
+      termsAndConditionsPdfUrl: card.querySelector<HTMLAnchorElement>('a[href*=".pdf"]')?.href ?? null,
     });
   }
 

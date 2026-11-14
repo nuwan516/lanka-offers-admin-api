@@ -273,7 +273,7 @@ function extractMerchantName(title: string): string {
     /\b(?:savings\s+on|discounts?\s+on|food\s+on|purchases?\s+on|orders?\s+on|rides?\s+on|deals?\s+on|\bon)\s+([A-Za-z0-9&'’.\s-]+?)\s+(?:using|with|and)\s+(?:all\s+)?(?:ComBank|Q\+|LankaPay|your\s+ComBank)\b/i,
   );
   if (onAnchored) {
-    let candidate = onAnchored[1].trim();
+    const candidate = onAnchored[1].trim();
     if (!isGenericPlaceholder(candidate) && candidate.length > 1 && !/^(?:selected|online|credit|debit)/i.test(candidate)) {
       return candidate;
     }

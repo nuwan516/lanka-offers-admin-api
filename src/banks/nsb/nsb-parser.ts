@@ -196,7 +196,7 @@ export function extractMerchantName(title: string, description: string): string 
   // 4. Broad title at/@ match
   const broadAt = title.match(/(?:^|\s)(?:at|@)\s+([A-Za-z0-9&'’.\s-]{2,60})/i);
   if (broadAt) {
-    let candidate = broadAt[1]
+    const candidate = broadAt[1]
       .replace(/\s+(?:with|for|on|by)\s+(?:your\s+)?NSB\b.*$/i, '')
       .replace(/[!?.]+$/, '')
       .trim();

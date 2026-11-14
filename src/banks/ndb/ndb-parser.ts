@@ -135,11 +135,6 @@ function sourceIdFromUrl(url: string | undefined): string | null {
   return url.replace(/[?#].*$/, '').replace(/\/$/, '').split('/').filter(Boolean).at(-1) ?? null;
 }
 
-function extractDiscount(text: string): number | null {
-  const match = text.match(/(\d+(?:\.\d+)?)\s*%/);
-  return match ? parseFloat(match[1]) : null;
-}
-
 function extractCardTypes(text: string): string[] {
   const cardTypes: string[] = [];
   if (/credit/i.test(text)) cardTypes.push('Credit Card');

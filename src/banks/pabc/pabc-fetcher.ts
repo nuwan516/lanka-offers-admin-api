@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import { PABCRawOffer } from './pabc-parser';
 
@@ -15,7 +14,7 @@ export class PABCFetcher {
         waitUntil: 'domcontentloaded',
         waitForSelector: '.flip-card, .flip-card-inner',
         evaluateOnNewDocument: () => {
-          Object.defineProperty((globalThis as any).navigator, 'webdriver', { get: () => false });
+          Object.defineProperty(globalThis.navigator, 'webdriver', { get: () => false });
         },
       },
     );
@@ -30,8 +29,8 @@ export class PABCFetcher {
 }
 
 function extractPABCOffersFromPage(): PABCRawOffer[] {
-  const doc = (globalThis as any).document;
-  const cards = Array.from(doc.querySelectorAll('.flip-card')) as any[];
+  const doc = globalThis.document;
+  const cards = Array.from(doc.querySelectorAll('.flip-card'));
   return cards.map((card) => {
     const front = card.querySelector('.flip-card-front');
     const back = card.querySelector('.flip-card-back');
@@ -44,5 +43,5 @@ function extractPABCOffersFromPage(): PABCRawOffer[] {
       validityDate: front.querySelector('p')?.textContent?.trim() ?? '',
       description: back.querySelector('p')?.textContent?.trim() ?? '',
     };
-  }).filter(Boolean) as PABCRawOffer[];
+  }).filter((offer): offer is PABCRawOffer => offer !== null);
 }
