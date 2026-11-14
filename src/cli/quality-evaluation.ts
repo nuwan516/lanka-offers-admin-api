@@ -80,6 +80,76 @@ export interface ComprehensiveEvaluationReport {
   };
 }
 
+interface RawOfferData {
+  rawHtml?: string;
+  raw_html?: string;
+  content?: string;
+  description?: string;
+  fullText?: string;
+  locationScope?: string;
+  transactionRange?: { min?: number | null; max?: number | null };
+  offer?: { description?: string; restrictions?: string[] };
+}
+
+interface CardEligibilityData {
+  includedCards?: string[];
+  excludedCards?: string[];
+  cardTypes?: string[];
+}
+
+interface EvaluationOffer {
+  id: string;
+  unique_id: string;
+  bank: string;
+  source_url: string | null;
+  title: string;
+  category: string | null;
+  card_type: string | null;
+  merchant_name: string | null;
+  merchant_location: string | null;
+  canonical_merchant: string | null;
+  location_scope: string | null;
+  discount_percentage: string | null;
+  valid_from: string | null;
+  valid_to: string | null;
+  card_eligibility: CardEligibilityData;
+  geo_locations: unknown[];
+  geo_status: string | null;
+  db_status: string;
+  content_hash: string | null;
+  raw_offer: RawOfferData;
+  restrictions?: string[];
+}
+
+interface StagedOffer {
+  uniqueId?: string;
+  title?: string;
+  description?: string;
+  sourceUrl?: string;
+  category?: string;
+  cardType?: string;
+  contentHash?: string;
+  addresses?: string[];
+  listing?: { title?: string; detailUrl?: string; categoryLabel?: string };
+  merchant?: { name?: string; location?: string | null; addresses?: string[]; geocodedLocations?: unknown[] };
+  offer?: { description?: string; discountPercentage?: number | string | null };
+  validityPeriods?: Array<{ validFrom?: string | null; validTo?: string | null }>;
+  cardEligibility?: CardEligibilityData;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readStagedOffers(value: unknown): StagedOffer[] {
+  const candidates = Array.isArray(value)
+    ? value
+    : isRecord(value) && Array.isArray(value.offers)
+      ? value.offers
+      : [];
+  return candidates.filter(isRecord) as StagedOffer[];
+}
+
 function emptyFieldResult(n: number): FieldEvaluationResult {
   return {
     correct: 0,
@@ -95,9 +165,9 @@ function emptyFieldResult(n: number): FieldEvaluationResult {
 
 export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluationReport> {
   // 1. Load DB offers
-  let dbRows: any[] = [];
+  let dbRows: EvaluationOffer[] = [];
   try {
-    const res = await pool.query(`
+    const res = await pool.query<EvaluationOffer>(`
       SELECT id, unique_id, bank, source_url, title, category, card_type,
              merchant_name, merchant_location, canonical_merchant, location_scope,
              discount_percentage, valid_from, valid_to, card_eligibility,
@@ -106,13 +176,14 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
       ORDER BY bank, title
     `);
     dbRows = res.rows;
-  } catch (err: any) {
-    console.warn(`[QualityEval] Warning: Unable to query DB directly (${err.message}). Proceeding with staged files.`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`[QualityEval] Warning: Unable to query DB directly (${message}). Proceeding with staged files.`);
   }
 
   // 2. Load Output directory files for uncommitted/staged banks
   const outputDir = path.resolve(__dirname, '../../output');
-  const bankOffersMap: Record<string, any[]> = {};
+  const bankOffersMap: Record<string, EvaluationOffer[]> = {};
 
   // Group DB offers
   for (const row of dbRows) {
@@ -124,9 +195,9 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
   const combankFile = path.join(outputDir, 'combank_all.json');
   if (fs.existsSync(combankFile)) {
     try {
-      const data = JSON.parse(fs.readFileSync(combankFile, 'utf-8'));
-      const offers = Array.isArray(data) ? data : (data.offers || []);
-      bankOffersMap['combank'] = offers.map((o: any) => {
+      const data: unknown = JSON.parse(fs.readFileSync(combankFile, 'utf-8'));
+      const offers = readStagedOffers(data);
+      bankOffersMap['combank'] = offers.map((o, index) => {
         const title = o.title || o.listing?.title || '';
         const mName = o.merchant?.name || '';
         let loc = o.merchant?.location ?? null;
@@ -143,13 +214,13 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
           geoLocations: o.merchant?.geocodedLocations || [],
         });
         return {
-          id: o.uniqueId,
-          unique_id: o.uniqueId,
+          id: o.uniqueId ?? `combank-staged-${index}`,
+          unique_id: o.uniqueId ?? `combank-staged-${index}`,
           bank: 'combank',
-          source_url: o.sourceUrl || o.listing?.detailUrl,
+          source_url: o.sourceUrl || o.listing?.detailUrl || null,
           title,
-          category: o.category || o.listing?.categoryLabel,
-          card_type: o.cardType,
+          category: o.category || o.listing?.categoryLabel || null,
+          card_type: o.cardType ?? null,
           merchant_name: mName,
           merchant_location: loc,
           canonical_merchant: resolveCanonicalMerchant(mName).canonicalName,
@@ -161,7 +232,7 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
           geo_locations: o.merchant?.geocodedLocations ?? [],
           geo_status: o.merchant?.geocodedLocations?.length ? 'resolved' : 'unresolved',
           db_status: 'STAGED',
-          content_hash: o.contentHash,
+          content_hash: o.contentHash ?? null,
           raw_offer: o,
         };
       });
@@ -172,9 +243,9 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
   const seylanFile = path.join(outputDir, 'seylan_all.json');
   if (fs.existsSync(seylanFile)) {
     try {
-      const data = JSON.parse(fs.readFileSync(seylanFile, 'utf-8'));
-      const offers = Array.isArray(data) ? data : (data.offers || []);
-      bankOffersMap['seylan'] = offers.map((o: any) => {
+      const data: unknown = JSON.parse(fs.readFileSync(seylanFile, 'utf-8'));
+      const offers = readStagedOffers(data);
+      bankOffersMap['seylan'] = offers.map((o, index) => {
         const title = o.title || '';
         const mName = o.merchant?.name || '';
         let loc = o.merchant?.location ?? null;
@@ -191,13 +262,13 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
           geoLocations: o.merchant?.geocodedLocations || [],
         });
         return {
-          id: o.uniqueId,
-          unique_id: o.uniqueId,
+          id: o.uniqueId ?? `seylan-staged-${index}`,
+          unique_id: o.uniqueId ?? `seylan-staged-${index}`,
           bank: 'seylan',
-          source_url: o.sourceUrl,
+          source_url: o.sourceUrl ?? null,
           title,
-          category: o.category,
-          card_type: o.cardType,
+          category: o.category ?? null,
+          card_type: o.cardType ?? null,
           merchant_name: mName,
           merchant_location: loc,
           canonical_merchant: resolveCanonicalMerchant(mName).canonicalName,
@@ -209,7 +280,7 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
           geo_locations: o.merchant?.geocodedLocations ?? [],
           geo_status: o.merchant?.geocodedLocations?.length ? 'resolved' : 'unresolved',
           db_status: 'STAGED',
-          content_hash: o.contentHash,
+          content_hash: o.contentHash ?? null,
           raw_offer: o,
         };
       });
@@ -434,7 +505,6 @@ export async function runComprehensiveEvaluation(): Promise<ComprehensiveEvaluat
 
       // ─── 5. LOCATION SCOPE EVALUATION ────────────────────────────
       const loc = offer.merchant_location;
-      const geoStatus = offer.geo_status;
       const geoLocs = Array.isArray(offer.geo_locations) ? offer.geo_locations : [];
       const scope = offer.location_scope || (raw.locationScope as string) || 'UNRESOLVED';
 

@@ -236,7 +236,7 @@ async function main(): Promise<void> {
     triggerSignature
   );
 
-  let dbNew = 0, dbChanged = 0, dbUnchanged = 0, dbErrors = 0, validationWrites = 0, duplicatesFlagged = 0;
+  let dbNew = 0, dbChanged = 0, dbUnchanged = 0, dbErrors = 0, duplicatesFlagged = 0;
   const costConfig = getCostControlConfig();
 
   try {
@@ -300,7 +300,6 @@ async function main(): Promise<void> {
             },
             result.staged
           );
-          validationWrites++;
         }
 
         if (shouldRunDuplicateDetection(result.status)) {

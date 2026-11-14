@@ -1,10 +1,23 @@
 import { Router, Request, Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
-import { jobManager, VALID_BANKS } from '../services/job-manager';
+import { jobManager, ScrapeExecutionOptions, VALID_BANKS } from '../services/job-manager';
 
 const router = Router();
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
+
+function parseScrapeOptions(value: unknown): ScrapeExecutionOptions {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+  const body = value as Record<string, unknown>;
+  const options: ScrapeExecutionOptions = {};
+  for (const key of ['cache', 'llm', 'noValidate', 'skipDetails', 'dryRun'] as const) {
+    if (typeof body[key] === 'boolean') options[key] = body[key];
+  }
+  for (const key of ['concurrency', 'maxCategories', 'timeoutMs'] as const) {
+    if (typeof body[key] === 'number' && Number.isFinite(body[key])) options[key] = body[key];
+  }
+  return options;
+}
 
 router.post('/geocode/:bank', (req: Request, res: Response) => {
   const bank = String(req.params.bank);
@@ -85,7 +98,7 @@ router.delete('/scrape/:bank', async (req: Request, res: Response) => {
 
 router.post('/scrape/:bank/retry', async (req: Request, res: Response) => {
   const bank = String(req.params.bank);
-  const options = (req.body ?? {}) as any;
+  const options = parseScrapeOptions(req.body);
   try {
     const job = await jobManager.retryScrapeJob(bank, options, 'operator');
     res.json({ message: `Scrape retry started for ${bank}`, ...job });

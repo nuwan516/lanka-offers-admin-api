@@ -6,7 +6,6 @@
  * storage/review, never LLM/geo calls.
  */
 import { pool, withTransaction } from './db-client';
-import type { PoolClient } from 'pg';
 import type { Offer } from '@/core/types/offers';
 import { scoreDuplicateCandidate } from '@/domain/duplicate-detector';
 import { getDuplicatePolicyConfig } from '@/config/duplicate-policy';

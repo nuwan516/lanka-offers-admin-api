@@ -1,4 +1,4 @@
-import { pool, withTransaction } from '@/infrastructure/db/db-client';
+import { withTransaction } from '@/infrastructure/db/db-client';
 import { logHistory, WorkflowError } from '@/infrastructure/db/offer-workflow-repository';
 
 export interface MergeDuplicateParams {

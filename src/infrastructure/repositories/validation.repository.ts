@@ -89,7 +89,7 @@ export class ValidationRepository {
     const result = await pool.query<CustomRule>(
       'SELECT * FROM custom_rules WHERE enabled = true ORDER BY is_builtin DESC, created_at'
     );
-    return result.rows.map((r: any) => ({ ...r, config: r.config ?? {} }));
+    return result.rows.map((rule) => ({ ...rule, config: rule.config ?? {} }));
   }
 
   public async updateOfferValidationResults(

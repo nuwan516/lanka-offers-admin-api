@@ -1,13 +1,27 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import {
   ruleConfigRepository,
   VALIDATION_RULES,
   evalCustomRule,
-  CustomRule,
 } from '@/infrastructure/repositories/rule-config.repository';
 import { validationRepository } from '@/infrastructure/repositories/validation.repository';
 
 const router = Router();
+
+const customRuleInputSchema = z.object({
+  name: z.string().trim().min(1),
+  description: z.string().nullable().optional(),
+  group_name: z.string().optional(),
+  severity: z.string().optional(),
+  field_path: z.string().trim().min(1),
+  operator: z.string().trim().min(1),
+  config: z.record(z.string(), z.unknown()).optional(),
+  notes: z.string().nullable().optional(),
+  banks: z.array(z.string()).nullable().optional(),
+});
+
+const customRuleUpdateSchema = customRuleInputSchema.partial();
 
 // Validation reports
 router.get('/validation', async (req: Request, res: Response) => {
@@ -47,28 +61,22 @@ router.get('/custom-rules', async (_req: Request, res: Response) => {
 });
 
 router.post('/custom-rules', async (req: Request, res: Response) => {
-  const { name, description, group_name, severity, field_path, operator, config, notes, banks } = req.body as Record<string, any>;
-  if (!name || !field_path || !operator) {
+  const parsed = customRuleInputSchema.safeParse(req.body);
+  if (!parsed.success) {
     res.status(400).json({ error: 'name, field_path, and operator are required' });
     return;
   }
-
-  const created = await ruleConfigRepository.createCustomRule({
-    name,
-    description,
-    group_name,
-    severity,
-    field_path,
-    operator,
-    config,
-    notes,
-    banks,
-  });
+  const created = await ruleConfigRepository.createCustomRule(parsed.data);
   res.status(201).json(created);
 });
 
 router.put('/custom-rules/:id', async (req: Request, res: Response) => {
-  const updated = await ruleConfigRepository.updateCustomRule(String(req.params.id), req.body);
+  const parsed = customRuleUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid custom rule update' });
+    return;
+  }
+  const updated = await ruleConfigRepository.updateCustomRule(String(req.params.id), parsed.data);
   if (!updated) {
     res.status(404).json({ error: 'Rule not found' });
     return;

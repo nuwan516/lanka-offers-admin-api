@@ -25,9 +25,8 @@ import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { pool, closePool } from '@/infrastructure/db/db-client';
+import { reconcileExpiredOffers } from '@/infrastructure/db/offer-workflow-repository';
 import { statsRepository } from '@/infrastructure/repositories/stats.repository';
-import { getCostControlConfig, formatSafePolicySummary } from '@/config/cost-control';
-import { BankName, getBankConfig, listBanksByCapability } from '@/config/banks';
 
 // ─── ANSI Styling Helpers ───────────────────────────────────────────────────
 
@@ -37,7 +36,6 @@ const DIM = '\x1b[2m';
 const RED = '\x1b[31m';
 const GREEN = '\x1b[32m';
 const YELLOW = '\x1b[33m';
-const BLUE = '\x1b[34m';
 const CYAN = '\x1b[36m';
 const WHITE = '\x1b[37m';
 
@@ -119,8 +117,6 @@ async function handleBudget(): Promise<void> {
   banner('ZERO-COST BUDGET & QUOTA TRACKER (AWS CLOUDSCAPE ALIGNED)');
 
   const status = await statsRepository.getCostControlStatus();
-  const config = getCostControlConfig();
-
   console.log(`${BOLD}Current Billing Period:${RESET} ${CYAN}${status.periodKey ?? 'Current Month'}${RESET}`);
   console.log(`${BOLD}Zero-Cost Mode:${RESET}         ${GREEN}ENFORCED ($0.00 / mo budget)${RESET}\n`);
 
@@ -387,7 +383,7 @@ async function main(): Promise<void> {
           scrapeArgs.unshift(`--bank=${bank}`);
         }
         process.argv = [process.argv[0], path.join(__dirname, 'scrape.ts'), ...scrapeArgs];
-        require('./scrape');
+        await import('./scrape');
         return;
       }
 
@@ -400,14 +396,13 @@ async function main(): Promise<void> {
           geoArgs.unshift(`--bank=${bank}`);
         }
         process.argv = [process.argv[0], path.join(__dirname, 'geocode.ts'), ...geoArgs];
-        require('./geocode');
+        await import('./geocode');
         return;
       }
 
       case 'reconcile-expired':
       case 'expire': {
         banner('EXPIRING STALE PUBLISHED OFFERS');
-        const { reconcileExpiredOffers } = require('@/infrastructure/db/offer-workflow-repository');
         const result = await reconcileExpiredOffers();
         console.log(`  ${GREEN}✓ Successfully transitioned ${result.expiredCount} expired offer(s) to EXPIRED${RESET}\n`);
         break;

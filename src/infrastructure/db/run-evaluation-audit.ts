@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
-import { pool } from './db-client';
 
 export interface FieldEvaluationResult {
   correct: number;
@@ -28,6 +27,36 @@ export interface BankEvaluationReport {
   };
 }
 
+interface AuditOffer {
+  id: string;
+  unique_id: string;
+  bank: string;
+  source_url: string | null;
+  title: string | null;
+  category: string | null;
+  card_type: string | null;
+  merchant_name: string | null;
+  merchant_location: string | null;
+  discount_percentage: string | null;
+  valid_from: string | Date | null;
+  valid_to: string | Date | null;
+  card_eligibility: {
+    includedCards?: string[];
+    excludedCards?: string[];
+    cardTypes?: string[];
+  } | null;
+  geo_locations: unknown[] | null;
+  geo_status: string | null;
+  db_status: string;
+  content_hash: string | null;
+  raw_offer: {
+    rawHtml?: string;
+    raw_html?: string;
+    content?: string;
+    offer?: { restrictions?: string[] };
+  } | null;
+}
+
 import { Pool } from 'pg';
 
 async function main() {
@@ -36,11 +65,13 @@ async function main() {
   const connStr = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
   const auditPool = new Pool({ connectionString: connStr, connectionTimeoutMillis: 20_000 });
 
-  const allOffers: any[] = [];
+  try {
+  const allOffers: AuditOffer[] = [];
   let offset = 0;
   const limit = 200;
-  while (true) {
-    const chunk = await auditPool.query(`
+  let hasMoreOffers = true;
+  while (hasMoreOffers) {
+    const chunk = await auditPool.query<AuditOffer>(`
       SELECT id, unique_id, bank, source_url, title, category, card_type,
              merchant_name, merchant_location, discount_percentage, valid_from,
              valid_to, card_eligibility, geo_locations, geo_status, db_status,
@@ -49,7 +80,10 @@ async function main() {
       ORDER BY bank, created_at DESC
       LIMIT $1 OFFSET $2
     `, [limit, offset]);
-    if (chunk.rows.length === 0) break;
+    if (chunk.rows.length === 0) {
+      hasMoreOffers = false;
+      continue;
+    }
     allOffers.push(...chunk.rows);
     offset += chunk.rows.length;
     console.log(`Fetched ${allOffers.length} offers so far…`);
@@ -61,12 +95,12 @@ async function main() {
   const bankReports: Record<string, BankEvaluationReport> = {};
 
   // Track global anomalies
-  const invertedDateOffers: any[] = [];
-  const expiredPublishedOffers: any[] = [];
-  const marketingTitleAsMerchantOffers: any[] = [];
-  const genericTokensInIncludedCards: any[] = [];
-  const missingBenefitOffers: any[] = [];
-  const brokenProvenanceOffers: any[] = [];
+  const invertedDateOffers: Array<Record<string, unknown>> = [];
+  const expiredPublishedOffers: Array<Record<string, unknown>> = [];
+  const marketingTitleAsMerchantOffers: Array<Record<string, unknown>> = [];
+  const genericTokensInIncludedCards: Array<Record<string, unknown>> = [];
+  const missingBenefitOffers: Array<Record<string, unknown>> = [];
+  const brokenProvenanceOffers: Array<Record<string, unknown>> = [];
 
   for (const bank of banks) {
     const bankOffers = allOffers.filter((o) => o.bank === bank);
@@ -81,7 +115,6 @@ async function main() {
     const provRes: FieldEvaluationResult = { correct: 0, incorrect: 0, sourceUncertain: 0, systemUnresolved: 0, notApplicable: 0, sampleSize: n, issues: [] };
 
     for (const offer of bankOffers) {
-      const raw = offer.raw_offer ?? {};
       const title = offer.title ?? '';
       const mName = offer.merchant_name ?? '';
       const rawHtml = String(offer.raw_offer?.rawHtml ?? offer.raw_offer?.raw_html ?? offer.raw_offer?.content ?? '');
@@ -290,8 +323,10 @@ async function main() {
   console.log(`- Marketing Titles Copied as Merchants: ${marketingTitleAsMerchantOffers.length}`);
   console.log(`- Broken Provenance / Source URLs: ${brokenProvenanceOffers.length}`);
 
-  // Save detailed evaluation report to disk
-  const reportPath = path.resolve(__dirname, 'evaluation-report.json');
+  // Generated audit output belongs outside production source.
+  const outputDir = path.resolve(__dirname, '../../../output');
+  fs.mkdirSync(outputDir, { recursive: true });
+  const reportPath = path.join(outputDir, 'evaluation-report.json');
   fs.writeFileSync(
     reportPath,
     JSON.stringify(
@@ -313,7 +348,9 @@ async function main() {
   );
   console.log(`\nDetailed evaluation artifact saved to ${reportPath}`);
 
-  await auditPool.end();
+  } finally {
+    await auditPool.end();
+  }
 }
 
 main().catch((err) => {

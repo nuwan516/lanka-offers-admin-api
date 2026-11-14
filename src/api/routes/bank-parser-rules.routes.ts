@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { bankParserRulesRepository } from '@/infrastructure/repositories/bank-parser-rules.repository';
 import {
   BankParserRule,
@@ -9,6 +10,23 @@ import {
 } from '@/banks/bank-rules-loader';
 
 const router = Router();
+
+const parserRuleInputSchema = z.object({
+  bank: z.string().trim().min(1),
+  field: z.string().trim().min(1),
+  rule_type: z.string().trim().min(1),
+  pattern: z.string().nullable().optional(),
+  flags: z.string().optional(),
+  capture_group: z.number().int().optional(),
+  notes: z.string().nullable().optional(),
+  priority: z.number().int().optional(),
+  source_path: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  source_type: z.string().nullable().optional(),
+  status: z.string().optional(),
+});
+
+const parserRuleUpdateSchema = parserRuleInputSchema.omit({ bank: true }).partial();
 
 function getCurrentNormalizedValue(
   field: string,
@@ -109,36 +127,23 @@ router.get('/bank-parser-rules', async (req: Request, res: Response) => {
 });
 
 router.post('/bank-parser-rules', async (req: Request, res: Response) => {
-  const {
-    bank, field, rule_type, pattern, flags, capture_group, notes,
-    priority, source_path, category, source_type, status,
-  } = req.body as Record<string, any>;
-
-  if (!bank || !field || !rule_type) {
+  const parsed = parserRuleInputSchema.safeParse(req.body);
+  if (!parsed.success) {
     res.status(400).json({ error: 'bank, field, and rule_type are required' });
     return;
   }
-
-  const created = await bankParserRulesRepository.createRule({
-    bank,
-    field,
-    rule_type,
-    pattern,
-    flags,
-    capture_group,
-    notes,
-    priority,
-    source_path,
-    category,
-    source_type,
-    status,
-  });
+  const created = await bankParserRulesRepository.createRule(parsed.data);
 
   res.status(201).json(created);
 });
 
 router.put('/bank-parser-rules/:id', async (req: Request, res: Response) => {
-  const updated = await bankParserRulesRepository.updateRule(String(req.params.id), req.body);
+  const parsed = parserRuleUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid parser rule update' });
+    return;
+  }
+  const updated = await bankParserRulesRepository.updateRule(String(req.params.id), parsed.data);
   if (!updated) {
     res.status(404).json({ error: 'Rule not found' });
     return;
@@ -185,8 +190,8 @@ router.post('/bank-parser-rules/compile-test', async (req: Request, res: Respons
     try {
       new RegExp(rule.pattern || '', rule.flags || 'i');
       signature = `RegExp(/${rule.pattern || ''}/${rule.flags || 'i'}) -> group ${rule.capture_group || 1}`;
-    } catch (e: any) {
-      compilationError = e.message || 'Invalid regex syntax';
+    } catch (error: unknown) {
+      compilationError = error instanceof Error ? error.message : 'Invalid regex syntax';
     }
   } else if (rule.rule_type === 'keyword_list') {
     signature = `KeywordList(${rule.pattern || ''}) -> matched keywords`;

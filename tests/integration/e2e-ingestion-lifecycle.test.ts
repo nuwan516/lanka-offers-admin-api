@@ -14,6 +14,7 @@ import { parseComBankOffer, ComBankRawOffer } from '@/banks/combank/combank-pars
 import { parseHNBDetail } from '@/banks/hnb/hnb-parser';
 import { OfferValidator } from '@/parsing/validators/offer-validator';
 import { classifyDetailedOfferQuality } from '@/domain/offer-quality-decision';
+import { resetQualityPolicyConfigCache } from '@/config/quality-policy';
 import { buildOfferListQuery, sanitizePublicOffer } from '@/api/offer-query-scope';
 import { computeOfferContentHash } from '@/parsing/normalization/offer-normalizer';
 
@@ -55,15 +56,24 @@ describe('End-to-End Ingestion Lifecycle & Invariants (Batch C)', () => {
     expect(validation.valid).toBe(true);
 
     // 4. Quality Decision
+    const previousRuleOnlyPolicy = process.env.QUALITY_ALLOW_RULE_ONLY_AUTO_APPROVE;
+    process.env.QUALITY_ALLOW_RULE_ONLY_AUTO_APPROVE = 'false';
+    resetQualityPolicyConfigCache();
     const quality = classifyDetailedOfferQuality({
       ruleValid: validation.valid,
       ruleErrorCount: validation.errors.length,
       ruleWarningCount: validation.warnings.length,
       llmScore: null,
       llmValid: null,
-      llmStatus: null,
+      // Make the no-LLM state explicit so this invariant is independent of
+      // the developer's QUALITY_ALLOW_RULE_ONLY_AUTO_APPROVE setting loaded
+      // from .env by the database test harness.
+      llmStatus: 'skipped_budget',
       isDuplicate: false,
     });
+    if (previousRuleOnlyPolicy === undefined) delete process.env.QUALITY_ALLOW_RULE_ONLY_AUTO_APPROVE;
+    else process.env.QUALITY_ALLOW_RULE_ONLY_AUTO_APPROVE = previousRuleOnlyPolicy;
+    resetQualityPolicyConfigCache();
     expect(['VALID_HIGH_CONFIDENCE', 'VALID_WITH_WARNINGS', 'REVIEW_REQUIRED']).toContain(quality.category);
     expect(['DISCOVERED', 'REVIEW_REQUIRED']).toContain(quality.decision); // Discovered candidate; NEVER auto-published
   });

@@ -50,17 +50,16 @@ export class WorkflowError extends Error {}
 // ─── Reads ────────────────────────────────────────────────────────────────────
 
 export async function getOfferWorkflow(idOrUniqueId: string): Promise<OfferWorkflowRow | null> {
-  const res = await pool.query<OfferWorkflowRow>(
-    `SELECT * FROM offers WHERE id::text = $1 OR unique_id = $1`,
-    [idOrUniqueId]
-  );
+  const res = await pool.query<OfferWorkflowRow>(`SELECT * FROM offers WHERE id::text = $1 OR unique_id = $1`, [
+    idOrUniqueId,
+  ]);
   return res.rows[0] ?? null;
 }
 
 export async function getReviewHistory(offerId: string): Promise<ReviewHistoryEntry[]> {
   const res = await pool.query<ReviewHistoryEntry>(
     `SELECT * FROM offer_review_history WHERE offer_id = $1 ORDER BY created_at DESC`,
-    [offerId]
+    [offerId],
   );
   return res.rows;
 }
@@ -81,12 +80,12 @@ export async function logHistory(
   toStatus: string | null,
   changes: Record<string, unknown> = {},
   reason: string | null = null,
-  actor = 'admin'
+  actor = 'admin',
 ): Promise<void> {
   await client.query(
     `INSERT INTO offer_review_history (offer_id, action, from_status, to_status, changes_json, reason, actor)
      VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [offerId, action, fromStatus, toStatus, JSON.stringify(changes), reason, actor]
+    [offerId, action, fromStatus, toStatus, JSON.stringify(changes), reason, actor],
   );
 }
 
@@ -109,7 +108,7 @@ export async function saveManualCorrection(
   override: ManualOverride,
   actor = 'admin',
   reason: string | null = null,
-  expectedUpdatedAt?: string
+  expectedUpdatedAt?: string,
 ): Promise<SaveCorrectionResult> {
   const clean = sanitizeManualOverride(override);
 
@@ -122,7 +121,9 @@ export async function saveManualCorrection(
       const currentTs = new Date(row.updated_at as string | number | Date).getTime();
       const expectedTs = new Date(expectedUpdatedAt).getTime();
       if (!isNaN(expectedTs) && Math.abs(currentTs - expectedTs) > 1000) {
-        throw new WorkflowError('Concurrent modification conflict: this offer was modified by another operator. Please refresh to inspect the latest candidate state.');
+        throw new WorkflowError(
+          'Concurrent modification conflict: this offer was modified by another operator. Please refresh to inspect the latest candidate state.',
+        );
       }
     }
 
@@ -134,7 +135,13 @@ export async function saveManualCorrection(
     await client.query(
       `UPDATE offers SET manual_override = $2, rule_passed = $3, rule_errors = $4, rule_warnings = $5, updated_at = NOW()
        WHERE id = $1`,
-      [offerId, JSON.stringify(merged), ruleResult.valid, JSON.stringify(ruleResult.errors), JSON.stringify(ruleResult.warnings)]
+      [
+        offerId,
+        JSON.stringify(merged),
+        ruleResult.valid,
+        JSON.stringify(ruleResult.errors),
+        JSON.stringify(ruleResult.warnings),
+      ],
     );
 
     await logHistory(client, offerId, 'corrected', row.db_status, row.db_status, clean, reason, actor);
@@ -163,7 +170,7 @@ export async function transitionOffer(
   reason: string | null = null,
   correction?: ManualOverride,
   expectedUpdatedAt?: string,
-  fencingToken?: FencingToken
+  fencingToken?: FencingToken,
 ): Promise<TransitionResult> {
   return withTransaction(async (client) => {
     if (fencingToken) {
@@ -177,7 +184,9 @@ export async function transitionOffer(
       const currentTs = new Date(row.updated_at as string | number | Date).getTime();
       const expectedTs = new Date(expectedUpdatedAt).getTime();
       if (!isNaN(expectedTs) && Math.abs(currentTs - expectedTs) > 1000) {
-        throw new WorkflowError('Concurrent modification conflict: this offer was modified by another operator. Please refresh to inspect the latest candidate state.');
+        throw new WorkflowError(
+          'Concurrent modification conflict: this offer was modified by another operator. Please refresh to inspect the latest candidate state.',
+        );
       }
     }
 
@@ -200,7 +209,10 @@ export async function transitionOffer(
     }
 
     if (mergedOverride !== row.manual_override) {
-      await client.query(`UPDATE offers SET manual_override = $2, updated_at = NOW() WHERE id = $1`, [offerId, JSON.stringify(mergedOverride)]);
+      await client.query(`UPDATE offers SET manual_override = $2, updated_at = NOW() WHERE id = $1`, [
+        offerId,
+        JSON.stringify(mergedOverride),
+      ]);
     }
 
     // PUBLISH must never be a bare status flip — it has to go through the
@@ -216,15 +228,19 @@ export async function transitionOffer(
     }
 
     if (isStaged) {
-      await client.query(
-        `UPDATE offers SET pending_lifecycle_status = $2, updated_at = NOW() WHERE id = $1`,
-        [offerId, to]
-      );
+      await client.query(`UPDATE offers SET pending_lifecycle_status = $2, updated_at = NOW() WHERE id = $1`, [
+        offerId,
+        to,
+      ]);
     } else {
       const timestampCol =
-        to === 'APPROVED' ? 'approved_at' :
-        to === 'REJECTED' ? 'rejected_at' :
-        to === 'PUBLISHED' ? 'published_at' : null;
+        to === 'APPROVED'
+          ? 'approved_at'
+          : to === 'REJECTED'
+            ? 'rejected_at'
+            : to === 'PUBLISHED'
+              ? 'published_at'
+              : null;
 
       await client.query(
         `UPDATE offers SET
@@ -232,11 +248,20 @@ export async function transitionOffer(
            ${timestampCol ? `, ${timestampCol} = NOW()` : ''},
            updated_at = NOW()
          WHERE id = $1`,
-        [offerId, to]
+        [offerId, to],
       );
     }
 
-    await logHistory(client, offerId, action.toLowerCase(), from, to, correction ? sanitizeManualOverride(correction) : {}, reason, actor);
+    await logHistory(
+      client,
+      offerId,
+      action.toLowerCase(),
+      from,
+      to,
+      correction ? sanitizeManualOverride(correction) : {},
+      reason,
+      actor,
+    );
 
     return { id: offerId, fromStatus: from, toStatus: to };
   });
@@ -271,7 +296,11 @@ export async function syncApprovedOffer(offerId: string, fencingToken?: FencingT
   return withTransaction(async (client) => syncOneOfferWithClient(client, offerId, fencingToken));
 }
 
-async function syncOneOfferWithClient(client: PoolClient, offerId: string, fencingToken?: FencingToken): Promise<SyncResult> {
+async function syncOneOfferWithClient(
+  client: PoolClient,
+  offerId: string,
+  fencingToken?: FencingToken,
+): Promise<SyncResult> {
   if (fencingToken) {
     await assertActiveLease(client, fencingToken, true);
   }
@@ -280,7 +309,8 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
   if (!row) return { offerId, outcome: 'failed', reason: 'not_found' };
 
   const isFreshApproval = row.db_status === 'APPROVED';
-  const isApprovedUpdate = row.db_status === 'PUBLISHED' && row.pending_candidate != null && row.pending_lifecycle_status === 'APPROVED';
+  const isApprovedUpdate =
+    row.db_status === 'PUBLISHED' && row.pending_candidate != null && row.pending_lifecycle_status === 'APPROVED';
 
   if (!isFreshApproval && !isApprovedUpdate) {
     return { offerId, outcome: 'skipped', reason: `not eligible (db_status=${row.db_status})` };
@@ -293,8 +323,15 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
   if (!ruleResult.valid) {
     // Never publish a candidate that now fails deterministic validation —
     // leave it exactly where it was and report the failure.
-    await logHistory(client, offerId, 'sync_failed', row.db_status, row.db_status,
-      { errors: ruleResult.errors }, 'final validation failed before publish');
+    await logHistory(
+      client,
+      offerId,
+      'sync_failed',
+      row.db_status,
+      row.db_status,
+      { errors: ruleResult.errors },
+      'final validation failed before publish',
+    );
     return { offerId, outcome: 'failed', reason: 'final validation failed' };
   }
 
@@ -305,6 +342,7 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
     cardEligibility: JSON.stringify(effective.cardEligibility ?? {}),
     geoLocations: JSON.stringify(effective.merchant?.geocodedLocations ?? row.geo_locations ?? []),
     rawOffer: JSON.stringify(effective),
+    image: effective.verifiedImage ?? null,
   };
 
   await client.query(
@@ -312,15 +350,34 @@ async function syncOneOfferWithClient(client: PoolClient, offerId: string, fenci
        title = $2, category = $3, card_type = $4, merchant_name = $5, merchant_location = $6,
        discount_percentage = $7, valid_from = $8, valid_to = $9, card_eligibility = $10,
        raw_offer = $11, content_hash = COALESCE(pending_candidate->>'contentHash', content_hash),
+       image_source_url = COALESCE($12, image_source_url),
+       image_storage_key = COALESCE($13, image_storage_key),
+       image_content_hash = COALESCE($14, image_content_hash),
+       image_mime_type = COALESCE($15, image_mime_type),
+       image_size_bytes = COALESCE($16, image_size_bytes),
+       image_url = CASE WHEN $13::text IS NOT NULL THEN '/api/images/' || $13 ELSE image_url END,
        db_status = 'PUBLISHED', change_status = COALESCE(pending_change_status, change_status),
        pending_candidate = NULL, pending_lifecycle_status = NULL, pending_change_status = NULL,
        published_at = NOW(), updated_at = NOW()
      WHERE id = $1`,
     [
-      offerId, effective.title, effective.category, effective.cardType,
-      effective.merchant?.name, effective.merchant?.location,
-      cols.discount, cols.validFrom, cols.validTo, cols.cardEligibility, cols.rawOffer,
-    ]
+      offerId,
+      effective.title,
+      effective.category,
+      effective.cardType,
+      effective.merchant?.name,
+      effective.merchant?.location,
+      cols.discount,
+      cols.validFrom,
+      cols.validTo,
+      cols.cardEligibility,
+      cols.rawOffer,
+      cols.image?.sourceUrl ?? null,
+      cols.image?.storageKey ?? null,
+      cols.image?.contentHash ?? null,
+      cols.image?.mimeType ?? null,
+      cols.image?.sizeBytes ?? null,
+    ],
   );
 
   await logHistory(client, offerId, 'published', row.db_status, 'PUBLISHED', {}, null);
@@ -341,17 +398,20 @@ export interface BulkSyncSummary {
 export async function bulkSyncApprovedOffers(triggeredBy = 'admin'): Promise<BulkSyncSummary> {
   const runRes = await pool.query<{ id: string }>(
     `INSERT INTO offer_sync_runs (status, triggered_by) VALUES ('running', $1) RETURNING id`,
-    [triggeredBy]
+    [triggeredBy],
   );
   const syncRunId = runRes.rows[0].id;
 
   const eligible = await pool.query<{ id: string; db_status: string }>(
     `SELECT id, db_status FROM offers
      WHERE db_status = 'APPROVED'
-        OR (db_status = 'PUBLISHED' AND pending_candidate IS NOT NULL AND pending_lifecycle_status = 'APPROVED')`
+        OR (db_status = 'PUBLISHED' AND pending_candidate IS NOT NULL AND pending_lifecycle_status = 'APPROVED')`,
   );
 
-  let published = 0, updated = 0, unchanged = 0, failed = 0;
+  let published = 0,
+    updated = 0,
+    unchanged = 0,
+    failed = 0;
   const results: SyncResult[] = [];
 
   for (const row of eligible.rows) {
@@ -360,7 +420,8 @@ export async function bulkSyncApprovedOffers(triggeredBy = 'admin'): Promise<Bul
       const result = await withTransaction((client) => syncOneOfferWithClient(client, row.id));
       results.push(result);
       if (result.outcome === 'published') {
-        if (wasAlreadyPublished) updated++; else published++;
+        if (wasAlreadyPublished) updated++;
+        else published++;
       } else if (result.outcome === 'failed') {
         failed++;
       } else {
@@ -376,7 +437,7 @@ export async function bulkSyncApprovedOffers(triggeredBy = 'admin'): Promise<Bul
     `UPDATE offer_sync_runs SET status = 'completed', finished_at = NOW(),
        approved_count = $2, published_count = $3, updated_count = $4, unchanged_count = $5, failed_count = $6
      WHERE id = $1`,
-    [syncRunId, eligible.rows.length, published, updated, unchanged, failed]
+    [syncRunId, eligible.rows.length, published, updated, unchanged, failed],
   );
 
   return { syncRunId, published, updated, unchanged, failed, results };
@@ -394,8 +455,11 @@ export interface SyncPreview {
 
 export async function getSyncPreview(): Promise<SyncPreview> {
   const res = await pool.query<{
-    approved_ready: string; review_required: string; rejected: string;
-    already_published: string; changed_existing: string;
+    approved_ready: string;
+    review_required: string;
+    rejected: string;
+    already_published: string;
+    changed_existing: string;
   }>(`
     SELECT
       COUNT(*) FILTER (WHERE db_status = 'APPROVED') AS approved_ready,
@@ -438,16 +502,14 @@ export interface ExpiryReconciliationResult {
  * - Clear audit trail via offer_review_history.
  */
 export async function reconcileExpiredOffers(
-  options: ExpiryReconciliationOptions = {}
+  options: ExpiryReconciliationOptions = {},
 ): Promise<ExpiryReconciliationResult> {
   const isDryRun = Boolean(options.dryRun);
   const operator = options.operator || (isDryRun ? 'preview:expiry-check' : 'system:expiry-reconciliation');
 
   return withTransaction(async (client) => {
     // Acquire a transaction-level advisory lock (ID 7429103) to prevent overlapping runs across multiple server instances
-    const lockRes = await client.query<{ acquired: boolean }>(
-      'SELECT pg_try_advisory_xact_lock(7429103) AS acquired'
-    );
+    const lockRes = await client.query<{ acquired: boolean }>('SELECT pg_try_advisory_xact_lock(7429103) AS acquired');
     if (!lockRes.rows[0]?.acquired) {
       return {
         expiredCount: 0,
@@ -464,7 +526,7 @@ export async function reconcileExpiredOffers(
          FROM offers
          WHERE db_status = 'PUBLISHED'
            AND valid_to IS NOT NULL
-           AND valid_to < CURRENT_DATE`
+           AND valid_to < CURRENT_DATE`,
       );
 
       return {
@@ -481,7 +543,7 @@ export async function reconcileExpiredOffers(
        WHERE db_status = 'PUBLISHED'
          AND valid_to IS NOT NULL
          AND valid_to < CURRENT_DATE
-       RETURNING id, unique_id`
+       RETURNING id, unique_id`,
     );
 
     for (const row of expiredRes.rows) {
@@ -493,7 +555,7 @@ export async function reconcileExpiredOffers(
         'EXPIRED',
         {},
         'Offer validity period ended (valid_to < CURRENT_DATE)',
-        operator
+        operator,
       );
     }
 

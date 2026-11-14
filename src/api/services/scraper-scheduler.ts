@@ -12,7 +12,6 @@
  */
 
 import { jobManager } from './job-manager';
-import { getBankConfig } from '@/config/banks';
 import { pool } from '@/infrastructure/db/db-client';
 
 export interface ScheduleEntry {
@@ -269,7 +268,9 @@ export class ScraperScheduler {
             const entry = this.schedules.get(row.id);
             if (entry) {
               entry.enabled = row.enabled;
-              entry.lastStatus = (row.last_status as any) || entry.lastStatus;
+              if (['idle', 'running', 'success', 'failed'].includes(row.last_status)) {
+                entry.lastStatus = row.last_status as ScheduleEntry['lastStatus'];
+              }
               entry.retryCount = row.retry_count ?? entry.retryCount;
               if (row.last_run_at) entry.lastRun = new Date(row.last_run_at).toISOString();
               entry.nextRun = row.enabled ? 'Scheduled per cron' : 'Disabled';

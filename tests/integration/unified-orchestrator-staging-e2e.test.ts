@@ -86,6 +86,17 @@ describe('E2E Staging & Review: Unified Offer Ingestion with Isolated Database',
     };
 
     const offer = parseHNBDetail('spa-901', rawPromo, 'Wellness', 1)!;
+    offer.verifiedImage = {
+      sourceUrl: 'https://www.hnb.net/images/promotions/spa-ceylon.png',
+      storageKey: `${'a'.repeat(64)}.png`,
+      contentHash: 'a'.repeat(64),
+      mimeType: 'image/png',
+      sizeBytes: 2048,
+      width: 1200,
+      height: 675,
+      verifiedAt: '2026-11-05T00:00:00.000Z',
+    };
+    offer.imageVerificationStatus = 'VERIFIED';
     offer.contentHash = computeOfferContentHash(offer);
 
     // 2. Run through production ValidationPipeline with UnifiedOfferOrchestrator
@@ -115,12 +126,48 @@ describe('E2E Staging & Review: Unified Offer Ingestion with Isolated Database',
     expect(syncRes.outcome).toBe('published');
 
     // Verify offer is now published and visible to public API
-    const pubCheck = await poolAdapter.query(`SELECT db_status, title, merchant_name FROM offers WHERE id = $1`, [upsertRes.id]);
+    const pubCheck = await poolAdapter.query(
+      `SELECT db_status, title, merchant_name, image_storage_key, image_url FROM offers WHERE id = $1`,
+      [upsertRes.id]
+    );
     expect(pubCheck.rows[0].db_status).toBe('PUBLISHED');
+    expect(pubCheck.rows[0].image_storage_key).toBe(`${'a'.repeat(64)}.png`);
+    expect(pubCheck.rows[0].image_url).toBe(`/api/images/${'a'.repeat(64)}.png`);
 
     const publicQuery = buildOfferListQuery({ bank });
     const publicResults = await poolAdapter.query(`SELECT * FROM offers ${publicQuery.whereSql}`, publicQuery.params);
     expect(publicResults.rows.some((r: any) => r.id === upsertRes.id)).toBe(true);
+
+    // A newly verified image is independently versioned. Even with identical
+    // business content it is staged and cannot replace the live image until
+    // the candidate is approved and synchronized.
+    const imageOnlyUpdate = {
+      ...offer,
+      verifiedImage: {
+        ...offer.verifiedImage!,
+        sourceUrl: 'https://www.hnb.net/images/promotions/spa-ceylon-v2.png',
+        storageKey: `${'b'.repeat(64)}.png`,
+        contentHash: 'b'.repeat(64),
+      },
+    };
+    const imageOnlyResult = await upsertOffer(
+      imageOnlyUpdate,
+      runId,
+      { lifecycleStatus: 'REVIEW_REQUIRED' },
+      leaseToken
+    );
+    expect(imageOnlyResult.status).toBe('CHANGED');
+    expect(imageOnlyResult.staged).toBe(true);
+    const stagedImage = await poolAdapter.query(
+      `SELECT image_storage_key, pending_candidate FROM offers WHERE id = $1`,
+      [upsertRes.id]
+    );
+    expect(stagedImage.rows[0].image_storage_key).toBe(`${'a'.repeat(64)}.png`);
+    expect(stagedImage.rows[0].pending_candidate.verifiedImage.storageKey).toBe(`${'b'.repeat(64)}.png`);
+    await transitionOffer(upsertRes.id, 'APPROVE', 'senior-editor', 'Verified replacement image');
+    expect((await syncApprovedOffer(upsertRes.id, leaseToken)).outcome).toBe('published');
+    const replacedImage = await poolAdapter.query(`SELECT image_storage_key FROM offers WHERE id = $1`, [upsertRes.id]);
+    expect(replacedImage.rows[0].image_storage_key).toBe(`${'b'.repeat(64)}.png`);
 
     // 5. Operator applies a sacred manual override
     await saveManualCorrection(
@@ -161,7 +208,9 @@ describe('E2E Staging & Review: Unified Offer Ingestion with Isolated Database',
     expect(updateUpsertRes.staged).toBe(true);
 
     const liveRecord = await poolAdapter.query(
-      `SELECT db_status, title, merchant_name, manual_override, pending_candidate, pending_change_status FROM offers WHERE id = $1`,
+      `SELECT db_status, title, merchant_name, manual_override, pending_candidate,
+              pending_change_status, image_storage_key, image_url
+       FROM offers WHERE id = $1`,
       [upsertRes.id]
     );
 
@@ -175,6 +224,43 @@ describe('E2E Staging & Review: Unified Offer Ingestion with Isolated Database',
     // Candidate update is safely sequestered in pending_candidate
     expect(liveRecord.rows[0].pending_change_status).toBe('CHANGED');
     expect(liveRecord.rows[0].pending_candidate.title).toContain('30%');
+    expect(liveRecord.rows[0].pending_candidate.verifiedImage).toBeUndefined();
+    expect(liveRecord.rows[0].image_storage_key).toBe(`${'b'.repeat(64)}.png`);
+
+    // Approval of a candidate whose image refresh failed must preserve the last
+    // known-good published image instead of replacing it with a broken URL.
+    await transitionOffer(upsertRes.id, 'APPROVE', 'senior-editor', 'Verified textual update');
+    const updateSync = await syncApprovedOffer(upsertRes.id, leaseToken);
+    expect(updateSync.outcome).toBe('published');
+    const afterImageRefreshFailure = await poolAdapter.query(
+      `SELECT title, image_storage_key, image_url, pending_candidate FROM offers WHERE id = $1`,
+      [upsertRes.id]
+    );
+    expect(afterImageRefreshFailure.rows[0].title).toContain('30%');
+    expect(afterImageRefreshFailure.rows[0].image_storage_key).toBe(`${'b'.repeat(64)}.png`);
+    expect(afterImageRefreshFailure.rows[0].image_url).toBe(`/api/images/${'b'.repeat(64)}.png`);
+    expect(afterImageRefreshFailure.rows[0].pending_candidate).toBeNull();
+
+    // Taking the offer offline hides it without destroying its approved image
+    // association; republishing restores the same content-addressed asset.
+    await transitionOffer(upsertRes.id, 'UNPUBLISH', 'senior-editor', 'Rollback rehearsal');
+    const hiddenDuringRollback = await poolAdapter.query(
+      `SELECT * FROM offers ${publicQuery.whereSql}`,
+      publicQuery.params
+    );
+    expect(hiddenDuringRollback.rows.some((row: any) => row.id === upsertRes.id)).toBe(false);
+    const offlineImage = await poolAdapter.query(`SELECT image_storage_key FROM offers WHERE id = $1`, [upsertRes.id]);
+    expect(offlineImage.rows[0].image_storage_key).toBe(`${'b'.repeat(64)}.png`);
+    await transitionOffer(upsertRes.id, 'APPROVE', 'senior-editor', 'Rollback image rechecked');
+    await transitionOffer(upsertRes.id, 'PUBLISH', 'senior-editor', 'Rollback rehearsal complete', undefined, undefined, leaseToken);
+    const republishedImage = await poolAdapter.query(
+      `SELECT db_status, image_storage_key FROM offers WHERE id = $1`,
+      [upsertRes.id]
+    );
+    expect(republishedImage.rows[0]).toMatchObject({
+      db_status: 'PUBLISHED',
+      image_storage_key: `${'b'.repeat(64)}.png`,
+    });
 
     // 8. Rejected offer check: If an invalid offer is scraped, it must be rejected
     const invalidPromo = {

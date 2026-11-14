@@ -46,8 +46,12 @@ import { BankName, getBankConfig, listBanksByCapability } from '@/config/banks';
 import { dedupeOffers, computeOfferContentHash } from '@/parsing/normalization/offer-normalizer';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import {
-  createScrapeRun, completeScrapeRun, failScrapeRun, upsertOffer,
-  saveValidationReport as saveValidationReportDb, getLlmFingerprints,
+  createScrapeRun,
+  completeScrapeRun,
+  failScrapeRun,
+  upsertOffer,
+  saveValidationReport as saveValidationReportDb,
+  getLlmFingerprints,
   FencingToken,
 } from '@/infrastructure/db/offer-repository';
 import { closePool, pool } from '@/infrastructure/db/db-client';
@@ -55,8 +59,13 @@ import { preloadBankRules } from '@/banks/bank-rules-loader';
 import { getCostControlConfig, formatSafePolicySummary } from '@/config/cost-control';
 import { decideOfferQuality } from '@/domain/offer-quality-decision';
 import type { OfferLifecycleStatus } from '@/domain/offer-lifecycle';
-import { detectAndRecordDuplicates, flagOfferAsDuplicate, shouldRunDuplicateDetection } from '@/infrastructure/db/duplicate-repository';
+import {
+  detectAndRecordDuplicates,
+  flagOfferAsDuplicate,
+  shouldRunDuplicateDetection,
+} from '@/infrastructure/db/duplicate-repository';
 import { exportDryRunArtifacts } from '@/cli/dry-run-exporter';
+import { ImageAcquisitionService, getOfferImageSource } from '@/infrastructure/images/image-acquisition-service';
 
 // ─── CLI arg parsing ────────────────────────────────────────────────────────────
 
@@ -115,22 +124,30 @@ function parseArgs(): CliOptions {
 
 // ─── Scraper factory ────────────────────────────────────────────────────────────
 
-function createScraper(
-  bankName: BankName,
-  config: ScraperConfig & { skipDetails?: boolean },
-): BaseScraper {
+function createScraper(bankName: BankName, config: ScraperConfig & { skipDetails?: boolean }): BaseScraper {
   switch (bankName) {
-    case 'hnb': return new HNBScraper(config);
-    case 'sampath': return new SampathScraper({ ...config, skipDetails: config.skipDetails });
-    case 'boc': return new BOCScraper(config);
-    case 'peoples': return new PeoplesScraper(config);
-    case 'ndb': return new NDBScraper(config);
-    case 'seylan': return new SeylanScraper(config);
-    case 'dfcc': return new DFCCScraper(config);
-    case 'pabc': return new PABCScraper(config);
-    case 'nsb': return new NSBScraper(config);
-    case 'combank': return new ComBankScraper(config);
-    default: throw new Error(`Unknown bank: ${bankName}`);
+    case 'hnb':
+      return new HNBScraper(config);
+    case 'sampath':
+      return new SampathScraper({ ...config, skipDetails: config.skipDetails });
+    case 'boc':
+      return new BOCScraper(config);
+    case 'peoples':
+      return new PeoplesScraper(config);
+    case 'ndb':
+      return new NDBScraper(config);
+    case 'seylan':
+      return new SeylanScraper(config);
+    case 'dfcc':
+      return new DFCCScraper(config);
+    case 'pabc':
+      return new PABCScraper(config);
+    case 'nsb':
+      return new NSBScraper(config);
+    case 'combank':
+      return new ComBankScraper(config);
+    default:
+      throw new Error(`Unknown bank: ${bankName}`);
   }
 }
 
@@ -192,9 +209,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     throw new Error(`${bankConfig.displayName} requires a browser runtime. Run: npm run browser:install`);
   }
 
-  const cache = opts.cache
-    ? new FileCache(`./cache_${bankName}`, 24 * 60 * 60 * 1000)
-    : undefined;
+  const cache = opts.cache ? new FileCache(`./cache_${bankName}`, 24 * 60 * 60 * 1000) : undefined;
 
   const http = new HttpClient({
     timeout: 15_000,
@@ -223,7 +238,7 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       try {
         const leaseRes = await pool.query<{ lease_generation: string }>(
           `SELECT lease_generation FROM scraper_leases WHERE bank = $1 AND job_id = $2 AND released_at IS NULL AND expires_at >= NOW() LIMIT 1`,
-          [bankName, opts.jobId]
+          [bankName, opts.jobId],
         );
         if (leaseRes.rows.length > 0) {
           leaseGen = parseInt(leaseRes.rows[0].lease_generation, 10);
@@ -258,7 +273,8 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     scrapeTimer.done({ offers: offers.length });
   } catch (err) {
     scrapeTimer.fail(err);
-    if (runId) await failScrapeRun(runId, err instanceof Error ? err.message : String(err), fencingToken).catch(() => null);
+    if (runId)
+      await failScrapeRun(runId, err instanceof Error ? err.message : String(err), fencingToken).catch(() => null);
     throw err;
   }
 
@@ -288,7 +304,10 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     }
     const llmValidator = llmEnabled ? new LlmValidator() : undefined;
     if (llmEnabled && !llmValidator?.isAvailable) {
-      logger.warn('LLM', `LLM validation skipped: no API key found for primary provider "${costConfig.llm.primaryProvider}".`);
+      logger.warn(
+        'LLM',
+        `LLM validation skipped: no API key found for primary provider "${costConfig.llm.primaryProvider}".`,
+      );
     }
 
     // Zero-cost control: batch-load existing LLM fingerprints for this bank
@@ -333,7 +352,10 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
         logger.error('LLM', `[${report.offerId}] Rejected: ${report.llmValidation.reasoning}`);
       }
       if (report.llmValidation && report.llmValidation.extractionScore < 70) {
-        logger.warn('LLM', `[${report.offerId}] Low score ${report.llmValidation.extractionScore}/100: ${report.llmValidation.reasoning}`);
+        logger.warn(
+          'LLM',
+          `[${report.offerId}] Low score ${report.llmValidation.extractionScore}/100: ${report.llmValidation.reasoning}`,
+        );
       }
     }
 
@@ -345,7 +367,10 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
 
     for (const report of llmReports.slice(0, 10)) {
       const res = report.llmValidation!;
-      logger.info('LLM', `[${report.offerId}] Score ${res.extractionScore}/100 | confidence ${res.confidence} | issues ${res.issues.length}`);
+      logger.info(
+        'LLM',
+        `[${report.offerId}] Score ${res.extractionScore}/100 | confidence ${res.confidence} | issues ${res.issues.length}`,
+      );
       const offer = offersById.get(report.offerId);
       if (offer && res.inferredCategory && res.inferredCategory !== offer.category) {
         logger.debug('LLM', `[${report.offerId}] Inferred category: ${offer.category} -> ${res.inferredCategory}`);
@@ -356,15 +381,18 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     // clean-looking run can't hide a broken validation stage.
     const llmUnvalidated = llmReports.filter((r) => r.llmValidation!.issues.includes('LLM_VALIDATION_FAILED'));
     if (llmUnvalidated.length > 0) {
-      logger.warn('LLM', `${llmUnvalidated.length}/${llmReports.length} offers UNVALIDATED (LLM call failed after retries) — passed only by fail-open policy`);
+      logger.warn(
+        'LLM',
+        `${llmUnvalidated.length}/${llmReports.length} offers UNVALIDATED (LLM call failed after retries) — passed only by fail-open policy`,
+      );
     }
 
     const reportPath = saveValidationReport(bankName, reports, opts.output);
     logger.success(
       'Validator',
       `Validation complete. Passed ${reports.length - failedReports.length}/${reports.length}; ` +
-      `LLM validated ${llmReports.length - llmUnvalidated.length - llmReusedReports.length}, ` +
-      `reused ${llmReusedReports.length}, unvalidated ${llmUnvalidated.length}. Report → ${reportPath}`,
+        `LLM validated ${llmReports.length - llmUnvalidated.length - llmReusedReports.length}, ` +
+        `reused ${llmReusedReports.length}, unvalidated ${llmUnvalidated.length}. Report → ${reportPath}`,
     );
   }
 
@@ -377,10 +405,13 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       duplicatesRemoved: deduped.duplicatesRemoved,
       validationReports,
       durationMs: 0,
-      options: opts as any,
+      options: { ...opts },
       baseOutputDir: opts.output,
     });
-    logger.success('DRY-RUN', `[DRY-RUN] Production DB writes skipped. Isolated artifacts exported to:\n  ${exportDir}`);
+    logger.success(
+      'DRY-RUN',
+      `[DRY-RUN] Production DB writes skipped. Isolated artifacts exported to:\n  ${exportDir}`,
+    );
     logger.info('DRY-RUN', `Manifest: ${manifestPath}`);
     logger.info(
       'DRY-RUN',
@@ -389,12 +420,33 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
         `${manifest.counts.validWithWarnings} warnings, ` +
         `${manifest.counts.reviewRequired} review-required, ` +
         `${manifest.counts.invalid} invalid, ` +
-        `${manifest.counts.duplicateCandidate} duplicate candidates)`
+        `${manifest.counts.duplicateCandidate} duplicate candidates)`,
     );
   } else if (runId) {
     if (offers.length > 0) {
+      const imageService = new ImageAcquisitionService();
+      const imageQueue = [...offers];
+      const imageWorkers = Array.from({ length: Math.min(4, imageQueue.length) }, async () => {
+        while (imageQueue.length > 0) {
+          const candidate = imageQueue.shift();
+          if (!candidate) break;
+          const acquired = await imageService.acquire(getOfferImageSource(candidate));
+          candidate.verifiedImage = acquired.image;
+          candidate.imageVerificationStatus = acquired.status;
+          if (acquired.status === 'REJECTED' || acquired.status === 'FAILED') {
+            logger.warn('Images', `[${candidate.uniqueId}] image unavailable: ${acquired.reason ?? acquired.status}`);
+          }
+        }
+      });
+      await Promise.all(imageWorkers);
+
       logger.info('DB', `Persisting ${offers.length} offers to Neon…`);
-      let dbNew = 0, dbChanged = 0, dbUnchanged = 0, dbErrors = 0, validationWrites = 0, duplicatesFlagged = 0;
+      let dbNew = 0,
+        dbChanged = 0,
+        dbUnchanged = 0,
+        dbErrors = 0,
+        validationWrites = 0,
+        duplicatesFlagged = 0;
       for (const offer of offers) {
         try {
           const report = reportsById.get(offer.uniqueId);
@@ -416,13 +468,16 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
               ruleWarningCount: report?.ruleValidation.warnings.length ?? 0,
               llmScore: report?.llmValidation?.extractionScore ?? null,
               llmValid: report?.llmValidation?.isValidOffer ?? null,
-              llmStatus: report?.llmValidation?.issues.includes('BUDGET_BLOCKED') ? 'skipped_budget'
-                : report?.llmValidation?.issues.includes('LLM_VALIDATION_FAILED') ? 'review_required'
-                : report?.llmValidation ? 'validated' : null,
+              llmStatus: report?.llmValidation?.issues.includes('BUDGET_BLOCKED')
+                ? 'skipped_budget'
+                : report?.llmValidation?.issues.includes('LLM_VALIDATION_FAILED')
+                  ? 'review_required'
+                  : report?.llmValidation
+                    ? 'validated'
+                    : null,
             });
             lifecycleStatus =
-              quality === 'AUTO_APPROVE' ? 'APPROVED' :
-              quality === 'REJECT' ? 'REJECTED' : 'REVIEW_REQUIRED';
+              quality === 'AUTO_APPROVE' ? 'APPROVED' : quality === 'REJECT' ? 'REJECTED' : 'REVIEW_REQUIRED';
           }
 
           const result = await upsertOffer(offer, runId, { lifecycleStatus }, fencingToken);
@@ -444,13 +499,23 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
                   ? 'skipped_budget'
                   : report.llmValidation.issues.includes('LLM_VALIDATION_FAILED')
                     ? 'review_required'
-                    : report.llmReused ? 'reused' : 'validated';
-              await saveValidationReportDb(result.id, offer.uniqueId, runId, report, {
-                contentHash: offer.contentHash,
-                promptVersion: costConfig.llm.promptVersion,
-                validatorVersion: costConfig.llm.validatorVersion,
-                status: llmStatus ?? 'not_run',
-              }, result.staged, fencingToken);
+                    : report.llmReused
+                      ? 'reused'
+                      : 'validated';
+              await saveValidationReportDb(
+                result.id,
+                offer.uniqueId,
+                runId,
+                report,
+                {
+                  contentHash: offer.contentHash,
+                  promptVersion: costConfig.llm.promptVersion,
+                  validatorVersion: costConfig.llm.validatorVersion,
+                  status: llmStatus ?? 'not_run',
+                },
+                result.staged,
+                fencingToken,
+              );
               validationWrites++;
             }
           }
@@ -474,22 +539,41 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
           logger.warn('DB', `Failed to upsert offer ${offer.uniqueId}: ${e instanceof Error ? e.message : e}`);
         }
       }
-      logger.info('DB', `Validation state written for ${validationWrites}/${offers.length} offers (rest reused unchanged state).`);
+      logger.info(
+        'DB',
+        `Validation state written for ${validationWrites}/${offers.length} offers (rest reused unchanged state).`,
+      );
       if (duplicatesFlagged > 0) {
         logger.warn('Duplicate', `${duplicatesFlagged} offer(s) flagged as possible duplicates → REVIEW_REQUIRED`);
       }
-      const runOutcome = await completeScrapeRun(runId, {
-        found: offers.length, newCount: dbNew, changed: dbChanged, unchanged: dbUnchanged, errors: dbErrors,
-      }, fencingToken).catch(() => null);
+      const runOutcome = await completeScrapeRun(
+        runId,
+        {
+          found: offers.length,
+          newCount: dbNew,
+          changed: dbChanged,
+          unchanged: dbUnchanged,
+          errors: dbErrors,
+        },
+        fencingToken,
+      ).catch(() => null);
       if (runOutcome?.anomalyWarning) {
         logger.warn('Quality', `Run anomaly detected: ${runOutcome.anomalyWarning}`);
       }
       logger.success('DB', `Persisted: ${dbNew} new, ${dbChanged} changed, ${dbUnchanged} unchanged`);
     } else {
       logger.warn('Scraper', `0 offers extracted for ${bankName.toUpperCase()}`);
-      const runOutcome = await completeScrapeRun(runId, {
-        found: 0, newCount: 0, changed: 0, unchanged: 0, errors: 0,
-      }, fencingToken).catch(() => null);
+      const runOutcome = await completeScrapeRun(
+        runId,
+        {
+          found: 0,
+          newCount: 0,
+          changed: 0,
+          unchanged: 0,
+          errors: 0,
+        },
+        fencingToken,
+      ).catch(() => null);
       if (runOutcome?.anomalyWarning) {
         logger.warn('Quality', `Run anomaly detected: ${runOutcome.anomalyWarning}`);
       }
@@ -514,14 +598,12 @@ async function main(): Promise<void> {
 
   const opts = parseArgs();
 
-  const banks: BankName[] = opts.bank === 'all'
-    ? listBanksByCapability('scrape')
-    : [opts.bank as BankName];
+  const banks: BankName[] = opts.bank === 'all' ? listBanksByCapability('scrape') : [opts.bank as BankName];
 
   logger.info(
     'Config',
     `Banks: ${banks.join(', ')} | Cache: ${opts.cache} | Validate: ${opts.validate} | LLM: ${opts.llm} | ` +
-    `Output: ${opts.output}${opts.maxCategories ? ` | Max categories: ${opts.maxCategories}` : ''}`,
+      `Output: ${opts.output}${opts.maxCategories ? ` | Max categories: ${opts.maxCategories}` : ''}`,
   );
 
   const start = Date.now();
