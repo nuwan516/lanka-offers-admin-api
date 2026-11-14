@@ -8,6 +8,7 @@ import type { Offer, GeoLocation } from '@/core/types/offers';
 import type { ValidatorReport } from '@/core/types/validation';
 import type { OfferLifecycleStatus, OfferChangeStatus } from '@/domain/offer-lifecycle';
 import { classifyScraperFailure } from '@/domain/failure-classifier';
+import { syncOfferBranches, syncOfferBranchesByUniqueId } from './offer-branches';
 
 // ─── Scrape Runs & Fencing ───────────────────────────────────────────────────
 
@@ -241,8 +242,13 @@ export async function upsertOffer(
     if (fencingToken) {
       await assertActiveLease(client, fencingToken, true);
     }
-    const existingRes = await client.query<{ id: string; content_hash: string | null; db_status: string }>(
-      `SELECT id, content_hash, db_status FROM offers WHERE unique_id = $1 FOR UPDATE`,
+    const existingRes = await client.query<{
+      id: string;
+      content_hash: string | null;
+      image_content_hash: string | null;
+      db_status: string;
+    }>(
+      `SELECT id, content_hash, image_content_hash, db_status FROM offers WHERE unique_id = $1 FOR UPDATE`,
       [offer.uniqueId]
     );
     const existing = existingRes.rows[0];
@@ -264,10 +270,35 @@ export async function upsertOffer(
           cols.rawOffer, offer.contentHash, runId, decision.lifecycleStatus, NEW_CHANGE_STATUS,
         ]
       );
-      return { id: insertRes.rows[0].id, isNew: true, isChanged: false, isUnchanged: false, status: 'NEW', staged: false };
+      const newId = insertRes.rows[0].id;
+      await syncOfferBranches(newId, offer.merchant?.geocodedLocations ?? [], {
+        locationScope: (offer as { locationScope?: string }).locationScope ?? null,
+        client,
+      });
+      return { id: newId, isNew: true, isChanged: false, isUnchanged: false, status: 'NEW', staged: false };
     }
 
     if (existing.content_hash === offer.contentHash) {
+      // Image bytes have their own version. A newly verified or changed image
+      // must still enter the candidate workflow even when business text is
+      // unchanged; otherwise legacy offers could never be safely backfilled.
+      if (offer.verifiedImage && existing.image_content_hash !== offer.verifiedImage.contentHash) {
+        await client.query(
+          `UPDATE offers
+           SET pending_candidate = $2, pending_lifecycle_status = $3,
+               pending_change_status = 'CHANGED', scrape_run_id = $4, updated_at = NOW()
+           WHERE id = $1`,
+          [existing.id, cols.rawOffer, decision.lifecycleStatus, runId],
+        );
+        return {
+          id: existing.id,
+          isNew: false,
+          isChanged: true,
+          isUnchanged: false,
+          status: 'CHANGED',
+          staged: true,
+        };
+      }
       return { id: existing.id, isNew: false, isChanged: false, isUnchanged: true, status: 'UNCHANGED', staged: false };
     }
 
@@ -298,6 +329,10 @@ export async function upsertOffer(
         offer.contentHash, runId, decision.lifecycleStatus, CHANGED_CHANGE_STATUS,
       ]
     );
+    await syncOfferBranches(existing.id, offer.merchant?.geocodedLocations ?? [], {
+      locationScope: (offer as { locationScope?: string }).locationScope ?? null,
+      client,
+    });
     return { id: existing.id, isNew: false, isChanged: true, isUnchanged: false, status: 'CHANGED', staged: false };
   });
 }
@@ -582,6 +617,8 @@ export async function updateOfferGeoLocations(
      WHERE unique_id = $1`,
     [uniqueId, JSON.stringify(geoLocations), status, geoCacheKey]
   );
+  // Keep denormalized offer_branches + offers.geom in sync for PostGIS nearby queries.
+  await syncOfferBranchesByUniqueId(uniqueId, geoLocations);
 }
 
 // ─── Query helpers used by the API ───────────────────────────────────────────

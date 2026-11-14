@@ -93,6 +93,17 @@ ALTER TABLE offers ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
 ALTER TABLE offers ADD COLUMN IF NOT EXISTS approved_at  TIMESTAMPTZ;
 ALTER TABLE offers ADD COLUMN IF NOT EXISTS rejected_at  TIMESTAMPTZ;
 
+-- Published image metadata. Candidate image metadata remains inside
+-- pending_candidate until the candidate is approved and synchronized.
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_source_url   TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_storage_key  TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_content_hash TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_mime_type    TEXT;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_size_bytes   INTEGER;
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS image_url          TEXT;
+CREATE INDEX IF NOT EXISTS offers_image_content_key_idx
+  ON offers (image_content_hash) WHERE image_content_hash IS NOT NULL;
+
 -- Pre-existing rows predate this workflow — they were already live, so
 -- preserve current Flutter-visible behavior by treating them as published.
 UPDATE offers SET db_status = 'PUBLISHED' WHERE db_status = 'active';
@@ -270,6 +281,108 @@ CREATE INDEX IF NOT EXISTS idx_offers_merchant_trgm
 CREATE EXTENSION IF NOT EXISTS postgis;
 ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom geography(Point, 4326);
 CREATE INDEX IF NOT EXISTS idx_offers_geom_gist ON offers USING GIST (geom);
+
+-- Composite filter index for nearby + published list predicates (db_status, valid_to).
+-- Partial published indexes above cover common list sorts; this composite supports
+-- the nearby path's status+expiry filter without a sequential scan.
+CREATE INDEX IF NOT EXISTS idx_offers_db_status_valid_to
+  ON offers (db_status, valid_to);
+
+-- ── Denormalized physical branches for nearby discovery ───────────────────────
+-- Avoids expensive jsonb_array_elements + Haversine on every nearby request.
+-- Each row is one branch point; geom is PostGIS geography(Point,4326) so
+-- ST_DWithin / ST_Distance use the GIST index (spheroid-safe at poles & large radii).
+-- offers.geo_locations JSONB remains the API evidence payload (immutable raw_offer
+-- is never mutated; this table is derived projection only).
+CREATE TABLE IF NOT EXISTS offer_branches (
+  id               UUID             PRIMARY KEY DEFAULT gen_random_uuid(),
+  offer_id         UUID             NOT NULL REFERENCES offers(id) ON DELETE CASCADE,
+  branch_name      TEXT,
+  branch_address   TEXT,
+  lat              DOUBLE PRECISION NOT NULL,
+  lng              DOUBLE PRECISION NOT NULL,
+  confidence       REAL,
+  geom             geography(Point, 4326) NOT NULL,
+  created_at       TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+  CHECK (lat BETWEEN -90.0 AND 90.0),
+  CHECK (lng BETWEEN -180.0 AND 180.0)
+);
+
+CREATE INDEX IF NOT EXISTS idx_offer_branches_offer_id
+  ON offer_branches (offer_id);
+
+-- Spatial GIST index — enables index-assisted ST_DWithin for nearby queries.
+CREATE INDEX IF NOT EXISTS idx_offer_branches_geom_gist
+  ON offer_branches USING GIST (geom);
+
+-- Fallback B-tree bounds helpers when a planner chooses lat/lng range prefilter.
+CREATE INDEX IF NOT EXISTS idx_offer_branches_lat_lng
+  ON offer_branches (lat, lng);
+
+-- Idempotent backfill from geo_locations JSONB (supports both lat/lng and latitude/longitude keys).
+-- Skips ONLINE/NATIONWIDE/UNRESOLVED scopes and malformed coordinates.
+-- Does not invent coordinates (no false location precision).
+INSERT INTO offer_branches (offer_id, branch_name, branch_address, lat, lng, confidence, geom)
+SELECT
+  o.id,
+  COALESCE(loc->>'name', loc->>'branchName'),
+  COALESCE(loc->>'address', loc->>'formattedAddress', loc->>'originalAddress'),
+  branch_lat,
+  branch_lng,
+  CASE
+    WHEN (loc->>'confidence') ~ '^[0-9]+(\\.[0-9]+)?$' THEN (loc->>'confidence')::real
+    ELSE NULL
+  END,
+  ST_SetSRID(ST_MakePoint(branch_lng, branch_lat), 4326)::geography
+FROM offers o
+CROSS JOIN LATERAL jsonb_array_elements(
+  CASE
+    WHEN o.geo_locations IS NOT NULL AND jsonb_typeof(o.geo_locations) = 'array'
+    THEN o.geo_locations
+    ELSE '[]'::jsonb
+  END
+) AS loc
+CROSS JOIN LATERAL (
+  SELECT
+    CASE
+      WHEN jsonb_typeof(loc) = 'object'
+        AND COALESCE(loc->>'lat', loc->>'latitude') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+      THEN COALESCE(loc->>'lat', loc->>'latitude')::double precision
+      ELSE NULL
+    END AS branch_lat,
+    CASE
+      WHEN jsonb_typeof(loc) = 'object'
+        AND COALESCE(loc->>'lng', loc->>'longitude') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+      THEN COALESCE(loc->>'lng', loc->>'longitude')::double precision
+      ELSE NULL
+    END AS branch_lng
+) coords
+WHERE o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'UNRESOLVED')
+  AND branch_lat IS NOT NULL
+  AND branch_lng IS NOT NULL
+  AND branch_lat BETWEEN -90.0 AND 90.0
+  AND branch_lng BETWEEN -180.0 AND 180.0
+  AND NOT EXISTS (
+    SELECT 1 FROM offer_branches ob
+    WHERE ob.offer_id = o.id
+      AND abs(ob.lat - branch_lat) < 1e-7
+      AND abs(ob.lng - branch_lng) < 1e-7
+  );
+
+-- Keep offers.geom as the nearest/primary branch for admin single-point tools.
+UPDATE offers o
+SET geom = sub.geom,
+    updated_at = NOW()
+FROM (
+  SELECT DISTINCT ON (ob.offer_id)
+    ob.offer_id,
+    ob.geom
+  FROM offer_branches ob
+  ORDER BY ob.offer_id, ob.created_at ASC
+) sub
+WHERE o.id = sub.offer_id
+  AND o.geom IS NULL;
 
 -- ── Distributed Scraper Orchestration & Durable Leases with Fencing ──────────
 CREATE TABLE IF NOT EXISTS scraper_leases (

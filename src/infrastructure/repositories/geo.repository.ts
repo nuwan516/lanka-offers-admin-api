@@ -20,6 +20,8 @@ export interface PostgisNearbyOffer {
   geo_status: string | null;
   db_status: string;
   distance_km: number;
+  matched_branch_name?: string | null;
+  matched_branch_address?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,12 +42,16 @@ export interface GeoStats {
   geocodedOffers: number;
   unresolvedOffers: number;
   postgisGeometries: number;
+  offerBranches: number;
   resolvedPercentage: number;
 }
 
 export class GeoRepository {
   /**
-   * PostGIS high-speed proximity query using GIST spatial index and ST_DWithin / ST_Distance.
+   * PostGIS proximity via denormalized offer_branches + GIST.
+   * Uses ST_DWithin (index-assisted) — no custom Haversine / bounding-box.
+   * geography type is spheroid-safe at poles and for large radii.
+   * List + count share one CTE pipeline (COUNT(*) OVER()).
    */
   public async findNearbyOffers(options: NearbyQueryOptions): Promise<{
     items: PostgisNearbyOffer[];
@@ -58,9 +64,11 @@ export class GeoRepository {
 
     const conditions: string[] = [
       "o.db_status = 'PUBLISHED'",
-      "(o.valid_to IS NULL OR o.valid_to >= CURRENT_DATE)",
-      "o.geom IS NOT NULL",
-      "ST_DWithin(o.geom, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, $3 * 1000)",
+      '(o.valid_to IS NULL OR o.valid_to >= CURRENT_DATE)',
+      // ST_DWithin on geography uses metres; GIST index on offer_branches.geom.
+      // Edge cases (poles / antimeridian / large radii): geography spheroid math —
+      // no cos(lat) division, so polar queries remain correct.
+      'ST_DWithin(b.geom, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, $3 * 1000.0)',
     ];
 
     const params: unknown[] = [options.lat, options.lng, radiusKm];
@@ -86,33 +94,51 @@ export class GeoRepository {
 
     const whereSql = `WHERE ${conditions.join(' AND ')}`;
 
-    const dataSql = `
-      SELECT 
-        o.id, o.unique_id, o.bank, o.source_url, o.title, o.category, o.card_type,
-        o.merchant_name, o.merchant_location, o.canonical_merchant, o.location_scope,
-        o.discount_percentage, o.valid_from, o.valid_to, o.card_eligibility,
-        o.geo_locations, o.geo_status, o.db_status, o.created_at, o.updated_at,
-        ROUND((ST_Distance(o.geom, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography) / 1000.0)::numeric, 1)::float AS distance_km
-      FROM offers o
-      ${whereSql}
-      ORDER BY o.geom <-> ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography
+    const sql = `
+      WITH matched AS (
+        SELECT
+          o.id, o.unique_id, o.bank, o.source_url, o.title, o.category, o.card_type,
+          o.merchant_name, o.merchant_location, o.canonical_merchant, o.location_scope,
+          o.discount_percentage, o.valid_from, o.valid_to, o.card_eligibility,
+          o.geo_locations, o.geo_status, o.db_status, o.created_at, o.updated_at,
+          b.branch_name,
+          b.branch_address,
+          (ST_Distance(b.geom, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography) / 1000.0) AS dist_km
+        FROM offer_branches b
+        INNER JOIN offers o ON o.id = b.offer_id
+        ${whereSql}
+      ),
+      nearest_per_offer AS (
+        SELECT DISTINCT ON (id)
+          id, unique_id, bank, source_url, title, category, card_type,
+          merchant_name, merchant_location, canonical_merchant, location_scope,
+          discount_percentage, valid_from, valid_to, card_eligibility,
+          geo_locations, geo_status, db_status, created_at, updated_at,
+          ROUND(dist_km::numeric, 1)::float AS distance_km,
+          branch_name AS matched_branch_name,
+          branch_address AS matched_branch_address
+        FROM matched
+        ORDER BY id, dist_km ASC
+      ),
+      with_total AS (
+        SELECT *, COUNT(*) OVER()::int AS total_count
+        FROM nearest_per_offer
+      )
+      SELECT *
+      FROM with_total
+      ORDER BY distance_km ASC, id ASC
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
     `;
 
-    const countSql = `
-      SELECT COUNT(*)::int AS count
-      FROM offers o
-      ${whereSql}
-    `;
-
-    const [dataRes, countRes] = await Promise.all([
-      pool.query<PostgisNearbyOffer>(dataSql, [...params, limit, offset]),
-      pool.query<{ count: number }>(countSql, params),
+    const res = await pool.query<PostgisNearbyOffer & { total_count: number }>(sql, [
+      ...params,
+      limit,
+      offset,
     ]);
 
     return {
-      items: dataRes.rows,
-      total: countRes.rows[0]?.count ?? 0,
+      items: res.rows.map(({ total_count: _t, ...row }) => row),
+      total: res.rows[0]?.total_count ?? 0,
       radiusKm,
     };
   }
@@ -126,38 +152,42 @@ export class GeoRepository {
       geocoded_offers: string;
       unresolved_offers: string;
       postgis_geometries: string;
+      offer_branches: string;
     }>(`
       SELECT
         COUNT(*)::text AS total_offers,
         COUNT(*) FILTER (WHERE geo_status = 'resolved' OR (geo_locations IS NOT NULL AND jsonb_array_length(geo_locations) > 0))::text AS geocoded_offers,
         COUNT(*) FILTER (WHERE geo_status = 'unresolved' OR geo_locations IS NULL OR jsonb_array_length(geo_locations) = 0)::text AS unresolved_offers,
-        COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS postgis_geometries
+        COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS postgis_geometries,
+        (SELECT COUNT(*)::text FROM offer_branches) AS offer_branches
       FROM offers
-      WHERE db_status = 'PUBLISHED';
+      WHERE db_status = 'PUBLISHED'
     `);
 
     const total = parseInt(res.rows[0]?.total_offers ?? '0', 10);
     const geocoded = parseInt(res.rows[0]?.geocoded_offers ?? '0', 10);
     const unresolved = parseInt(res.rows[0]?.unresolved_offers ?? '0', 10);
     const postgisGeom = parseInt(res.rows[0]?.postgis_geometries ?? '0', 10);
+    const offerBranches = parseInt(res.rows[0]?.offer_branches ?? '0', 10);
 
     return {
       totalOffers: total,
       geocodedOffers: geocoded,
       unresolvedOffers: unresolved,
       postgisGeometries: postgisGeom,
+      offerBranches,
       resolvedPercentage: total > 0 ? Math.round((geocoded / total) * 100) : 0,
     };
   }
 
   /**
-   * Update PostGIS geometry for an offer.
+   * Update PostGIS geometry for an offer (primary point) and upsert a branch row.
    */
   public async updateOfferGeometry(offerId: string, lat: number, lng: number): Promise<boolean> {
     const res = await pool.query(
       `
       UPDATE offers
-      SET 
+      SET
         geom = ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography,
         geo_status = 'resolved',
         updated_at = NOW()
@@ -166,43 +196,78 @@ export class GeoRepository {
       `,
       [lat, lng, offerId]
     );
-    return (res.rowCount ?? 0) > 0;
+    if ((res.rowCount ?? 0) === 0) return false;
+
+    await pool.query(`DELETE FROM offer_branches WHERE offer_id = $1`, [offerId]);
+    await pool.query(
+      `INSERT INTO offer_branches (offer_id, lat, lng, geom)
+       VALUES ($1, $2, $3, ST_SetSRID(ST_MakePoint($3, $2), 4326)::geography)`,
+      [offerId, lat, lng]
+    );
+    return true;
   }
 
   /**
-   * Backfill missing PostGIS geometries from geo_locations array.
+   * Backfill missing PostGIS geometries + offer_branches from geo_locations array.
    */
   public async backfillGeometries(): Promise<number> {
     const res = await pool.query(`
-      UPDATE offers 
-      SET geom = ST_SetSRID(
-        ST_MakePoint(
-          CASE 
-            WHEN jsonb_typeof(geo_locations->0) = 'object'
-              AND (geo_locations->0->>'lng') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
-              AND (geo_locations->0->>'lat') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
-            THEN (geo_locations->0->>'lng')::double precision
+      WITH candidates AS (
+        SELECT
+          o.id AS offer_id,
+          COALESCE(loc->>'name', loc->>'branchName') AS branch_name,
+          COALESCE(loc->>'address', loc->>'formattedAddress', loc->>'originalAddress') AS branch_address,
+          CASE
+            WHEN jsonb_typeof(loc) = 'object'
+              AND COALESCE(loc->>'lat', loc->>'latitude') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+            THEN COALESCE(loc->>'lat', loc->>'latitude')::double precision
             ELSE NULL
-          END,
-          CASE 
-            WHEN jsonb_typeof(geo_locations->0) = 'object'
-              AND (geo_locations->0->>'lng') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
-              AND (geo_locations->0->>'lat') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
-            THEN (geo_locations->0->>'lat')::double precision
+          END AS lat,
+          CASE
+            WHEN jsonb_typeof(loc) = 'object'
+              AND COALESCE(loc->>'lng', loc->>'longitude') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
+            THEN COALESCE(loc->>'lng', loc->>'longitude')::double precision
             ELSE NULL
+          END AS lng
+        FROM offers o
+        CROSS JOIN LATERAL jsonb_array_elements(
+          CASE
+            WHEN o.geo_locations IS NOT NULL AND jsonb_typeof(o.geo_locations) = 'array'
+            THEN o.geo_locations ELSE '[]'::jsonb
           END
-        ), 
-        4326
-      )::geography
-      WHERE geo_locations IS NOT NULL 
-        AND jsonb_typeof(geo_locations) = 'array'
-        AND jsonb_array_length(geo_locations) > 0 
-        AND jsonb_typeof(geo_locations->0) = 'object'
-        AND (geo_locations->0->>'lat') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
-        AND (geo_locations->0->>'lng') ~ '^-?[0-9]{1,3}(\\.[0-9]+)?$'
-        AND (geo_locations->0->>'lat')::double precision BETWEEN -90.0 AND 90.0
-        AND (geo_locations->0->>'lng')::double precision BETWEEN -180.0 AND 180.0
-        AND geom IS NULL;
+        ) AS loc
+        WHERE o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'UNRESOLVED')
+      ),
+      valid AS (
+        SELECT * FROM candidates
+        WHERE lat IS NOT NULL AND lng IS NOT NULL
+          AND lat BETWEEN -90.0 AND 90.0
+          AND lng BETWEEN -180.0 AND 180.0
+      ),
+      inserted AS (
+        INSERT INTO offer_branches (offer_id, branch_name, branch_address, lat, lng, geom)
+        SELECT
+          v.offer_id, v.branch_name, v.branch_address, v.lat, v.lng,
+          ST_SetSRID(ST_MakePoint(v.lng, v.lat), 4326)::geography
+        FROM valid v
+        WHERE NOT EXISTS (
+          SELECT 1 FROM offer_branches ob
+          WHERE ob.offer_id = v.offer_id
+            AND abs(ob.lat - v.lat) < 1e-7
+            AND abs(ob.lng - v.lng) < 1e-7
+        )
+        RETURNING offer_id
+      )
+      UPDATE offers o
+      SET geom = ST_SetSRID(ST_MakePoint(v.lng, v.lat), 4326)::geography,
+          updated_at = NOW()
+      FROM (
+        SELECT DISTINCT ON (offer_id) offer_id, lat, lng
+        FROM valid
+        ORDER BY offer_id
+      ) v
+      WHERE o.id = v.offer_id AND o.geom IS NULL
+      RETURNING o.id
     `);
     return res.rowCount ?? 0;
   }

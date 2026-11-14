@@ -52,6 +52,13 @@ temp/
 test-results/
 playwright-report/
 
+# Local dry-run / evaluation artifacts (never commit)
+*_dryrun*.json
+*_trace.json
+**/evaluation-report.json
+Untitled
+untitled*
+
 # OS artifacts
 .DS_Store
 .DS_Store?
@@ -80,3 +87,4 @@ ssh-key*
 
 # local data backups
 backups/
+data/images/
