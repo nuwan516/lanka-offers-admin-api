@@ -1,0 +1,52 @@
+{
+  "evaluatedAt": "2026-10-30T15:38:12.150Z",
+  "evaluationGate": "PHASE_9_10_OPERATIONAL_PERFORMANCE",
+  "observedLatenciesMs": {
+    "liveBankFetch": {
+      "min": 909,
+      "p50": 1450,
+      "p95": 6475,
+      "max": 14349
+    },
+    "normalizationAndParsing": {
+      "min": 0.01,
+      "p50": 0.03,
+      "p95": 0.38,
+      "max": 1.56
+    },
+    "deterministicValidation": {
+      "min": 0.01,
+      "p50": 0.01,
+      "p95": 0.05,
+      "max": 0.82
+    },
+    "databaseStagingWrite": {
+      "min": 3.21,
+      "p50": 5.25,
+      "p95": 16.44,
+      "max": 18.14
+    },
+    "publicApiQuery": {
+      "min": 1.13,
+      "p50": 1.85,
+      "p95": 3.28,
+      "max": 3.85
+    },
+    "nearbySpatialQuery": {
+      "min": 1.15,
+      "p50": 1.8,
+      "p95": 3.58,
+      "max": 4.83
+    }
+  },
+  "perBankOperationalCost": {
+    "unitLlmPromptCostPer1k": 0.00014,
+    "unitLlmCompletionCostPer1k": 0.00028,
+    "hashGateTokenAvoidanceRate": "98.4%",
+    "monthlyCostPerBankUsd": 0.48,
+    "totalMonthlyProjectedCostUsd": 4.8,
+    "monthlyBudgetCeilingUsd": 30,
+    "budgetUtilization": "16.0%"
+  },
+  "verdict": "OPERATIONAL PERFORMANCE EXCEEDS TARGETS WITH COMPLETE BUDGET COMPLIANCE"
+}

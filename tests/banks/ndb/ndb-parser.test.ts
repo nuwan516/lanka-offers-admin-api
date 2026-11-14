@@ -44,4 +44,22 @@ describe('parseNDBOffer', () => {
     expect(offer?.transactionRange.max).toBeNull(); // Must NOT be 750!
     expect(offer?.offer.discountPercentage).toBe(25);
   });
+
+  it('enriches generalTerms and card eligibility when pdfText is extracted from PDF brochure', () => {
+    const offer = parseNDBOffer({
+      merchantName: 'Grand Resort',
+      offerDetails: '30% savings on weekend stays',
+      validity: 'Valid till 31st December 2026',
+      cardType: 'Credit Cards',
+      _categoryName: 'Hotels & Villas',
+      termsAndConditionsPdfUrl: 'https://www.ndbbank.com/terms/grand-resort.pdf',
+      pdfText: 'Term 1: Offer valid exclusively for NDB Platinum & Signature Credit Cards.\nTerm 2: Advance booking required via hotel hotline.\nTerm 3: Blackout dates apply on public holidays.',
+    });
+
+    expect(offer).not.toBeNull();
+    expect(offer?.offer.generalTerms).toContain('Term 1: Offer valid exclusively for NDB Platinum & Signature Credit Cards.');
+    expect(offer?.offer.generalTerms).toContain('Term 2: Advance booking required via hotel hotline.');
+    expect(offer?.offer.generalTerms).toContain('Term 3: Blackout dates apply on public holidays.');
+    expect(offer?.offer.bookingRequired).toBe(true);
+  });
 });

@@ -69,6 +69,9 @@ export class StatsRepository {
       pool.query(`
         SELECT
           COUNT(*) FILTER (WHERE db_status = 'PUBLISHED') AS active_offers,
+          COUNT(*) FILTER (WHERE db_status = 'EXPIRED') AS expired_offers,
+          COUNT(*) FILTER (WHERE db_status = 'REJECTED') AS rejected_offers,
+          COUNT(*) FILTER (WHERE pending_candidate IS NOT NULL) AS pending_candidates,
           COUNT(*) AS total_offers,
           COUNT(*) FILTER (WHERE llm_valid = true) AS llm_valid,
           COUNT(*) FILTER (WHERE rule_passed = false) AS rule_failed,

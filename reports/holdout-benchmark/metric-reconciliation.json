@@ -1,0 +1,100 @@
+{
+  "reconciledAt": "2026-10-29T15:48:45.816Z",
+  "auditStatus": "VERIFIED_AND_ASSERTED",
+  "datasetsRegistry": [
+    {
+      "datasetId": "DATASET_1_GENERAL_100_HOLDOUT",
+      "name": "Audited 100-Offer General Holdout Benchmark",
+      "sourceFile": "100-holdout-offers.json / gold-label-corrections.json",
+      "totalOffers": 100,
+      "scopeTaxonomy": "6 classes (ONLINE, SINGLE_BRANCH, MULTIPLE_BRANCHES, SELECTED_OUTLETS, NATIONWIDE, UNRESOLVED)",
+      "positiveScopePredictions": 74,
+      "unresolvedPredictions": 26,
+      "correctPositivePredictions": 72,
+      "correctUnresolvedPredictions": 22,
+      "overallAccuracy": {
+        "numerator": 94,
+        "denominator": 100,
+        "percentage": 94
+      },
+      "selectiveAccuracyOnPositiveDecisions": {
+        "numerator": 72,
+        "denominator": 74,
+        "percentage": 97.3,
+        "formula": "72 / 74 = 97.297% (rounded to 97.30%)"
+      },
+      "legacyExactPinsPlaced": 11,
+      "legacyExactPinsPrecision": "100.00% (11/11 verified, single-branch offers only; multi-branch suppressed by legacy policy)"
+    },
+    {
+      "datasetId": "DATASET_2_SELECTED_OUTLETS_25_BENCHMARK",
+      "name": "Authentic 25-Offer Selected-Outlet Benchmark",
+      "sourceFile": "selected-outlet-gold-dataset.json",
+      "totalOffers": 25,
+      "totalGoldTargetBranches": 60,
+      "activeEligiblePhysicalVenues": 57,
+      "expiredCampaignBranchesSuppressed": 3,
+      "branchExtraction": {
+        "baselineExtracted": 28,
+        "baselineRecallPercent": 46.67,
+        "updatedExtracted": 60,
+        "updatedRecallPercent": 100,
+        "precisionPercent": 100
+      },
+      "verifiedCoordinates": {
+        "baselineVerifiedPins": 23,
+        "updatedVerifiedPins": 53,
+        "falsePinsPlaced": 0,
+        "precisionPercent": 100,
+        "activeVenueRecallPercent": 92.98,
+        "unverifiedAwaitingReview": 4,
+        "additionalPinsRecovered": 30
+      }
+    },
+    {
+      "datasetId": "DATASET_3_INDEPENDENT_10_UNSEEN_HOLDOUT",
+      "name": "Independent 10-Offer Unseen Commercial Bank Holdout",
+      "sourceFile": "independent-generalization.json",
+      "totalOffers": 10,
+      "totalGoldBranches": 22,
+      "branchExtraction": {
+        "extracted": 22,
+        "precisionPercent": 100,
+        "recallPercent": 100
+      },
+      "coordinateVerification": {
+        "verifiedPinsPlaced": 20,
+        "falsePinsPlaced": 0,
+        "precisionPercent": 100,
+        "activeVenueRecallPercent": 90.91,
+        "unverifiedAwaitingReview": 2
+      }
+    }
+  ],
+  "pinCountReconciliationMatrix": {
+    "legacyPinsDataset1": 11,
+    "baselinePinsDataset2": 23,
+    "previousReportCombinedCount": {
+      "count": 34,
+      "explanation": "Previous report combined 11 legacy pins (Dataset 1) + 23 baseline branch pins (Dataset 2) = 34 total pins. This was a cross-dataset composite."
+    },
+    "currentDataset2StandaloneCount": {
+      "count": 53,
+      "explanation": "53 verified exact pins placed on Dataset 2 alone (up from 23 in baseline run, representing +30 newly recovered verified pins)."
+    },
+    "additionalRecoveryMetric": {
+      "delta": 30,
+      "formula": "53 (updated Dataset 2 pins) - 23 (baseline Dataset 2 pins) = +30 newly verified branch pins"
+    },
+    "combinedCrossDatasetTotal": {
+      "count": 64,
+      "formula": "11 (Dataset 1 legacy pins) + 53 (Dataset 2 pins) = 64 total verified pins across all evaluated benchmark offers",
+      "warning": "Never report 64 pins against a single dataset denominator; denominators must strictly reference their specific benchmark population."
+    }
+  },
+  "consistencyChecks": {
+    "populationIsolationEnforced": true,
+    "denominatorsValidated": true,
+    "zeroFabricatedPinsConfirmed": true
+  }
+}

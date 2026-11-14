@@ -1,0 +1,240 @@
+{
+  "evaluatedAt": "2026-10-29T13:16:21.334Z",
+  "totalOffersEvaluated": 25,
+  "totalGoldBranches": 60,
+  "metrics": {
+    "truePositives": 60,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "exactDenominator": 60,
+    "branchIdentificationPrecisionPercent": 100,
+    "branchIdentificationRecallPercent": 100
+  },
+  "perOfferBreakdown": [
+    {
+      "offerId": "so-seylan-amante",
+      "merchant": "AMANTE",
+      "goldBranchCount": 9,
+      "extractedBranchCount": 9,
+      "verifiedCoordinateBranchCount": 9,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-sampath-odel",
+      "merchant": "ODEL",
+      "goldBranchCount": 4,
+      "extractedBranchCount": 4,
+      "verifiedCoordinateBranchCount": 4,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-ndb-keells-selected",
+      "merchant": "Keells Super",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 3,
+      "restrictionModality": "PARTIAL_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-combank-delifrance",
+      "merchant": "Softlogic Restaurants",
+      "goldBranchCount": 0,
+      "extractedBranchCount": 0,
+      "verifiedCoordinateBranchCount": 0,
+      "restrictionModality": "NO_PUBLISHED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-hnb-pizzahut",
+      "merchant": "Pizza Hut",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "MALL_SPECIFIC",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-boc-dominos",
+      "merchant": "Domino's Pizza",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "PARTIAL_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-dfcc-coolplanet",
+      "merchant": "Cool Planet",
+      "goldBranchCount": 4,
+      "extractedBranchCount": 4,
+      "verifiedCoordinateBranchCount": 4,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-combank-arpico",
+      "merchant": "Arpico Supercentre",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 3,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-pabc-singermega",
+      "merchant": "Singer Mega",
+      "goldBranchCount": 0,
+      "extractedBranchCount": 0,
+      "verifiedCoordinateBranchCount": 0,
+      "restrictionModality": "NO_PUBLISHED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-seylan-spaceylon",
+      "merchant": "Spa Ceylon",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "MALL_SPECIFIC",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-boc-glomark-hybrid",
+      "merchant": "Glomark",
+      "goldBranchCount": 2,
+      "extractedBranchCount": 2,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "ONLINE_AND_PHYSICAL",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-hnb-barista",
+      "merchant": "Barista",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-sampath-cargills-colombo",
+      "merchant": "Cargills Food City",
+      "goldBranchCount": 0,
+      "extractedBranchCount": 0,
+      "verifiedCoordinateBranchCount": 0,
+      "restrictionModality": "PARTIAL_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-combank-tacobell",
+      "merchant": "Taco Bell",
+      "goldBranchCount": 2,
+      "extractedBranchCount": 2,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-seylan-burgerking-negative",
+      "merchant": "Burger King",
+      "goldBranchCount": 0,
+      "extractedBranchCount": 0,
+      "verifiedCoordinateBranchCount": 0,
+      "restrictionModality": "NEGATIVE_OUTLET_EXCLUSIONS",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-ndb-cottoncollection",
+      "merchant": "Cotton Collection",
+      "goldBranchCount": 1,
+      "extractedBranchCount": 1,
+      "verifiedCoordinateBranchCount": 1,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-dfcc-dsipremier",
+      "merchant": "DSI Premier",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 3,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-boc-coffeebean",
+      "merchant": "The Coffee Bean & Tea Leaf",
+      "goldBranchCount": 2,
+      "extractedBranchCount": 2,
+      "verifiedCoordinateBranchCount": 1,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-hnb-cinnamon-dining",
+      "merchant": "Cinnamon Hotels",
+      "goldBranchCount": 2,
+      "extractedBranchCount": 2,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-pabc-abanselite",
+      "merchant": "Abans Elite",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 1,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-combank-foodstudio",
+      "merchant": "Food Studio",
+      "goldBranchCount": 2,
+      "extractedBranchCount": 2,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "MALL_SPECIFIC",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-nsb-damro-unlisted",
+      "merchant": "Damro Showrooms",
+      "goldBranchCount": 0,
+      "extractedBranchCount": 0,
+      "verifiedCoordinateBranchCount": 0,
+      "restrictionModality": "NO_PUBLISHED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-seylan-hameedia",
+      "merchant": "Hameedia",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 1,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-sampath-chatham",
+      "merchant": "Chatham Luxury Watches",
+      "goldBranchCount": 2,
+      "extractedBranchCount": 2,
+      "verifiedCoordinateBranchCount": 2,
+      "restrictionModality": "COMPLETE_SELECTED_LIST",
+      "isValidCurrently": true
+    },
+    {
+      "offerId": "so-hnb-nolimit-expired",
+      "merchant": "Nolimit",
+      "goldBranchCount": 3,
+      "extractedBranchCount": 3,
+      "verifiedCoordinateBranchCount": 1,
+      "restrictionModality": "EXPIRED_CAMPAIGN",
+      "isValidCurrently": false
+    }
+  ]
+}

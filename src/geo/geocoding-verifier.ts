@@ -122,9 +122,10 @@ export class GeocodingVerifier {
       };
     }
 
-    // 3. Area-only restriction: AREA_ONLY, NATIONWIDE, ONLINE never receive an exact map pin
+    // 3. Area-only and digital restriction: AREA_ONLY and ONLINE never receive an exact map pin
+    // Note: Both SELECTED_OUTLETS and NATIONWIDE allow exact pins when the specific branch has verified physical premises coordinates.
     if (quality === 'AREA_ONLY' || quality === 'ONLINE_ONLY' || quality === 'INVALID' ||
-        scope === LocationScope.ONLINE || scope === LocationScope.NATIONWIDE || scope === LocationScope.SELECTED_OUTLETS) {
+        scope === LocationScope.ONLINE) {
       return {
         isVerifiedExactPin: false,
         isVerifiedAreaCentroid: true,
@@ -134,6 +135,23 @@ export class GeocodingVerifier {
         rejectionReason: `Exact pin prohibited for quality=${quality} scope=${scope}`,
         granularity: 'AREA_CENTROID',
         confidenceScore: 0.5,
+      };
+    }
+
+    // 3b. Corporate headquarters rejection:
+    // If the query is for a specific branch outlet, but geocoder resolved to corporate/head office
+    const isCorporateHqResult = /\b(?:head\s*office|corporate\s*office|registered\s*office|group\s*headquarters)\b/i.test(formattedAddress);
+    const isQuerySpecificOutlet = !/\b(?:head\s*office|corporate\s*office)\b/i.test(queryAddress);
+    if (isCorporateHqResult && isQuerySpecificOutlet) {
+      return {
+        isVerifiedExactPin: false,
+        isVerifiedAreaCentroid: false,
+        latitude: lat,
+        longitude: lng,
+        formattedAddress,
+        rejectionReason: 'Rejected corporate headquarters coordinates for branch query',
+        granularity: 'INVALID',
+        confidenceScore: 0.2,
       };
     }
 
@@ -179,14 +197,18 @@ export class GeocodingVerifier {
       };
     }
 
+    const isExactPremise = hasExactType;
     return {
-      isVerifiedExactPin: true,
+      isVerifiedExactPin: isExactPremise,
       isVerifiedAreaCentroid: false,
       latitude: lat,
       longitude: lng,
       formattedAddress,
-      granularity: hasExactType ? 'EXACT_PREMISE' : 'STREET_LEVEL',
+      granularity: isExactPremise ? 'EXACT_PREMISE' : 'STREET_LEVEL',
       confidenceScore: Math.min(0.95, 0.7 + tokenMatchRatio * 0.25),
+      rejectionReason: isExactPremise
+        ? undefined
+        : 'Uncertain street-level result only; exact premise verification requires premise or establishment type',
     };
   }
 

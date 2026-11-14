@@ -1,0 +1,122 @@
+{
+  "reconciledAt": "2026-10-29T13:12:46.729Z",
+  "datasetSize": 100,
+  "confusionMatrix": {
+    "ONLINE": {
+      "ONLINE": 14,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 0
+    },
+    "SINGLE_BRANCH": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 42,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 1
+    },
+    "MULTIPLE_BRANCHES": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 1,
+      "MULTIPLE_BRANCHES": 9,
+      "SELECTED_OUTLETS": 1,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 2
+    },
+    "SELECTED_OUTLETS": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 0
+    },
+    "NATIONWIDE": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 7,
+      "UNRESOLVED": 1
+    },
+    "UNRESOLVED": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 22
+    }
+  },
+  "rowSumsActual": {
+    "ONLINE": 14,
+    "SINGLE_BRANCH": 43,
+    "MULTIPLE_BRANCHES": 13,
+    "SELECTED_OUTLETS": 0,
+    "NATIONWIDE": 8,
+    "UNRESOLVED": 22
+  },
+  "columnSumsPredicted": {
+    "ONLINE": 14,
+    "SINGLE_BRANCH": 43,
+    "MULTIPLE_BRANCHES": 9,
+    "SELECTED_OUTLETS": 1,
+    "NATIONWIDE": 7,
+    "UNRESOLVED": 26
+  },
+  "automatedConsistencyAudit": {
+    "rowSumsConsistent": true,
+    "columnSumsConsistent": true,
+    "totalEvaluated": 100,
+    "totalPredicted": 100,
+    "totalCorrect": 94,
+    "overallAccuracy": {
+      "numerator": 94,
+      "denominator": 100,
+      "percentage": 94,
+      "formula": "totalCorrect / totalEvaluated = 94 / 100 = 94.00%"
+    },
+    "positivePredictions": {
+      "count": 74,
+      "formula": "totalEvaluated - unresolvedPredictions = 100 - 26 = 74",
+      "breakdown": {
+        "ONLINE": 14,
+        "SINGLE_BRANCH": 43,
+        "MULTIPLE_BRANCHES": 9,
+        "SELECTED_OUTLETS": 1,
+        "NATIONWIDE": 7
+      }
+    },
+    "unresolvedPredictions": {
+      "count": 26,
+      "formula": "1 (SINGLE) + 2 (MULTIPLE) + 1 (NATIONWIDE) + 22 (UNRESOLVED) = 26"
+    },
+    "selectiveAccuracyOnPositiveCoverage": {
+      "numerator": 72,
+      "denominator": 74,
+      "percentage": 97.3,
+      "formula": "correctPositivePredictions / positivePredictions = 72 / 74 = 97.30%",
+      "explanation": "With 74 positive predictions and 72 correct positive predictions, selective accuracy is exactly 72 / 74 = 97.297% (rounded to 97.30%). The previous mention of 72/75 = 96.00% miscounted the denominator by 1 (counting 25 unresolved instead of 26)."
+    },
+    "previousFormulaDiscrepancy": {
+      "previouslyReportedValue": 96.91,
+      "formulaUsed": "totalCorrect / (100 - conservativeAbstentionsOnPositiveGold) = 94 / (100 - 3) = 94 / 97 = 96.907%",
+      "explanation": "The historical 96.91% improperly included the 22 safe UNRESOLVED predictions in the numerator."
+    },
+    "zeroSupportClasses": [
+      {
+        "class": "SELECTED_OUTLETS",
+        "goldSupport": 0,
+        "predictions": 1,
+        "truePositives": 0,
+        "falsePositives": 1,
+        "falseNegatives": 0,
+        "precision": "0.00% (0 TP / 1 FP; gold support = 0)",
+        "recall": "UNDEFINED (denominator = 0)"
+      }
+    ]
+  }
+}

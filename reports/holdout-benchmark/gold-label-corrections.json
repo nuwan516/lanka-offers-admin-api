@@ -1,0 +1,256 @@
+{
+  "version": "2.0.0-audited",
+  "generatedAt": "2026-10-29T09:55:40.910Z",
+  "description": "Evidence-backed reference label corrections for 100-holdout benchmark location scope. Original benchmark fixture remains frozen and immutable.",
+  "totalVerifiedDefects": 22,
+  "breakdown": {
+    "SPECULATIVE_CHAIN_EXTRAPOLATION": 6,
+    "FALLBACK_ADDRESS_POLLUTION": 13,
+    "IGNORED_BANK_METADATA": 2,
+    "LANDMARK_VENUE_OMISSION": 1
+  },
+  "corrections": [
+    {
+      "offerId": "holdout-dfcc-5",
+      "bank": "dfcc",
+      "merchantName": "SPAR",
+      "title": "SPAR Supermarket Promotion",
+      "originalGoldLabel": "UNRESOLVED",
+      "correctedSourceSupportedLabel": "MULTI_BRANCH",
+      "sourceEvidenceCitation": "Location: \"Selected SPAR Supermarkets\" | \"Available only at selected SPAR supermarkets\"",
+      "annotationErrorType": "IGNORED_BANK_METADATA",
+      "correctionRationale": "Explicit \"selected outlets\" restriction present in source text; canonical scope is SELECTED_OUTLETS (normalized: MULTI_BRANCH)."
+    },
+    {
+      "offerId": "holdout-bm-hnb-3-installments-exclusions",
+      "bank": "hnb",
+      "merchantName": "Abans",
+      "title": "0% Installments at Abans",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-boc-2-supermarket-debit-only",
+      "bank": "boc",
+      "merchantName": "Cargills Food City",
+      "title": "Cargills Food City",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-sampath-1-supermarket-spend-tier",
+      "bank": "sampath",
+      "merchantName": "Keells Super",
+      "title": "Keells Fresh Produce Savings",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-sampath-3-installments-electronics",
+      "bank": "sampath",
+      "merchantName": "Singer Sri Lanka",
+      "title": "Apple iPhone 0% Installments at Singer",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-dfcc-1-shopping-spend-bounds",
+      "bank": "dfcc",
+      "merchantName": "Singer Mega",
+      "title": "Singer Mega",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-dfcc-3-specific-card-world-tier",
+      "bank": "dfcc",
+      "merchantName": "Galle Face Hotel exclusively for DFCC World Mastercard cardholders",
+      "title": "25% off at Galle Face Hotel exclusively for DFCC World Mastercard cardholders",
+      "originalGoldLabel": "UNRESOLVED",
+      "correctedSourceSupportedLabel": "SINGLE_BRANCH",
+      "sourceEvidenceCitation": "Galle Face Hotel (single historic landmark hotel venue)",
+      "annotationErrorType": "LANDMARK_VENUE_OMISSION",
+      "correctionRationale": "Single landmark hotel establishment identified by unique venue identity without street address."
+    },
+    {
+      "offerId": "holdout-bm-seylan-3-debit-supermarket",
+      "bank": "seylan",
+      "merchantName": "Arpico Supercentre",
+      "title": "Arpico Supercentre",
+      "originalGoldLabel": "UNRESOLVED",
+      "correctedSourceSupportedLabel": "NATIONWIDE",
+      "sourceEvidenceCitation": "Bank scraper metadata location: \"Islandwide\"",
+      "annotationErrorType": "IGNORED_BANK_METADATA",
+      "correctionRationale": "Bank page metadata explicitly specified \"Islandwide\"."
+    },
+    {
+      "offerId": "holdout-bm-peoples-1-supermarket-spend-bounds",
+      "bank": "peoples",
+      "merchantName": "Cargills Food City",
+      "title": "15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500.",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-peoples-2-debit-supermarket",
+      "bank": "peoples",
+      "merchantName": "Glomark Supermarket",
+      "title": "10% off for Peoples Bank Debit Cardholders on fresh fruits & vegetables. Minimum spend Rs. 2,000.",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-peoples-3-installments-electronics",
+      "bank": "peoples",
+      "merchantName": "Abans Electronics",
+      "title": "0% interest installment plans up to 36 months for Peoples Bank Credit Cards. Minimum transaction Rs. 25,000.",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-pabc-1-shopping-spend-bounds",
+      "bank": "pabc",
+      "merchantName": "Nolimit",
+      "title": "20% OFF at Nolimit",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-pabc-2-discount-cap-supermarket",
+      "bank": "pabc",
+      "merchantName": "Softlogic Glomark",
+      "title": "Up to 25% OFF at Softlogic Glomark",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-nsb-1-debit-supercentre",
+      "bank": "nsb",
+      "merchantName": "Arpico Supercentre",
+      "title": "Arpico Supercentre 10% Discount",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-nsb-2-credit-supermarket",
+      "bank": "nsb",
+      "merchantName": "Keells Super",
+      "title": "Keells Super 15% Off",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-bm-combank-2-up-to-supermarket-cap",
+      "bank": "combank",
+      "merchantName": "Keells",
+      "title": "Up to 20% off at Keells with ComBank Visa Signature",
+      "originalGoldLabel": "SINGLE_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "FALLBACK_ADDRESS_POLLUTION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-shared-dfcc-singer",
+      "bank": "dfcc",
+      "merchantName": "Singer Mega",
+      "title": "Singer Mega",
+      "originalGoldLabel": "MULTI_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "SPECULATIVE_CHAIN_EXTRAPOLATION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-shared-peoples-cargills",
+      "bank": "peoples",
+      "merchantName": "Cargills Food City",
+      "title": "15% off for all Peoples Bank Visa and Mastercard Credit Cardholders. Minimum spend Rs. 2,500.",
+      "originalGoldLabel": "MULTI_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "SPECULATIVE_CHAIN_EXTRAPOLATION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-shared-pabc-nolimit",
+      "bank": "pabc",
+      "merchantName": "Nolimit",
+      "title": "20% OFF at Nolimit",
+      "originalGoldLabel": "MULTI_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "SPECULATIVE_CHAIN_EXTRAPOLATION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-shared-nsb-arpico",
+      "bank": "nsb",
+      "merchantName": "Arpico Supercentre",
+      "title": "Arpico Supercentre 10% Discount",
+      "originalGoldLabel": "MULTI_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "SPECULATIVE_CHAIN_EXTRAPOLATION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-dfcc-keells-cap-distinction",
+      "bank": "dfcc",
+      "merchantName": "Keells Super for DFCC Credit Cards",
+      "title": "20% off at Keells Super for DFCC Credit Cards",
+      "originalGoldLabel": "MULTI_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "SPECULATIVE_CHAIN_EXTRAPOLATION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    },
+    {
+      "offerId": "holdout-pabc-glomark-thursdays",
+      "bank": "pabc",
+      "merchantName": "Softlogic Glomark every Thursday",
+      "title": "20% OFF at Softlogic Glomark every Thursday",
+      "originalGoldLabel": "MULTI_BRANCH",
+      "correctedSourceSupportedLabel": "UNRESOLVED",
+      "sourceEvidenceCitation": "Raw bank text contains zero location, branch, or outlet mentions",
+      "annotationErrorType": "SPECULATIVE_CHAIN_EXTRAPOLATION",
+      "correctionRationale": "No geographic or branch evidence present in source text; safe abstention as UNRESOLVED is the only factually grounded label."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-10-29T23:57:42.770Z",
+  "databaseEnvironment": {
+    "provider": "Neon Serverless PostgreSQL (AWS ap-southeast-1)",
+    "databaseName": "neondb",
+    "userRole": "neondb_owner",
+    "classification": "PRODUCTION",
+    "safetyPolicy": "READ_ONLY_INSPECTION_ONLY; MUTATIONS REHEARSED IN ISOLATED PGLITE WASM"
+  },
+  "beforeReconciliation": {
+    "totalOffers": 810,
+    "byLifecycleStatus": {
+      "PUBLISHED": 613,
+      "EXPIRED": 175,
+      "REVIEW_REQUIRED": 19,
+      "APPROVED": 1,
+      "DISABLED": 1,
+      "REJECTED": 1
+    },
+    "activePublished": 613,
+    "expiredPastDuePublished": 6,
+    "totalDuplicates": 1006,
+    "reviewHistoryEntries": 223,
+    "scrapeRuns": 15,
+    "falseCoordinates": 0
+  },
+  "rehearsedCleanupPlan": {
+    "tool": "PGlite WASM Isolated Rehearsal Harness",
+    "actions": [
+      {
+        "action": "SOFT_EXPIRE_PAST_DUE",
+        "description": "Transition published offers past valid_to date to EXPIRED",
+        "affectedRows": 6,
+        "auditLogged": true,
+        "idempotentVerified": true
+      },
+      {
+        "action": "PRESERVE_MANUAL_OVERRIDES",
+        "description": "Preserve offers with operator manual corrections untouched",
+        "affectedRows": 1,
+        "preserved": true
+      },
+      {
+        "action": "PRESERVE_RAW_OFFER_EVIDENCE",
+        "description": "Verify raw_offer JSONB is intact for all rows",
+        "verifiedRows": 810,
+        "missingEvidence": 0
+      }
+    ],
+    "productionSafetyNotice": "Pending operator sign-off before running against live database."
+  },
+  "afterReconciliationProjected": {
+    "totalOffers": 810,
+    "byLifecycleStatus": {
+      "PUBLISHED": 607,
+      "EXPIRED": 181,
+      "REVIEW_REQUIRED": 19,
+      "APPROVED": 1,
+      "DISABLED": 1,
+      "REJECTED": 1
+    },
+    "auditHistoryEntriesProjected": 229
+  }
+}

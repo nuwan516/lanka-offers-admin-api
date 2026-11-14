@@ -1,0 +1,289 @@
+{
+  "totalNonApprovedOffers": 9,
+  "rejectedOffers": [
+    {
+      "index": 26,
+      "id": "nsb-1",
+      "uniqueId": "nsb_spend-and-win-with-your-nsb-mastercard-debit-car",
+      "bank": "nsb",
+      "merchant": "Spend and Win with your NSB Mastercard Debit Card",
+      "title": "Spend and Win with your NSB Mastercard Debit Card!",
+      "sourceUrl": "https://www.nsb.lk/spend-and-win-with-your-nsb-mastercard-debit-card/",
+      "sourceId": "spend-and-win-with-your-nsb-mastercard-debit-card",
+      "rawHash": "e958f9ff344f4e665d230359bb234662bbd6761dc277b96643a7a4acdb740a38",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "MARKETING_CONTAMINATED",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "UNRESOLVED",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      ]
+    },
+    {
+      "index": 28,
+      "id": "nsb-3",
+      "uniqueId": "nsb_enjoy-up-to-50-off-at-christell-wellness-with-yo",
+      "bank": "nsb",
+      "merchant": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card",
+      "title": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card!",
+      "sourceUrl": "https://www.nsb.lk/enjoy-up-to-50-off-at-christell-wellness-with-your-nsb-mastercard-debit-card/",
+      "sourceId": "enjoy-up-to-50-off-at-christell-wellness-with-your-nsb-mastercard-debit-card",
+      "rawHash": "5d12115a46830b639753e2261fe1eea09467c0d4b967c95778d8d746c9e5589e",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "MARKETING_CONTAMINATED",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "UNRESOLVED",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      ]
+    },
+    {
+      "index": 29,
+      "id": "nsb-4",
+      "uniqueId": "nsb_enjoy-a-10-off-at-taru-villas-levita-taru-villas",
+      "bank": "nsb",
+      "merchant": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card",
+      "title": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card!",
+      "sourceUrl": "https://www.nsb.lk/enjoy-a-10-off-at-taru-villas-levita-taru-villas-kandy-with-your-nsb-mastercard-debit-card/",
+      "sourceId": "enjoy-a-10-off-at-taru-villas-levita-taru-villas-kandy-with-your-nsb-mastercard-debit-card",
+      "rawHash": "887b40e520c86db30f593e7044ff9157913c5736323256ae2ffc39ead5a6ce64",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "MARKETING_CONTAMINATED",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "EXPLICIT_BRANCH",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-31 < 2026-10-29)"
+      ]
+    },
+    {
+      "index": 30,
+      "id": "nsb-5",
+      "uniqueId": "nsb_enjoy-a-10-off-at-hayleys-hotels-with-your-nsb-m",
+      "bank": "nsb",
+      "merchant": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card",
+      "title": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card!",
+      "sourceUrl": "https://www.nsb.lk/enjoy-a-10-off-at-hayleys-hotels-with-your-nsb-mastercard-debit-card/",
+      "sourceId": "enjoy-a-10-off-at-hayleys-hotels-with-your-nsb-mastercard-debit-card",
+      "rawHash": "25ca72640005bc0c78d53593b2b4721a5b1b04175389cbd88edefc749f2e7583",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "MARKETING_CONTAMINATED",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods[0]: validFrom (2026-09-04) is after validTo (2025-12-20)",
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-20 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "ONLINE",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods[0]: validFrom (2026-09-04) is after validTo (2025-12-20)",
+        "validityPeriods: Offer is fully expired (latest validTo 2025-12-20 < 2026-10-29)"
+      ]
+    },
+    {
+      "index": 31,
+      "id": "combank-1",
+      "uniqueId": "combank_96213e48a116",
+      "bank": "combank",
+      "merchant": "Save 20% on Cinnamon Life Oktoberfest tickets with your ComBank Credit Card",
+      "title": "Save 20% on Cinnamon Life Oktoberfest tickets with your ComBank Credit Card!",
+      "sourceUrl": "https://www.combank.lk/rewards-promotion/seasonal-offers/save-20-on-cinnamon-life-oktoberfest-tickets-with-your-combank-credit-card",
+      "sourceId": "96213e48a116",
+      "rawHash": "d1e0013c521a5f42ebb00a9d5191a96e4401391bde7a4e1762c5f1af22300210",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "SINGLE_VENUE_EXACT",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods: Offer is fully expired (latest validTo 2026-10-24 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [
+        "merchant: No merchant location or addresses — geocoding will rely on name only"
+      ],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "UNRESOLVED",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods: Offer is fully expired (latest validTo 2026-10-24 < 2026-10-29)"
+      ]
+    },
+    {
+      "index": 32,
+      "id": "combank-2",
+      "uniqueId": "combank_22a64f4c555b",
+      "bank": "combank",
+      "merchant": "Order your favourite food on Uber Eats with ComBank Credit Cards",
+      "title": "Order your favourite food on Uber Eats with ComBank Credit Cards",
+      "sourceUrl": "https://www.combank.lk/rewards-promotion/food-restaurants/order-your-favourite-food-on-uber-eats-with-combank-credit-cards",
+      "sourceId": "22a64f4c555b",
+      "rawHash": "1fe539d18ab1fcc64bc468bec6d9d479e7b78ff9053bdc419e0b48df4187a11f",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "SINGLE_VENUE_EXACT",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [
+        "merchant: No merchant location or addresses — geocoding will rely on name only",
+        "transactionRange: min (2500) > max (750)"
+      ],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "ONLINE",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-29)"
+      ]
+    },
+    {
+      "index": 33,
+      "id": "combank-3",
+      "uniqueId": "combank_e3e5410c444a",
+      "bank": "combank",
+      "merchant": "Order your favourite food on Uber Eats with ComBank Credit and Debit Cards",
+      "title": "Order your favourite food on Uber Eats with ComBank Credit and Debit Cards",
+      "sourceUrl": "https://www.combank.lk/rewards-promotion/food-restaurants/order-your-favourite-food-on-uber-eats-with-combank-credit-and-debit-cards",
+      "sourceId": "e3e5410c444a",
+      "rawHash": "19113788c14ef3d7fd71f8b41744e13c73a71418f97bf6c288850099df1e53d3",
+      "provenanceCategory": "REAL_SCRAPED_SNAPSHOT",
+      "caseType": "SINGLE_VENUE_EXACT",
+      "deterministicValid": false,
+      "deterministicErrors": [
+        "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-29)"
+      ],
+      "deterministicWarnings": [
+        "merchant: No merchant location or addresses — geocoding will rely on name only",
+        "transactionRange: min (1000) > max (650)"
+      ],
+      "llmInvoked": false,
+      "llmModel": null,
+      "llmScore": 0,
+      "toolCallsCount": 0,
+      "fastPathSkippedLlm": true,
+      "locationScope": "ONLINE",
+      "isDuplicate": false,
+      "qualityGateStatus": "INVALID",
+      "finalDbStatus": "REJECTED",
+      "reasons": [
+        "validityPeriods: Offer is fully expired (latest validTo 2026-10-27 < 2026-10-29)"
+      ]
+    }
+  ],
+  "reviewRequiredOffers": [
+    {
+      "index": 39,
+      "id": "ndb-4",
+      "uniqueId": "ndb_ndb-4",
+      "bank": "ndb",
+      "merchant": "Gourmet Bakery",
+      "title": "Gourmet Bakery Discount",
+      "sourceUrl": "https://ndb.lk/promotions/ndb-4",
+      "sourceId": "ndb-4",
+      "rawHash": "76ffb13f2762d97957c472675e0b5aed0d9e220abbb38d916a675fe4fa80a944",
+      "provenanceCategory": "CURATED_REAL_SOURCE",
+      "caseType": "UNRESOLVED_DOT",
+      "deterministicValid": true,
+      "deterministicErrors": [],
+      "deterministicWarnings": [
+        "contentHash: contentHash does not look like a sha256 hex string"
+      ],
+      "llmInvoked": true,
+      "llmModel": "deepseek-flash",
+      "llmScore": 90,
+      "toolCallsCount": 4,
+      "fastPathSkippedLlm": false,
+      "locationScope": "UNRESOLVED",
+      "isDuplicate": false,
+      "qualityGateStatus": "REVIEW_REQUIRED",
+      "finalDbStatus": "REVIEW_REQUIRED",
+      "reasons": [
+        "Geolocation scope requires human review",
+        "contentHash: contentHash does not look like a sha256 hex string"
+      ]
+    },
+    {
+      "index": 46,
+      "id": "pabc-1",
+      "uniqueId": "pabc_pabc-1",
+      "bank": "pabc",
+      "merchant": "The Fortress Resort & Spa",
+      "title": "The Fortress Resort & Spa Koggala",
+      "sourceUrl": "https://pabc.lk/promotions/pabc-1",
+      "sourceId": "pabc-1",
+      "rawHash": "03640cfbe0437f2caa0413707fc38c37a6829c89623bfddd18814bb8deea4e39",
+      "provenanceCategory": "CURATED_REAL_SOURCE",
+      "caseType": "SINGLE_VENUE_EXACT",
+      "deterministicValid": true,
+      "deterministicErrors": [],
+      "deterministicWarnings": [
+        "contentHash: contentHash does not look like a sha256 hex string"
+      ],
+      "llmInvoked": true,
+      "llmModel": "deepseek-flash",
+      "llmScore": 90,
+      "toolCallsCount": 3,
+      "fastPathSkippedLlm": false,
+      "locationScope": "EXPLICIT_BRANCH",
+      "isDuplicate": false,
+      "qualityGateStatus": "REVIEW_REQUIRED",
+      "finalDbStatus": "REVIEW_REQUIRED",
+      "reasons": [
+        "Geolocation scope requires human review",
+        "contentHash: contentHash does not look like a sha256 hex string"
+      ]
+    }
+  ]
+}

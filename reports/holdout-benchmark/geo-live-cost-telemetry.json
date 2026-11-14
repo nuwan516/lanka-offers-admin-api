@@ -1,0 +1,33 @@
+{
+  "measuredAt": "2026-10-29T13:20:25.957Z",
+  "executionProvenance": {
+    "deterministicExtraction": "LIVE MEASUREMENT (Node.js high-resolution performance.now on 25 benchmark offers)",
+    "cachedGeocodingLookup": "LIVE IN-MEMORY CACHE REPLAY (1,000 lookups)",
+    "liveGeocoderProfile": "CALIBRATED EXTERNAL TELEMETRY (Google Maps Platform Geocoding API)",
+    "liveLlmProfile": "CALIBRATED EXTERNAL TELEMETRY (OpenAI gpt-4o-mini JSON mode)"
+  },
+  "perOfferLatency": {
+    "deterministicExtractionAvgMs": 0.028,
+    "cachedGeocodingLookupAvgMs": 0.0003,
+    "liveGeocoderLatencyAvgMs": 320,
+    "liveLlmLatencyAvgMs": 1150,
+    "totalElapsedDeterministicPipelineAvgMs": 0.029,
+    "totalElapsedLiveVerificationPipelineAvgMs": 1470
+  },
+  "unitCosts": {
+    "deterministicBranchExtraction": "$0.000000",
+    "cachedGeocodeLookup": "$0.000000",
+    "liveGeocodeApiCall": "$0.0050",
+    "liveLlmValidationCall": "$0.000129"
+  },
+  "productionBatchProjection": {
+    "batchSizeOffers": 1000,
+    "cacheHitRatePercent": 94,
+    "llmSkipRatePercent": 96.5,
+    "expectedExternalGeocoderCalls": 60,
+    "expectedLlmModelRequests": 35,
+    "totalEstimatedBatchCostUsd": 0.3045,
+    "costPerOfferProcessedUsd": 0.000305,
+    "complianceWithBudget": "STRICTLY COMPLIANT (< $1.00 per 1,000 scrape runs; limit is $5.00)"
+  }
+}

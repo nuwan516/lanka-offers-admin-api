@@ -18,6 +18,47 @@ function buildChainQuery(merchantName: string, addr: string): string {
   return addr;
 }
 
+// ─── City extraction helper for concatenated city lists ─────────────────────
+
+export function extractCitiesFromLocationString(text: string): string[] {
+  if (!text) return [];
+  // Strip bank names to prevent "Hatton National Bank" matching "hatton"
+  const clean = text
+    .replace(/\b(?:Hatton\s+National\s+Bank|Bank\s+of\s+Ceylon|Commercial\s+Bank|People'?s\s+Bank|HNB|BOC|NDB|DFCC|PABC|NSB)\b/gi, ' ')
+    .replace(/https?:\/\/[^\s]+/gi, ' ')
+    .replace(/[,\-–—/|&]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+
+  const tokens = clean.split(' ');
+  const matched: string[] = [];
+
+  let i = 0;
+  while (i < tokens.length) {
+    if (i + 1 < tokens.length) {
+      const two = `${tokens[i]} ${tokens[i + 1]}`;
+      if (SRI_LANKAN_CITIES.includes(two)) {
+        const canonical = two
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+        if (!matched.includes(canonical)) matched.push(canonical);
+        i += 2;
+        continue;
+      }
+    }
+    if (SRI_LANKAN_CITIES.includes(tokens[i])) {
+      const canonical = tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
+      if (!matched.includes(canonical)) matched.push(canonical);
+      i += 1;
+      continue;
+    }
+    i += 1;
+  }
+  return matched;
+}
+
 // ─── Classifier ───────────────────────────────────────────────────────────────
 
 /**
@@ -49,6 +90,18 @@ export function classify(locData: LocationData): LocationClassification {
       return { type: LocationType.SINGLE, addresses: branches, chainQuery: null, merchantForSearch: name };
     }
     return { type: LocationType.LISTED, addresses: branches, chainQuery: null, merchantForSearch: name };
+  }
+
+  // ── 1b. Concatenated town splitting: when multiple distinct cities are listed in location/address ──
+  if (!addresses || addresses.length <= 1) {
+    const rawCandidate = location ?? address ?? (addresses && addresses.length === 1 ? addresses[0] : null);
+    if (rawCandidate) {
+      const detectedCities = extractCitiesFromLocationString(rawCandidate);
+      if (detectedCities.length > 1) {
+        const splitBranches = detectedCities.map((c) => `${c}, Sri Lanka`);
+        return { type: LocationType.LISTED, addresses: splitBranches, chainQuery: null, merchantForSearch: name };
+      }
+    }
   }
 
   // ── 2. ONLINE: URL location, domain-style name, campaign, or known

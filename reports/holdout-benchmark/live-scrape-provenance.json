@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-10-30T15:38:10.251Z",
+  "provenanceRecords": [
+    {
+      "bank": "hnb",
+      "sourceUrl": "https://venus.hnb.lk/api/get_all_web_card_promos?page=1&cardType=all",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:37:45.469Z",
+      "snapshotHash": "1aab13309af23aacb46d112c0e4ec820bb0fa608897811f47323d31dcec01181",
+      "layoutVerified": true
+    },
+    {
+      "bank": "sampath",
+      "sourceUrl": "https://www.sampath.lk/sampath-cards/credit-card-offer",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:37:52.395Z",
+      "snapshotHash": "224e2106702c28884d04ab799b568ef3e9450a84ee2a24e8e9fcf05c59da4a06",
+      "layoutVerified": true
+    },
+    {
+      "bank": "boc",
+      "sourceUrl": "https://www.boc.lk/personal-banking/card-offers",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:37:56.228Z",
+      "snapshotHash": "47c729fa65c4592b8e75304d5983e5a12c8f849765e1dadaf657d451a37339e1",
+      "layoutVerified": true
+    },
+    {
+      "bank": "peoples",
+      "sourceUrl": "https://www.peoplesbank.lk/special-offers/",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:38:02.479Z",
+      "snapshotHash": "e8efd66ce0bd05a32bb9c298e19ebeedd0cdab71f174d1974f412ffcee2fe99f",
+      "layoutVerified": true
+    },
+    {
+      "bank": "seylan",
+      "sourceUrl": "https://www.seylan.lk/promotions/cards",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:38:04.689Z",
+      "snapshotHash": "3b9aa4769415aa9d5f765d3bae84fa0340e74f482941d530352153cb78035d5c",
+      "layoutVerified": true
+    },
+    {
+      "bank": "ndb",
+      "sourceUrl": "https://www.ndbbank.com/cards/card-offers",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:38:05.655Z",
+      "snapshotHash": "857554d25afb39afd7d30ef2d7f8736cf5883224842e8d3413a6a70c38ae3644",
+      "layoutVerified": true
+    },
+    {
+      "bank": "dfcc",
+      "sourceUrl": "https://www.dfcc.lk/dfcc-card-offers/today-promotions",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:38:07.431Z",
+      "snapshotHash": "c08617923b9e99850b470b0452bcd6630228763763d07aaa9d03857546b755f7",
+      "layoutVerified": true
+    },
+    {
+      "bank": "pabc",
+      "sourceUrl": "https://www.pabcbank.com/card-offers/",
+      "captureMode": "CACHED_REPLAY",
+      "httpStatus": 307,
+      "capturedAt": "2026-10-30T15:38:07.938Z",
+      "snapshotHash": "44484a360804ac7bfce8b8e44c11331d9f74c2fb2f2ca3590735e19c2ce1fb00",
+      "layoutVerified": false
+    },
+    {
+      "bank": "nsb",
+      "sourceUrl": "https://www.nsb.lk/category/card-offers/",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:38:08.670Z",
+      "snapshotHash": "7ebef6f1ac21c7e626c0704e2186e065bfcc5b2554b51c844a6770c50b81301b",
+      "layoutVerified": true
+    },
+    {
+      "bank": "combank",
+      "sourceUrl": "https://www.combank.lk/rewards-promotions",
+      "captureMode": "LIVE_CAPTURE",
+      "httpStatus": 200,
+      "capturedAt": "2026-10-30T15:38:10.037Z",
+      "snapshotHash": "67d6d22ba9ff55db67e843d64f8750cb9c628e3269bec0c16925ec49a7515ed4",
+      "layoutVerified": true
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "updatedAt": "2026-10-29T08:25:00.000Z",
+  "system": "Lanka Offers Location Scope Domain Service",
+  "affectedFile": "src/domain/location-scope.ts",
+  "ruleChanges": [
+    {
+      "ruleId": "GEO-RULE-01",
+      "ruleName": "Decoupled Geographic and Venue Representation",
+      "previousBehavior": "LocationScopeResult only contained scope, region, rawEvidence, explanation, and isGeocodableToCoordinates boolean.",
+      "updatedBehavior": "Added decoupled semantic dimensions: venueIdentity ('SINGLE_CONCRETE_VENUE' | 'MULTI_VENUE_CHAIN' | 'ONLINE_ONLY' | 'UNRESOLVED_VENUE'), addressPrecision ('EXACT_STREET_ADDRESS' | 'VENUE_NAME_ONLY' | 'MALL_OR_COMPLEX' | 'CITY_OR_DISTRICT_ONLY' | 'NO_ADDRESS'), coordinateConfidence ('VERIFIED_COORDINATES' | 'GEOCODABLE' | 'NOT_GEOCODABLE'), participatingBranchesCount, and participatingBranches array.",
+      "rationale": "Separates where an offer applies (geographic scope), what merchant is named (venue identity), how complete the address is (address precision), and whether a map pin is justified (coordinate confidence).",
+      "invariantsPreserved": ["Invariant #4: No false location precision", "Public API contract backward compatibility"]
+    },
+    {
+      "ruleId": "GEO-RULE-02",
+      "ruleName": "Elimination of Hotel Brand Single-Branch Shortcut",
+      "previousBehavior": "Merchant names containing hotel keywords ('Jetwing', 'Cinnamon', etc.) automatically triggered EXPLICIT_BRANCH single venue classification even when referring to chains with multiple resorts.",
+      "updatedBehavior": "Recognizes hotel brand chains (e.g. 'Jetwing Hotels', 'Cinnamon Hotels', 'Hayleys Hotels') as MULTI_VENUE_CHAIN. When multiple properties are named in the evidence (e.g. 'Jetwing Blue, Jetwing Beach, Jetwing Lighthouse'), classifies as MULTIPLE_BRANCHES. Requires explicit venue or branch name for EXPLICIT_BRANCH.",
+      "rationale": "Prevents collapsing multi-resort campaigns into a single branch, ensuring accurate branch counts and preventing false geocodes.",
+      "invariantsPreserved": ["Invariant #4: No false location precision"]
+    },
+    {
+      "ruleId": "GEO-RULE-03",
+      "ruleName": "Multi-City Branch Extraction from Source Text and Location",
+      "previousBehavior": "Only recognized multiple branches if the addresses array had length > 1 or location contained ';' or ' / '. Missed comma-separated city lists.",
+      "updatedBehavior": "Inspects location string and description for comma-separated or 'and'-separated Sri Lankan cities (e.g. 'Negombo, Galle, Yala' or 'at Odel Colombo, Kandy and Galle branches'). When 2 or more cities are identified in a branch context, extracts them as participating branches and classifies as MULTIPLE_BRANCHES.",
+      "rationale": "Recovers multiple-branch campaigns that were previously misclassified as UNRESOLVED or single EXPLICIT_BRANCH.",
+      "invariantsPreserved": ["Evidence-backed branch extraction"]
+    },
+    {
+      "ruleId": "GEO-RULE-04",
+      "ruleName": "Multi-Branch Retail Chain Conservative Abstention",
+      "previousBehavior": "In benchmark evaluation, multi-branch supermarket chains without address evidence fell back to SINGLE_BRANCH or NATIONWIDE.",
+      "updatedBehavior": "When a known retail chain (Cargills Food City, Keells Super, Glomark, Arpico, Abans, Singer Mega, Nolimit, etc.) has zero location or branch evidence in the bank source, strictly classifies as UNRESOLVED with venueIdentity 'MULTI_VENUE_CHAIN' and addressPrecision 'NO_ADDRESS'. Does not infer NATIONWIDE without explicit 'islandwide' or 'all outlets' evidence.",
+      "rationale": "Upholds core principle: 'Never create geographic or merchant certainty that the source evidence does not support.'",
+      "invariantsPreserved": ["Invariant #4: No false location precision", "Conservative abstention"]
+    },
+    {
+      "ruleId": "GEO-RULE-05",
+      "ruleName": "Scraper Location Noise Filtering",
+      "previousBehavior": "Raw scraper strings containing single punctuation characters ('.', '-') or card eligibility text ('both Debit and Credit Cards') were treated as valid location strings, triggering false branch extraction.",
+      "updatedBehavior": "Filters out '.', '-', and card-eligibility phrases from the location string before evaluation.",
+      "rationale": "Prevents scraper parsing noise from fabricating physical venues.",
+      "invariantsPreserved": ["Data hygiene and validation safety"]
+    },
+    {
+      "ruleId": "GEO-RULE-06",
+      "ruleName": "Map Pin Coordinate Gate (Exact Street vs Landmark Venue)",
+      "previousBehavior": "isGeocodableToCoordinates was occasionally set to true for venues without street addresses.",
+      "updatedBehavior": "isGeocodableToCoordinates is set to true ONLY when verified coordinates exist (hasGeom) or when an exact street address / shopping mall is present. Named venues without street address (e.g. 'Hibiscus Beach Hotel', 'Hillcrest Ella', 'The Kingsbury') receive isGeocodableToCoordinates: false and coordinateConfidence: 'NOT_GEOCODABLE'.",
+      "rationale": "Guarantees that consumer mobile/web apps never place a speculative map pin in the middle of a city when only a venue name is known.",
+      "invariantsPreserved": ["Invariant #4: No false location precision"]
+    }
+  ]
+}

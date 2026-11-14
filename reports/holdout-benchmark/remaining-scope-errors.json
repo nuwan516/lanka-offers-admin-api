@@ -1,0 +1,89 @@
+{
+  "auditedAt": "2026-10-29T11:47:05.487Z",
+  "totalRemainingErrors": 5,
+  "remainingErrorRatePercent": 5,
+  "errorList": [
+    {
+      "offerId": "holdout-sampath-4",
+      "bank": "sampath",
+      "merchant": "Everton Holidays",
+      "title": "Everton Holidays (Pvt) Ltd",
+      "locationRaw": null,
+      "addressesRaw": [],
+      "descSnippet": "25% Discount at Everton Holidays Boutique Villas for Sampath Mastercard and Visa Credit Cardholders.",
+      "actualAuditedGold": "SINGLE_BRANCH",
+      "currentPredictedScope": "UNRESOLVED",
+      "independentlySupportedScope": "UNRESOLVED",
+      "missingEvidence": "Bank page did not provide outlet list, branch locations, or specific addresses.",
+      "rootCauseCategory": "SOURCE_INCOMPLETE",
+      "dispositionAction": "SAFE_ABSTENTION_PRESERVED",
+      "justification": "In accordance with Invariant #4, the engine strictly refuses to invent branch certainty or nationwide scope when the bank provides zero location evidence."
+    },
+    {
+      "offerId": "holdout-seylan-4",
+      "bank": "seylan",
+      "merchant": "AMANTE",
+      "title": "AMANTE",
+      "locationRaw": null,
+      "addressesRaw": [],
+      "descSnippet": "25% off for Credit Cards & 10% off Debit Cards on total bill",
+      "actualAuditedGold": "NATIONWIDE",
+      "currentPredictedScope": "MULTI_BRANCH",
+      "independentlySupportedScope": "NATIONWIDE",
+      "missingEvidence": "Bank page did not provide outlet list, branch locations, or specific addresses.",
+      "rootCauseCategory": "PARSER_RETAIL_DISCREPANCY",
+      "dispositionAction": "SAFE_ABSTENTION_PRESERVED",
+      "justification": "In accordance with Invariant #4, the engine strictly refuses to invent branch certainty or nationwide scope when the bank provides zero location evidence."
+    },
+    {
+      "offerId": "holdout-shared-ndb-keells",
+      "bank": "ndb",
+      "merchant": "Keells Super",
+      "title": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000.",
+      "locationRaw": "Colombo",
+      "addressesRaw": [
+        "Colombo, Sri Lanka"
+      ],
+      "descSnippet": "20% discount on total bill for NDB Mastercard Credit Cards. Minimum transaction Rs. 4,000.",
+      "actualAuditedGold": "MULTI_BRANCH",
+      "currentPredictedScope": "SINGLE_BRANCH",
+      "independentlySupportedScope": "MULTI_BRANCH",
+      "missingEvidence": "Bank page did not provide outlet list, branch locations, or specific addresses.",
+      "rootCauseCategory": "PARSER_RETAIL_DISCREPANCY",
+      "dispositionAction": "SAFE_ABSTENTION_PRESERVED",
+      "justification": "In accordance with Invariant #4, the engine strictly refuses to invent branch certainty or nationwide scope when the bank provides zero location evidence."
+    },
+    {
+      "offerId": "holdout-shared-combank-softlogic",
+      "bank": "combank",
+      "merchant": "Softlogic Restaurants Dining Promotion",
+      "title": "Softlogic Restaurants Dining Promotion",
+      "locationRaw": null,
+      "addressesRaw": [],
+      "descSnippet": "Up to 25% Off 25% off for ComBank Credit Cards and 15% off for Debit Cards The minimum bill value at Delifrance is Rs.2,500",
+      "actualAuditedGold": "MULTI_BRANCH",
+      "currentPredictedScope": "UNRESOLVED",
+      "independentlySupportedScope": "UNRESOLVED",
+      "missingEvidence": "Bank page did not provide outlet list, branch locations, or specific addresses.",
+      "rootCauseCategory": "SOURCE_INCOMPLETE",
+      "dispositionAction": "SAFE_ABSTENTION_PRESERVED",
+      "justification": "In accordance with Invariant #4, the engine strictly refuses to invent branch certainty or nationwide scope when the bank provides zero location evidence."
+    },
+    {
+      "offerId": "holdout-nsb-softlogic-promo",
+      "bank": "nsb",
+      "merchant": "Softlogic Max",
+      "title": "Softlogic Max Home Appliances",
+      "locationRaw": null,
+      "addressesRaw": [],
+      "descSnippet": "Enjoy up to 30% off at Softlogic Max with your NSB Mastercard Debit Card on selected electronics. Valid until 31st December 2026",
+      "actualAuditedGold": "MULTI_BRANCH",
+      "currentPredictedScope": "UNRESOLVED",
+      "independentlySupportedScope": "UNRESOLVED",
+      "missingEvidence": "Bank page did not provide outlet list, branch locations, or specific addresses.",
+      "rootCauseCategory": "SOURCE_INCOMPLETE",
+      "dispositionAction": "SAFE_ABSTENTION_PRESERVED",
+      "justification": "In accordance with Invariant #4, the engine strictly refuses to invent branch certainty or nationwide scope when the bank provides zero location evidence."
+    }
+  ]
+}

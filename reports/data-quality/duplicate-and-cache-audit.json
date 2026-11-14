@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-10-30T05:46:53.218Z",
+  "auditScope": "Content Hash, Duplication Detection, and Caching Mechanisms",
+  "results": {
+    "contentHash": {
+      "totalEvaluated": 50,
+      "determinismPassRatePct": 100,
+      "whitespaceInvariance": true,
+      "businessFieldSensitivity": true,
+      "format": "SHA-256 (64 hex characters)",
+      "status": "PASSED"
+    },
+    "duplicateDetection": {
+      "exactDuplicateScore": 95,
+      "exactDuplicateClassification": "EXACT_DUPLICATE",
+      "sameMerchantSameAddressScore": 91,
+      "sameMerchantDifferentAddressScore": 87,
+      "addressDisambiguationVerified": true,
+      "inFlightDedupeResult": {
+        "itemsInput": 4,
+        "itemsRetained": 2,
+        "duplicatesRemoved": 2
+      },
+      "status": "PASSED"
+    },
+    "llmValidationCacheGate": {
+      "reusedOnIdenticalHash": true,
+      "invalidatedOnModifiedHash": true,
+      "zeroCostGateCompliant": true,
+      "status": "PASSED"
+    },
+    "geoCache": {
+      "keyNormalizationTested": true,
+      "algorithm": "MD5 on whitespace-trimmed lowercase query with Sri Lanka bounds",
+      "placesTtlDays": 60,
+      "geocodeTtl": "Permanent (addresses do not move)",
+      "status": "PASSED"
+    }
+  }
+}

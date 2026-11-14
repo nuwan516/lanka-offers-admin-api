@@ -1,0 +1,21 @@
+{
+  "funnelName": "Funnel B — Branch Extraction Coverage",
+  "evaluatedAt": "2026-10-29T13:18:03.635Z",
+  "description": "Measures how many source-documented participating branches the scraper correctly extracts and normalizes from bank promotion evidence.",
+  "populationDefinition": "Source-documented branches present in bank text (60 branches across 25 promotions).",
+  "metrics": {
+    "sourceDocumentedBranches": 60,
+    "extractedBranchesCount": 60,
+    "truePositives": 60,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "precisionPercent": 100,
+    "recallPercent": 100,
+    "exactDenominator": 60
+  },
+  "baselineComparison": {
+    "baselineRecallPercent": 46.67,
+    "updatedRecallPercent": 100,
+    "recoveredBranchesCount": 32
+  }
+}

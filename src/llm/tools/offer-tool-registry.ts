@@ -238,7 +238,34 @@ export const OFFER_TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
 
-  // ─── G. Validation Tools ────────────────────────────────────────────────────
+  // ─── G. Geographic Scope Tools ─────────────────────────────────────────────
+  {
+    name: 'resolve_geographic_scope',
+    description: 'Deterministically evaluates location scope, venue identity, address precision, and coordinate confidence from evidence.',
+    parameters: {
+      type: 'object',
+      properties: {
+        text: { type: 'string', description: 'Offer title or description text containing branch information' },
+        merchantName: { type: 'string', description: 'Candidate merchant name' },
+        locationString: { type: 'string', description: 'Raw location string from scraper' },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'extract_participating_branches',
+    description: 'Parses outlet lists, mall references, or comma-separated city branches from source text.',
+    parameters: {
+      type: 'object',
+      properties: {
+        text: { type: 'string', description: 'Text containing participating branch list' },
+        merchantName: { type: 'string', description: 'Merchant name for prefixing' },
+      },
+      required: ['text'],
+    },
+  },
+
+  // ─── H. Validation Tools ────────────────────────────────────────────────────
   {
     name: 'validate_offer_schema',
     description: 'Runs Zod schema check on candidate offer object to detect missing required fields.',
@@ -284,6 +311,135 @@ export const OFFER_TOOL_DEFINITIONS: ToolDefinition[] = [
         proposal: { type: 'string', description: 'JSON string of FullOfferValidationProposal' },
       },
       required: ['proposal'],
+    },
+  },
+];
+
+/**
+ * Compact 6-tool allowlisted registry (Phase 2 & 3).
+ * Drastically reduces prompt tokens (~600 tokens vs ~3,500 tokens for 25 tools)
+ * while providing complete coverage for source inspection, merchant lookup,
+ * bank rules, duplicate detection, and differential decision submission.
+ */
+export const COMPACT_OFFER_TOOL_DEFINITIONS: ToolDefinition[] = [
+  {
+    name: 'search_source_evidence',
+    description: 'Searches source text for relevant keywords or phrases and returns matching snippets with IDs.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Keyword or phrase to search (e.g. "discount", "minimum", "expiry", "card")' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'get_source_section',
+    description: 'Retrieves a bounded snippet of source content (title, description, terms, validity, merchant).',
+    parameters: {
+      type: 'object',
+      properties: {
+        section: {
+          type: 'string',
+          description: 'Section to retrieve',
+          enum: ['title', 'description', 'terms', 'validity', 'merchant'],
+        },
+      },
+      required: ['section'],
+    },
+  },
+  {
+    name: 'lookup_merchant_catalog',
+    description: 'Searches platform merchant catalog and normalizes Sri Lankan merchant brand names.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Merchant name or fragment to search' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'query_bank_rules',
+    description: 'Retrieves bank-specific rules for card eligibility, debit vs credit, and installment policies.',
+    parameters: {
+      type: 'object',
+      properties: {
+        bankCode: { type: 'string', description: 'Bank code (e.g. "hnb", "seylan", "peoples", "ndb")' },
+        topic: { type: 'string', description: 'Topic to check (e.g. "cards", "installments", "min_spend")' },
+      },
+      required: ['bankCode'],
+    },
+  },
+  {
+    name: 'check_potential_duplicate',
+    description: 'Checks candidate offer against existing stored offers to detect duplicates or renewed campaigns.',
+    parameters: {
+      type: 'object',
+      properties: {
+        candidateTitle: { type: 'string', description: 'Candidate offer title' },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'resolve_geographic_scope',
+    description: 'Deterministically evaluates location scope, venue identity, address precision, and coordinate confidence from evidence.',
+    parameters: {
+      type: 'object',
+      properties: {
+        text: { type: 'string', description: 'Offer title or description text containing branch information' },
+        merchantName: { type: 'string', description: 'Candidate merchant name' },
+        locationString: { type: 'string', description: 'Raw location string from scraper' },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'submit_validation_decision',
+    description: 'Submits the final differential validation decision (ACCEPT, CORRECT, or REVIEW_REQUIRED) with targeted field corrections.',
+    parameters: {
+      type: 'object',
+      properties: {
+        decision: {
+          type: 'string',
+          enum: ['ACCEPT', 'CORRECT', 'REVIEW_REQUIRED'],
+          description: 'Overall validation decision',
+        },
+        overallScore: {
+          type: 'number',
+          description: 'Quality score 0-100',
+        },
+        corrections: {
+          type: 'array',
+          description: 'Targeted field corrections (only for fields needing changes)',
+          items: {
+            type: 'object',
+            properties: {
+              fieldPath: { type: 'string', description: 'Dot-path in offer, e.g. "offer.discountPercentage", "merchant.name"' },
+              proposedValue: { type: 'string', description: 'Corrected value (as string or JSON-encoded value)' },
+              originalValue: { type: 'string', description: 'Original value being corrected' },
+              evidenceIds: { type: 'array', items: { type: 'string' }, description: 'Snippet IDs proving this correction' },
+              reason: { type: 'string', description: 'Justification citing source evidence' },
+            },
+          },
+        },
+        unresolvedIssues: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'List of remaining ambiguities if decision is REVIEW_REQUIRED',
+        },
+        summaryReasoning: {
+          type: 'string',
+          description: 'Concise summary of findings citing source evidence',
+        },
+        locationScope: {
+          type: 'string',
+          enum: ['ONLINE', 'NATIONWIDE', 'EXPLICIT_BRANCH', 'MULTIPLE_BRANCHES', 'AREA_ONLY', 'UNRESOLVED'],
+          description: 'Validated location scope',
+        },
+      },
+      required: ['decision', 'summaryReasoning'],
     },
   },
 ];

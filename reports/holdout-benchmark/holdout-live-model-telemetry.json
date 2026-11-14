@@ -1,0 +1,701 @@
+{
+  "evaluatedAt": "2026-10-29T07:45:20.387Z",
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "totalCasesEvaluated": 4,
+  "totalHttpRequests": 16,
+  "totalToolCalls": 49,
+  "totalInputTokens": 42080,
+  "totalOutputTokens": 5984,
+  "totalCostUsd": 0.007567,
+  "averageLatencyMs": 11300,
+  "zodValidationPassRate": 100,
+  "patchAcceptanceRate": 100,
+  "sessions": [
+    {
+      "offerId": "holdout-nsb-softlogic-promo",
+      "bank": "nsb",
+      "title": "Softlogic Max Home Appliances",
+      "merchantName": "Softlogic Max",
+      "ambiguityType": "Marketing headline prepended to merchant name & discount (\"Enjoy up to 30% off at Softlogic Max with your NSB Mastercard Debit Card\")",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "realHttpRequests": 5,
+      "validationAttempts": 1,
+      "toolCallsExecuted": 10,
+      "toolExecutionHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 1
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Softlogic Max"
+          },
+          "durationMs": 1
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "nsb",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "Softlogic Max Home Appliances"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to 30%"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 82,
+            "locationScope": "UNRESOLVED",
+            "corrections": [
+              {
+                "fieldPath": "offer.isUpTo",
+                "proposedValue": "true",
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-rest-1",
+                  "ev-raw-1"
+                ],
+                "reason": "Source literally states \"Enjoy up to 30% off\" (ev-desc/ev-raw-1) and terms confirm \"Discount is 'up to' the stated percentage, may vary by item/venue\" (ev-rest-1). Per invariant #8, isUpTo must be true since the bank's description literally uses \"up to\"."
+              },
+              {
+                "fieldPath": "offer.discountPercentage",
+                "proposedValue": "30",
+                "originalValue": "30",
+                "evidenceIds": [
+                  "ev-desc"
+                ],
+                "reason": "30% is confirmed in source (\"up to 30% off\"). Value is correct but must be flagged as a maximum/up-to cap, not a flat discount. No numeric change required; retained for clarity."
+              }
+            ],
+            "summaryReasoning": "The 30% discount is directly supported by ev-desc and ev-raw-1 (\\\"Enjoy up to 30% off at Softlogic Max with your NSB Mastercard Debit Card on selected electronics\\\"). The validity period (validTo 2026-12-31) matches ev-validity-1/ev-gen-2 (\\\"Valid until 31st December 2026\\\"). The key correction is that the offer must be marked isUpTo=true because the source literally uses \\\"up to\\\" (ev-desc, ev-rest-1), per invariant #8. The discount is a maximum cap, not a flat 30%. Merchant \\\"Softlogic Max\\\" could not be verified in the catalog (no matches returned), and no branch addresses were provided in source, so location scope remains UNRESOLVED. No fabricated coordinates were inserted. Card eligibility (NSB Mastercard Debit) is stated in the description but bank rules could not be cross-checked due to tool limits.",
+            "unresolvedIssues": [
+              "Merchant \"Softlogic Max\" not found in platform catalog — identity unverified",
+              "Location scope unresolved: source provides no branch addresses or online/nationwide designation",
+              "NSB card eligibility rules (Mastercard Debit) could not be cross-verified against bank rules"
+            ]
+          },
+          "durationMs": 5
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 82,
+            "locationScope": "UNRESOLVED",
+            "corrections": [
+              {
+                "fieldPath": "offer.restrictions",
+                "proposedValue": "Discount is \"up to\" 30% (maximum cap), may vary by item/venue; valid on selected electronics only",
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-rest-1",
+                  "ev-raw-1"
+                ],
+                "reason": "Source literally states \"Enjoy up to 30% off\" (ev-desc/ev-raw-1) and terms confirm \"Discount is 'up to' the stated percentage, may vary by item/venue\" (ev-rest-1). Per invariant #8, the 30% must be represented as an up-to maximum cap, not a flat discount, and restricted to selected electronics."
+              },
+              {
+                "fieldPath": "offer.applicableCards",
+                "proposedValue": "NSB Mastercard Debit Card",
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-raw-1"
+                ],
+                "reason": "Source specifies \"with your NSB Mastercard Debit Card\" (ev-desc/ev-raw-1). Card eligibility should be captured explicitly."
+              }
+            ],
+            "summaryReasoning": "The 30% discount is directly supported by ev-desc and ev-raw-1 (\\\"Enjoy up to 30% off at Softlogic Max with your NSB Mastercard Debit Card on selected electronics\\\"). The validity period (validTo 2026-12-31) matches ev-validity-1/ev-gen-2 (\\\"Valid until 31st December 2026\\\"). The key correction is that the 30% must be represented as an \\\"up to\\\" maximum cap (ev-desc, ev-rest-1), per invariant #8, and restricted to selected electronics. Merchant \\\"Softlogic Max\\\" could not be verified in the catalog (no matches returned), and no branch addresses were provided in source, so location scope remains UNRESOLVED. No fabricated coordinates were inserted.",
+            "unresolvedIssues": [
+              "Merchant \"Softlogic Max\" not found in platform catalog — identity unverified",
+              "Location scope unresolved: source provides no branch addresses or online/nationwide designation",
+              "NSB card eligibility rules (Mastercard Debit) could not be cross-verified against bank rules due to tool limits"
+            ]
+          },
+          "durationMs": 1
+        }
+      ],
+      "inputTokens": 12890,
+      "outputTokens": 1549,
+      "totalLatencyMs": 11438,
+      "actualCostUsd": 0.0022383200000000002,
+      "costLabel": "DeepSeek v3 ($0.14/M in, $0.28/M out) = $0.002238",
+      "schemaValidationOutcome": "PASSED",
+      "proposedPatchesCount": 2,
+      "acceptedPatchesCount": 2,
+      "rejectedPatchesCount": 0,
+      "acceptedPatches": [
+        {
+          "fieldPath": "offer.restrictions",
+          "proposedValue": "Discount is \"up to\" 30% (maximum cap), may vary by item/venue; valid on selected electronics only",
+          "reason": "Source literally states \"Enjoy up to 30% off\" (ev-desc/ev-raw-1) and terms confirm \"Discount is 'up to' the stated percentage, may vary by item/venue\" (ev-rest-1). Per invariant #8, the 30% must be represented as an up-to maximum cap, not a flat discount, and restricted to selected electronics."
+        },
+        {
+          "fieldPath": "offer.applicableCards",
+          "proposedValue": "NSB Mastercard Debit Card",
+          "reason": "Source specifies \"with your NSB Mastercard Debit Card\" (ev-desc/ev-raw-1). Card eligibility should be captured explicitly."
+        }
+      ],
+      "rejectedPatches": [],
+      "independentFactualAssessment": {
+        "merchantAttributionGrounded": true,
+        "financialSemanticsPreserved": true,
+        "dateAccuracyPreserved": true,
+        "zeroFabricatedClaims": true
+      },
+      "finalStagingDecision": "STAGED_AUTO_APPROVE"
+    },
+    {
+      "offerId": "holdout-dfcc-keells-cap-distinction",
+      "bank": "dfcc",
+      "title": "20% off at Keells Super for DFCC Credit Cards",
+      "merchantName": "Keells Super for DFCC Credit Cards",
+      "ambiguityType": "Disentangling maximum discount cap (Rs. 2,000) from minimum spend (Rs. 3,500) without fabricating maximum spend limit",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "realHttpRequests": 4,
+      "validationAttempts": 1,
+      "toolCallsExecuted": 13,
+      "toolExecutionHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "title"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "maximum discount"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "fresh produce"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Keells Super"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "dfcc",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "20% off at Keells Super for DFCC Credit Cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 72,
+            "corrections": [
+              {
+                "fieldPath": "merchantName",
+                "proposedValue": "Keells Super",
+                "originalValue": "Keells Super for DFCC Credit Cards",
+                "evidenceIds": [
+                  "ev-title",
+                  "ev-desc"
+                ],
+                "reason": "The merchant is 'Keells Super'; 'for DFCC Credit Cards' is a card-eligibility qualifier, not part of the merchant name. Both title and description refer to 'Keells Super' as the merchant."
+              },
+              {
+                "fieldPath": "offer.discountCap",
+                "proposedValue": 2000,
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-desc"
+                ],
+                "reason": "Description explicitly states 'Maximum discount Rs. 2,000', which is a discount cap that must be captured. The candidate omitted this cap."
+              },
+              {
+                "fieldPath": "offer.discountScope",
+                "proposedValue": "fresh produce",
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-desc"
+                ],
+                "reason": "Description states '20% off on fresh produce at Keells Super' — the discount applies only to fresh produce, not the entire store. This scope qualifier is missing from the candidate."
+              }
+            ],
+            "summaryReasoning": "The 20% discount, minimum spend of Rs. 3,500, and validity till 31 December 2026 are all directly supported by the source (ev-desc, ev-validity-1). However, three issues require correction: (1) the merchantName incorrectly embeds the card qualifier 'for DFCC Credit Cards' — the merchant is simply 'Keells Super'; (2) the description states a 'Maximum discount Rs. 2,000' cap that was omitted from the candidate; (3) the discount applies specifically to 'fresh produce', a scope qualifier missing from the candidate. Note: the title/description do not literally say 'up to', so isUpTo should remain false despite the cap. The validity start date (2026-10-29) is not evidenced in the retrieved snippets and could not be verified within the tool budget.",
+            "locationScope": "UNRESOLVED"
+          },
+          "durationMs": 1
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 72,
+            "corrections": [
+              {
+                "fieldPath": "merchant.name",
+                "proposedValue": "Keells Super",
+                "originalValue": "Keells Super for DFCC Credit Cards",
+                "evidenceIds": [
+                  "ev-title",
+                  "ev-desc"
+                ],
+                "reason": "The merchant is 'Keells Super'; 'for DFCC Credit Cards' is a card-eligibility qualifier, not part of the merchant name. Both title and description refer to 'Keells Super' as the merchant."
+              },
+              {
+                "fieldPath": "offer.restrictions",
+                "proposedValue": "Maximum discount Rs. 2,000. Discount applies to fresh produce only.",
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-desc"
+                ],
+                "reason": "Description explicitly states 'Maximum discount Rs. 2,000' and '20% off on fresh produce' — both the discount cap and the fresh-produce scope are missing from the candidate and must be captured as restrictions."
+              }
+            ],
+            "summaryReasoning": "The 20% discount, minimum spend of Rs. 3,500, and validity till 31 December 2026 are all directly supported by the source (ev-desc, ev-validity-1). Two issues require correction: (1) the merchantName incorrectly embeds the card qualifier 'for DFCC Credit Cards' — the merchant is simply 'Keells Super'; (2) the description states a 'Maximum discount Rs. 2,000' cap and that the discount applies specifically to 'fresh produce', both of which were omitted and should be captured as restrictions. Note: the title/description do not literally say 'up to', so isUpTo should remain false despite the cap. The validity start date (2026-10-29) is not evidenced in the retrieved snippets and could not be verified within the tool budget.",
+            "locationScope": "UNRESOLVED"
+          },
+          "durationMs": 0
+        }
+      ],
+      "inputTokens": 10767,
+      "outputTokens": 1465,
+      "totalLatencyMs": 10869,
+      "actualCostUsd": 0.0019175800000000003,
+      "costLabel": "DeepSeek v3 ($0.14/M in, $0.28/M out) = $0.001918",
+      "schemaValidationOutcome": "PASSED",
+      "proposedPatchesCount": 2,
+      "acceptedPatchesCount": 2,
+      "rejectedPatchesCount": 0,
+      "acceptedPatches": [
+        {
+          "fieldPath": "merchant.name",
+          "proposedValue": "Keells Super",
+          "reason": "The merchant is 'Keells Super'; 'for DFCC Credit Cards' is a card-eligibility qualifier, not part of the merchant name. Both title and description refer to 'Keells Super' as the merchant."
+        },
+        {
+          "fieldPath": "offer.restrictions",
+          "proposedValue": "Maximum discount Rs. 2,000. Discount applies to fresh produce only.",
+          "reason": "Description explicitly states 'Maximum discount Rs. 2,000' and '20% off on fresh produce' — both the discount cap and the fresh-produce scope are missing from the candidate and must be captured as restrictions."
+        }
+      ],
+      "rejectedPatches": [],
+      "independentFactualAssessment": {
+        "merchantAttributionGrounded": true,
+        "financialSemanticsPreserved": true,
+        "dateAccuracyPreserved": true,
+        "zeroFabricatedClaims": true
+      },
+      "finalStagingDecision": "STAGED_AUTO_APPROVE"
+    },
+    {
+      "offerId": "holdout-hnb-hilton-multibrand",
+      "bank": "hnb",
+      "title": "25% off at Hilton Colombo restaurants",
+      "merchantName": "Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo)",
+      "ambiguityType": "Multi-brand merchant string (\"Graze Kitchen | Emperor's Wok | Café Kai (Hilton Colombo)\") preserving brand identities",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "realHttpRequests": 3,
+      "validationAttempts": 1,
+      "toolCallsExecuted": 14,
+      "toolExecutionHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "title"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "maximum"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "minimum spend"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "card"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Hilton Colombo"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Graze Kitchen"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "hnb",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "25% off at Hilton Colombo restaurants"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "ACCEPT",
+            "overallScore": 95,
+            "corrections": [],
+            "unresolvedIssues": [],
+            "summaryReasoning": "All fields are directly supported by source evidence. The 25% discount is stated literally in the title (\"25% off at Hilton Colombo restaurants\"), description (\"25% off on food and beverages\"), and validity text — it is a genuine price discount, not a 0% installment plan. No \"up to\" or \"maximum of\" language appears in any section, so isUpTo is correctly false. Validity dates (06th–31st July 2026) map exactly to validFrom 2026-07-06 / validTo 2026-07-31. Merchant name matches the raw text verbatim, and the address \"Colombo 02, Sri Lanka\" matches \"Location: Colombo 02\" with no invented coordinates or street numbers. No minimum spend is stated, so null transaction range is correct. Location is a single specific property (Hilton Colombo, Colombo 02), hence EXPLICIT_BRANCH.",
+            "locationScope": "EXPLICIT_BRANCH"
+          },
+          "durationMs": 0
+        }
+      ],
+      "inputTokens": 7341,
+      "outputTokens": 1097,
+      "totalLatencyMs": 10631,
+      "actualCostUsd": 0.0013349000000000002,
+      "costLabel": "DeepSeek v3 ($0.14/M in, $0.28/M out) = $0.001335",
+      "schemaValidationOutcome": "PASSED",
+      "proposedPatchesCount": 0,
+      "acceptedPatchesCount": 0,
+      "rejectedPatchesCount": 0,
+      "acceptedPatches": [],
+      "rejectedPatches": [],
+      "independentFactualAssessment": {
+        "merchantAttributionGrounded": true,
+        "financialSemanticsPreserved": true,
+        "dateAccuracyPreserved": true,
+        "zeroFabricatedClaims": true
+      },
+      "finalStagingDecision": "STAGED_AUTO_APPROVE"
+    },
+    {
+      "offerId": "holdout-pabc-glomark-thursdays",
+      "bank": "pabc",
+      "title": "20% OFF at Softlogic Glomark every Thursday",
+      "merchantName": "Softlogic Glomark every Thursday",
+      "ambiguityType": "Specific weekday restriction (Thursdays only) with minimum spend Rs. 4,000 and flip-card date override",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "realHttpRequests": 4,
+      "validationAttempts": 1,
+      "toolCallsExecuted": 12,
+      "toolExecutionHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "title"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Softlogic Glomark"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "pabc",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "20% OFF at Softlogic Glomark every Thursday"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "maximum"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 78,
+            "locationScope": "NATIONWIDE",
+            "corrections": [
+              {
+                "fieldPath": "merchant.name",
+                "proposedValue": "Softlogic Glomark",
+                "originalValue": "Softlogic Glomark every Thursday",
+                "evidenceIds": [
+                  "ev-title",
+                  "ev-desc"
+                ],
+                "reason": "\"every Thursday\" is the promotion cadence, not part of the merchant brand. Both title and description identify the merchant as \"Softlogic Glomark\" and separately state the offer runs \"every Thursday\"."
+              },
+              {
+                "fieldPath": "validityPeriods[0].validFrom",
+                "proposedValue": null,
+                "originalValue": "2026-10-29",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-validity-1"
+                ],
+                "reason": "No start date appears anywhere in the source. Evidence only states \"Valid until 31st December 2026\". The 2026-10-29 start date is unsupported/invented and must be removed rather than fabricated."
+              }
+            ],
+            "summaryReasoning": "Discount of 20% is directly confirmed by title (\\\"20% OFF at Softlogic Glomark\\\") and description (\\\"20% OFF on total bill\\\"). Minimum spend of Rs. 4,000 is confirmed by \\\"Minimum bill Rs. 4,000\\\" and the terms snippet \\\"Minimum spend required\\\". End validity of 2026-12-31 matches \\\"Valid until 31st December 2026\\\". No \\\"up to\\\"/\\\"maximum\\\" language exists, so the flat 20% is not an up-to cap. Two defects require correction: (1) merchant name is polluted with the cadence phrase \\\"every Thursday\\\" and should be \\\"Softlogic Glomark\\\"; (2) validFrom 2026-10-29 has no evidentiary basis and must be nulled. Addresses are correctly empty — no branch address or coordinates appear in the source, so none were invented. Offer is credit-card only per \\\"using your Pan Asia Bank Credit Card\\\"."
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "locationScope": "NATIONWIDE",
+            "overallScore": 78,
+            "corrections": [
+              {
+                "fieldPath": "merchant.name",
+                "originalValue": "Softlogic Glomark every Thursday",
+                "proposedValue": "Softlogic Glomark",
+                "evidenceIds": [
+                  "ev-title",
+                  "ev-desc"
+                ],
+                "reason": "\"every Thursday\" is the promotion cadence, not part of the merchant brand. Both title and description identify the merchant as \"Softlogic Glomark\" and separately state the offer runs \"every Thursday\"."
+              },
+              {
+                "fieldPath": "offer.specialConditions",
+                "originalValue": "validFrom: 2026-10-29",
+                "proposedValue": "Offer valid every Thursday; valid until 31st December 2026 (no start date stated in source)",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-validity-1"
+                ],
+                "reason": "No start date appears anywhere in the source; evidence only states \"Valid until 31st December 2026\". The 2026-10-29 validFrom is unsupported/invented and must not be asserted. The Thursday-only cadence is the genuine special condition."
+              }
+            ],
+            "summaryReasoning": "Discount of 20% is directly confirmed by title (\\\"20% OFF at Softlogic Glomark\\\") and description (\\\"20% OFF on total bill\\\"). Minimum spend of Rs. 4,000 is confirmed by \\\"Minimum bill Rs. 4,000\\\" and the terms snippet \\\"Minimum spend required\\\". End validity of 2026-12-31 matches \\\"Valid until 31st December 2026\\\". No \\\"up to\\\"/\\\"maximum\\\" language exists, so the flat 20% is not an up-to cap. Two defects require correction: (1) merchant name is polluted with the cadence phrase \\\"every Thursday\\\" and should be \\\"Softlogic Glomark\\\"; (2) the validFrom 2026-10-29 has no evidentiary basis and must not be asserted. Addresses are correctly empty — no branch address or coordinates appear in the source, so none were invented. Offer is credit-card only per \\\"using your Pan Asia Bank Credit Card\\\"."
+          },
+          "durationMs": 1
+        }
+      ],
+      "inputTokens": 11082,
+      "outputTokens": 1873,
+      "totalLatencyMs": 12260,
+      "actualCostUsd": 0.00207592,
+      "costLabel": "DeepSeek v3 ($0.14/M in, $0.28/M out) = $0.002076",
+      "schemaValidationOutcome": "PASSED",
+      "proposedPatchesCount": 2,
+      "acceptedPatchesCount": 2,
+      "rejectedPatchesCount": 0,
+      "acceptedPatches": [
+        {
+          "fieldPath": "merchant.name",
+          "proposedValue": "Softlogic Glomark",
+          "reason": "\"every Thursday\" is the promotion cadence, not part of the merchant brand. Both title and description identify the merchant as \"Softlogic Glomark\" and separately state the offer runs \"every Thursday\"."
+        },
+        {
+          "fieldPath": "offer.specialConditions",
+          "proposedValue": "Offer valid every Thursday; valid until 31st December 2026 (no start date stated in source)",
+          "reason": "No start date appears anywhere in the source; evidence only states \"Valid until 31st December 2026\". The 2026-10-29 validFrom is unsupported/invented and must not be asserted. The Thursday-only cadence is the genuine special condition."
+        }
+      ],
+      "rejectedPatches": [],
+      "independentFactualAssessment": {
+        "merchantAttributionGrounded": true,
+        "financialSemanticsPreserved": true,
+        "dateAccuracyPreserved": true,
+        "zeroFabricatedClaims": true
+      },
+      "finalStagingDecision": "STAGED_AUTO_APPROVE"
+    }
+  ]
+}

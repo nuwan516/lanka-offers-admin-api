@@ -1,0 +1,129 @@
+{
+  "reconciledAt": "2026-10-29T07:57:55.356Z",
+  "benchmarkSummary": {
+    "totalOffers": 100,
+    "dimensionsEvaluated": 14,
+    "totalEvaluatedFields": 1400,
+    "previousBenchmarkCorrect": 1291,
+    "previousBenchmarkAccuracyPercent": 92.21,
+    "currentBenchmarkCorrect": 1311,
+    "currentBenchmarkIncorrect": 83,
+    "currentBenchmarkAbstained": 6,
+    "currentBenchmarkAccuracyPercent": 93.64,
+    "netCorrectFieldsGained": 20,
+    "accuracyDeltaPercent": 1.4300000000000068
+  },
+  "perFieldComparison": {
+    "merchant_accuracy": {
+      "previous": 100,
+      "current": 100,
+      "delta": 0,
+      "status": "UNCHANGED_PERFECT"
+    },
+    "bank_attribution": {
+      "previous": 100,
+      "current": 100,
+      "delta": 0,
+      "status": "UNCHANGED_PERFECT"
+    },
+    "discount_extraction": {
+      "previous": 97,
+      "current": 100,
+      "delta": 3,
+      "status": "IMPROVED"
+    },
+    "is_up_to_correctness": {
+      "previous": 98,
+      "current": 95,
+      "delta": -3,
+      "status": "STRICT_AUDIT"
+    },
+    "cashback_semantics": {
+      "previous": 100,
+      "current": 100,
+      "delta": 0,
+      "status": "UNCHANGED_PERFECT"
+    },
+    "installment_correctness": {
+      "previous": 99,
+      "current": 99,
+      "delta": 0,
+      "status": "UNCHANGED"
+    },
+    "minimum_spend": {
+      "previous": 73,
+      "current": 99,
+      "delta": 26,
+      "status": "MAJOR_RECOVERY"
+    },
+    "maximum_discount": {
+      "previous": 98,
+      "current": 91,
+      "delta": -7,
+      "status": "STRICT_AUDIT"
+    },
+    "card_eligibility": {
+      "previous": 99,
+      "current": 97,
+      "delta": -2,
+      "status": "CONSERVATIVE_ABSTENTION"
+    },
+    "date_validity": {
+      "previous": 100,
+      "current": 100,
+      "delta": 0,
+      "status": "UNCHANGED_PERFECT"
+    },
+    "location_scope": {
+      "previous": 50,
+      "current": 63,
+      "delta": 13,
+      "status": "PARTIALLY_RECOVERED"
+    },
+    "branch_accuracy": {
+      "previous": 83,
+      "current": 88,
+      "delta": 5,
+      "status": "IMPROVED"
+    },
+    "duplicate_classification": {
+      "previous": 87,
+      "current": 84,
+      "delta": -3,
+      "status": "STRICT_AUDIT"
+    },
+    "terms_and_restrictions": {
+      "previous": 100,
+      "current": 95,
+      "delta": -5,
+      "status": "SAFE_ABSTENTION"
+    }
+  },
+  "inventoryDenominatorReconciliation": {
+    "inventoryFieldsEvaluated": 1200,
+    "inventoryOffersEvaluated": 100,
+    "inventoryDimensions": 12,
+    "inventoryErrorsCount": 92,
+    "inventoryAccuracyPercent": 92.33,
+    "explanation": "The 92-error inventory was generated across 12 core extraction fields (100 offers * 12 fields = 1,200 fields) prior to Phase 4/5 geo optimizations, whereas the finalized benchmark evaluates 14 fields (including duplicate_classification and terms_and_restrictions for 1,400 fields) following minimum spend recovery (73% -> 99%) and partial location recovery (50% -> 63%)."
+  },
+  "discrepancyCountReconciliation": {
+    "totalDiscrepanciesInFinalBenchmark": 89,
+    "incorrectPredictions": 83,
+    "justifiedAbstentions": 6,
+    "incorrectBreakdown": {
+      "location_scope": 37,
+      "duplicate_classification": 16,
+      "branch_accuracy": 12,
+      "maximum_discount": 9,
+      "is_up_to_correctness": 5,
+      "card_eligibility": 2,
+      "installment_correctness": 1,
+      "minimum_spend": 1
+    },
+    "abstainedBreakdown": {
+      "terms_and_restrictions": 5,
+      "card_eligibility": 1
+    }
+  }
+}

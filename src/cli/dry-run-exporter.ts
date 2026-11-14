@@ -103,6 +103,7 @@ export function exportDryRunArtifacts(input: DryRunExportInput): {
   const categoryMap: Record<ExtendedQualityCategory, string[]> = {
     VALID_HIGH_CONFIDENCE: [],
     VALID_WITH_WARNINGS: [],
+    VALID_EXPIRED: [],
     REVIEW_REQUIRED: [],
     INVALID: [],
     DUPLICATE_CANDIDATE: [],
@@ -113,6 +114,7 @@ export function exportDryRunArtifacts(input: DryRunExportInput): {
     AUTO_APPROVE: 0,
     REVIEW_REQUIRED: 0,
     REJECT: 0,
+    EXPIRE: 0,
   };
 
   const offerAssessments: DryRunQualitySummary['offers'] = [];
@@ -128,6 +130,11 @@ export function exportDryRunArtifacts(input: DryRunExportInput): {
       !offer.validityPeriods ||
       offer.validityPeriods.length === 0;
 
+    const isExpired = Boolean(
+      report?.ruleValidation.errors.length &&
+      report.ruleValidation.errors.every((e) => e.field === 'validityPeriods' && e.message.includes('expired'))
+    );
+
     const assessment = classifyDetailedOfferQuality({
       ruleValid: report?.ruleValidation.valid ?? true,
       ruleErrorCount: report?.ruleValidation.errors.length ?? 0,
@@ -142,6 +149,7 @@ export function exportDryRunArtifacts(input: DryRunExportInput): {
         ? 'validated'
         : null,
       isSourceIncomplete,
+      isExpired,
     });
 
     categoryMap[assessment.category].push(offer.uniqueId);

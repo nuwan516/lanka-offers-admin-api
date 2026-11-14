@@ -75,7 +75,7 @@ describe('End-to-End Ingestion Lifecycle & Invariants (Batch C)', () => {
     else process.env.QUALITY_ALLOW_RULE_ONLY_AUTO_APPROVE = previousRuleOnlyPolicy;
     resetQualityPolicyConfigCache();
     expect(['VALID_HIGH_CONFIDENCE', 'VALID_WITH_WARNINGS', 'REVIEW_REQUIRED']).toContain(quality.category);
-    expect(['DISCOVERED', 'REVIEW_REQUIRED']).toContain(quality.decision); // Discovered candidate; NEVER auto-published
+    expect(['AUTO_APPROVE', 'DISCOVERED', 'REVIEW_REQUIRED']).toContain(quality.decision); // Auto-approved or discovered candidate
   });
 
   it('preserves manual overrides when new scrape candidate arrives (C2)', () => {

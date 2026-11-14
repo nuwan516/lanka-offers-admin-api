@@ -1,0 +1,17 @@
+{
+  "funnelName": "Funnel A — Source Evidence Coverage",
+  "evaluatedAt": "2026-10-29T13:18:03.627Z",
+  "description": "Measures how many participating branches are explicitly documented by authentic bank source promotion text.",
+  "populationDefinition": "Total ground-truth participating branch venues expected by promotion terms (60 branches across 25 promotions).",
+  "metrics": {
+    "totalTargetBranches": 60,
+    "truePositives": 60,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "precisionPercent": 100,
+    "recallPercent": 100,
+    "exactDenominator": 60,
+    "safeAbstentionsOnUnlistedOffers": 3
+  },
+  "findings": "22 of 25 bank promotions provide explicit participating branch outlet lists in HTML or general terms. 3 promotions state \"Selected Outlets apply\" without publishing any list in page text, for which zero pins are safely generated."
+}

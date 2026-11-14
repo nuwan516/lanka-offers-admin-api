@@ -222,8 +222,9 @@ export function verifySemanticNumericEvidence(
   switch (role) {
     case 'DISCOUNT_PERCENT':
       // Must be followed by %, percent, pct, or preceded by discount/save/off
+      // Disallow if followed by cashback or rebate (cashback paid later != point-of-sale discount)
       roleRegex = new RegExp(
-        `(?:\\b(?:discount|save|off|upto|up\\s*to|get)\\s*(?:of\\s*)?)?${numPattern}\\s*(?:%|percent|pct|\\s*\\/-\\s*off|\\s*off\\b)`,
+        `(?:\\b(?:discount|save|off|upto|up\\s*to|get)\\s*(?:of\\s*)?)?${numPattern}\\s*(?:%|percent|pct|\\s*\\/-\\s*off|\\s*off\\b)(?!\\s*(?:cash\\s*back|cashback|rebate))`,
         'i'
       );
       break;
@@ -243,9 +244,9 @@ export function verifySemanticNumericEvidence(
       break;
 
     case 'MINIMUM_SPEND':
-      // Must be associated with min bill, spend, purchase, above, exceeding
+      // Must be associated with min bill, spend, purchase, above, exceeding, threshold, or value
       roleRegex = new RegExp(
-        `(?:(?:min(?:imum)?\\s*(?:spend|bill|purchase|transaction|amount)?|(?:spend|purchase|bills?)\\s*(?:of|exceeding|above|over)?)\\s*(?:lkr|rs\\.?)?\\s*${numPattern}|(?:lkr|rs\\.?)\\s*${numPattern}\\s*(?:min(?:imum)?|and\\s*above|or\\s*more))`,
+        `(?:(?:min(?:imum)?\\s*(?:total\\s+)?(?:spend|bill|purchase|transaction|amount|threshold|invoice|order|booking)?(?:\\s*value)?(?:\\s*[:=\\-–—\\s])?|(?:spend|purchase|bills?|orders?|transactions?)\\s*(?:of|exceeding|above|over|and\\s*above)?|threshold\\s*(?:of)?)\\s*(?:lkr|rs\\.?)?\\s*${numPattern}|(?:lkr|rs\\.?)\\s*${numPattern}\\s*(?:min(?:imum)?|and\\s*above|or\\s*more))`,
         'i'
       );
       break;
@@ -253,7 +254,7 @@ export function verifySemanticNumericEvidence(
     case 'MAXIMUM_DISCOUNT_CAP':
       // Must be associated with max discount, cap, capped at, up to a maximum discount
       roleRegex = new RegExp(
-        `(?:(?:max(?:imum)?\\s*discount|(?:discount\\s*)?capped\\s*at|up\\s*to\\s*a\\s*max(?:imum)?\\s*(?:discount)?)\\s*(?:of\\s*)?(?:lkr|rs\\.?)?\\s*${numPattern}|(?:lkr|rs\\.?)\\s*${numPattern}\\s*(?:max(?:imum)?\\s*discount|cap))`,
+        `(?:(?:max(?:imum)?\\s*(?:discount\\s*)?(?:cap(?:ped)?(?:\\s*at)?)?|(?:discount\\s*)?capped\\s*at|up\\s*to\\s*a\\s*max(?:imum)?\\s*(?:discount)?)\\s*(?:of\\s*)?(?:lkr|rs\\.?)?\\s*${numPattern}|(?:lkr|rs\\.?)\\s*${numPattern}\\s*(?:max(?:imum)?\\s*(?:discount)?|cap))`,
         'i'
       );
       break;
@@ -301,8 +302,8 @@ export function verifySemanticNumericEvidence(
       }
 
       matchedSnippetIds.push(snippet.id);
-      const start = Math.max(0, match.index - 25);
-      const end = Math.min(snippet.text.length, match.index + match[0].length + 25);
+      const start = Math.max(0, match.index - 50);
+      const end = Math.min(snippet.text.length, match.index + match[0].length + 50);
       contexts.push(`...${snippet.text.slice(start, end).replace(/\\s+/g, ' ')}...`);
     }
   }

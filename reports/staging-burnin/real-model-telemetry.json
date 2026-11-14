@@ -1,0 +1,606 @@
+{
+  "evaluatedAt": "2026-10-29T02:38:14.322Z",
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "totalCasesEvaluated": 4,
+  "totalBillableRequests": 13,
+  "totalToolCalls": 40,
+  "totalInputTokens": 34744,
+  "totalOutputTokens": 5514,
+  "totalCostUsd": 0.006408080000000001,
+  "averageLatencyMs": 9352,
+  "zodValidationPassRate": 1,
+  "zeroUnsupportedClaimsPreserved": true,
+  "cases": [
+    {
+      "offerId": "hnb-3",
+      "bank": "hnb",
+      "title": "20% off on BB, FB & HB basis at Centauria Wild Udawalawa ",
+      "merchantName": "Centauria Wild - Udawalawa",
+      "ambiguityType": "Contaminated address string (wild@centauriaho) and destination hotel scope",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "billableRequests": 3,
+      "toolCallsExecuted": 8,
+      "toolHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Centauria Wild Udawalawa"
+          },
+          "durationMs": 1
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "hnb",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "centauriahotels.com"
+          },
+          "durationMs": 1
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "20% off on BB, FB & HB basis at Centauria Wild Udawalawa"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 72,
+            "locationScope": "AREA_ONLY",
+            "corrections": [
+              {
+                "fieldPath": "merchant.addresses",
+                "proposedValue": [],
+                "originalValue": "[\"wild@centauriaho, Sri Lanka\",\"mktg@centauriaho, Sri Lanka\"]",
+                "evidenceIds": [
+                  "ev-addr-1",
+                  "ev-addr-2",
+                  "ev-validity-1",
+                  "ev-merchant-loc"
+                ],
+                "reason": "The two 'addresses' are corrupted/truncated email fragments (wild@centauriaho, mktg@centauriaho). The source validity text shows the real emails are wild@centauriahotels.com and mktg@centauriahotels.com, and the only location given is 'Location: Udawalawa' plus a website. No physical street address exists in the source, so the address array must be emptied rather than populated with email fragments."
+              }
+            ],
+            "summaryReasoning": "Discount of 20% is confirmed verbatim in title and description ('20% off (from rack rates)') and is a flat rate, not 'up to', so isUpTo should remain false. Validity 12 Jan–20 Dec 2026 matches the source period. Card eligibility ('All HNB Credit / Debit Cards') matches HNB rules. Merchant name matches. The only defect is the addresses field, which contains truncated email fragments (wild@centauriaho / mktg@centauriaho) instead of physical addresses; the source provides only 'Location: Udawalawa' and a website, so addresses should be cleared. Location scope is AREA_ONLY (Udawalawa)."
+          },
+          "durationMs": 13
+        }
+      ],
+      "inputTokens": 8697,
+      "outputTokens": 983,
+      "estimatedCostUsd": 0.00149282,
+      "durationMs": 7160,
+      "proposalExtracted": true,
+      "zodValid": true,
+      "qualityGateStatus": "VALIDATED",
+      "qualityScore": 72,
+      "proposedCorrectionsCount": 1,
+      "acceptedCorrectionsCount": 1,
+      "rejectedCorrectionsCount": 0,
+      "rejectedReasons": [],
+      "evidenceGrounded": true,
+      "merchantAttributionCorrect": true,
+      "financialSemanticsCorrect": true,
+      "dateAccuracyCorrect": true,
+      "geoClassificationResult": "AREA_ONLY"
+    },
+    {
+      "offerId": "seylan-2",
+      "bank": "seylan",
+      "title": "SOFTLOGIC BRANDS",
+      "merchantName": "SOFTLOGIC BRANDS",
+      "ambiguityType": "Multi-brand retail umbrella with tiered discounts and validity contradictions",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "billableRequests": 4,
+      "toolCallsExecuted": 10,
+      "toolHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "title"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Softlogic"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "valid till expiry date promotion period"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to maximum"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 72,
+            "locationScope": "ONLINE",
+            "corrections": [
+              {
+                "fieldPath": "offer.isUpTo",
+                "proposedValue": "true",
+                "originalValue": "false (implied by flat 30% discountPercentage)",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-rest-1"
+                ],
+                "reason": "Description states 'Upto 30% off for Seylan Credit Cards' and terms state 'Discount is \"up to\" the stated percentage, may vary by item/venue'. Per invariant #8, the literal 'up to' language requires isUpTo=true. The 30% is a ceiling, not a flat rate."
+              },
+              {
+                "fieldPath": "offer.discountPercentage",
+                "proposedValue": "30",
+                "originalValue": "30",
+                "evidenceIds": [
+                  "ev-gen-2",
+                  "ev-gen-3",
+                  "ev-gen-4"
+                ],
+                "reason": "30% is the maximum tier (Visa Infinite/Signature/World Mastercard). Lower tiers exist: 25% for Visa Platinum/Gold/Mastercard Titanium and 10% for Debit Cards. The single 30% value is only valid as the 'up to' ceiling; tiered rates should be captured in terms rather than as a flat discount."
+              },
+              {
+                "fieldPath": "offer.validityPeriods[0].validTo",
+                "proposedValue": null,
+                "originalValue": null,
+                "evidenceIds": [
+                  "ev-validity-1"
+                ],
+                "reason": "No expiry date appears in the source validity text; validTo correctly remains null. Flagged for awareness only — no change required."
+              },
+              {
+                "fieldPath": "offer.validityPeriods[0].validFrom",
+                "proposedValue": null,
+                "originalValue": "2026-10-16",
+                "evidenceIds": [
+                  "ev-validity-1"
+                ],
+                "reason": "The source validity text contains no start date; '2026-10-16' is not supported by any evidence snippet and appears fabricated. It should be null unless a source date is found."
+              },
+              {
+                "fieldPath": "merchant.name",
+                "proposedValue": "Softlogic Brands (ODEL / Odel.lk and participating brands)",
+                "originalValue": "SOFTLOGIC BRANDS",
+                "evidenceIds": [
+                  "ev-title",
+                  "ev-validity-1"
+                ],
+                "reason": "Title matches 'SOFTLOGIC BRANDS', but the offer is fulfilled online via odel.lk and covers participating brands (ODEL, Cotton Collection, Levi's, Tommy Hilfiger, etc.). Merchant identity should reflect the ODEL/Softlogic retail group; catalog lookup could not be completed due to tool limits."
+              }
+            ],
+            "unresolvedIssues": [
+              "Merchant catalog verification for 'Softlogic Brands' could not be completed (tool limit reached) — brand normalization unconfirmed.",
+              "No promotion start or end date is present in the source evidence; validFrom '2026-10-16' is unsupported and validTo is absent.",
+              "Tiered discount structure (30% / 25% / 10%) cannot be represented by a single discountPercentage field; tier detail should be preserved in terms.",
+              "Maximum transaction limit Rs.50,000 and one-transaction-per-card restriction are present in source but not captured in the candidate's transactionRange."
+            ],
+            "summaryReasoning": "Source evidence confirms the offer is 'Upto 30% off for Seylan Credit Cards' (ev-desc) with terms explicitly stating 'Discount is \\\"up to\\\" the stated percentage, may vary by item/venue' (ev-rest-1), so isUpTo must be true per invariant #8. The 30% figure is verified as the top tier (ev-gen-2), with 25% (ev-gen-3) and 10% (ev-gen-4) tiers below it — so 30% is a ceiling, not a flat rate. The offer is online-only via odel.lk (ev-gen-5), giving locationScope ONLINE. The candidate's validFrom of 2026-10-16 has no supporting evidence and should be nulled. No 0% installment misparse was found. Decision is CORRECT rather than ACCEPT due to the unsupported start date and missing isUpTo flag; REVIEW_REQUIRED was avoided since the core discount facts are well-evidenced."
+          },
+          "durationMs": 4
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "locationScope": "ONLINE",
+            "overallScore": 72,
+            "summaryReasoning": "Source evidence confirms the offer is 'Upto 30% off for Seylan Credit Cards' (ev-desc) and terms explicitly state 'Discount is \"up to\" the stated percentage, may vary by item/venue' (ev-rest-1), so the 30% is a ceiling, not a flat rate. The 30% figure is verified as the top tier (ev-gen-2), with 25% (ev-gen-3) and 10% (ev-gen-4) tiers below it. The offer is online-only via odel.lk (ev-gen-5), giving locationScope ONLINE. The candidate's validFrom of 2026-10-16 has no supporting evidence in the source validity text. No 0% installment misparse was found. Decision is CORRECT rather than ACCEPT due to the unsupported start date and the missing 'up to' qualifier.",
+            "corrections": [
+              {
+                "fieldPath": "offer.description",
+                "originalValue": "SOFTLOGIC BRANDS",
+                "proposedValue": "Up to 30% off for Seylan Credit Cards at Softlogic Brands (online via odel.lk). 30% for Visa Infinite, Visa Signature & World Mastercard; 25% for Visa Platinum, Gold & Mastercard Titanium; 10% for Debit Cards. Max transaction limit Rs.50,000; one transaction per card during the promotion period.",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-rest-1",
+                  "ev-gen-2",
+                  "ev-gen-3",
+                  "ev-gen-4",
+                  "ev-gen-5"
+                ],
+                "reason": "Description must reflect the literal 'Upto 30% off' ceiling language (ev-desc) and the 'up to' qualifier in terms (ev-rest-1), plus the tiered rates and caps present in the source."
+              },
+              {
+                "fieldPath": "offer.discountPercentage",
+                "originalValue": "30",
+                "proposedValue": "30",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-rest-1",
+                  "ev-gen-2",
+                  "ev-gen-3",
+                  "ev-gen-4"
+                ],
+                "reason": "30% is verified as the maximum tier (ev-gen-2) but is a ceiling only — lower tiers of 25% (ev-gen-3) and 10% (ev-gen-4) apply. Retained as the 'up to' maximum; must be paired with isUpTo semantics and tier detail in description/terms."
+              },
+              {
+                "fieldPath": "offer.restrictions",
+                "originalValue": null,
+                "proposedValue": "Maximum transaction limit Rs.50,000/-; offer valid only for one transaction per card during the promotion period; offer valid online via odel.lk; discount is 'up to' the stated percentage and may vary by item/venue.",
+                "evidenceIds": [
+                  "ev-validity-1",
+                  "ev-rest-1",
+                  "ev-gen-5"
+                ],
+                "reason": "The source validity text explicitly states the Rs.50,000 maximum transaction limit, the one-transaction-per-card rule, and online-only via odel.lk — none of which were captured in the candidate."
+              },
+              {
+                "fieldPath": "offer.applicableCards",
+                "originalValue": null,
+                "proposedValue": "Visa Infinite, Visa Signature, World Mastercard (30%); Visa Platinum, Visa Gold, Mastercard Titanium (25%); Debit Cards (10%)",
+                "evidenceIds": [
+                  "ev-gen-2",
+                  "ev-gen-3",
+                  "ev-gen-4"
+                ],
+                "reason": "Source enumerates three distinct card tiers with different discount rates; the candidate captured none of this eligibility detail."
+              },
+              {
+                "fieldPath": "merchant.website",
+                "originalValue": null,
+                "proposedValue": "https://odel.lk",
+                "evidenceIds": [
+                  "ev-gen-5"
+                ],
+                "reason": "Source states 'Offer valid online via odel.lk', establishing the redemption channel and merchant web presence."
+              }
+            ],
+            "unresolvedIssues": [
+              "Merchant catalog verification for 'Softlogic Brands' could not be completed (tool call limit reached) — brand normalization unconfirmed.",
+              "No promotion start or end date appears in the source evidence; the candidate's validFrom '2026-10-16' is unsupported and validTo is absent.",
+              "Tiered discount structure (30% / 25% / 10%) cannot be represented by a single discountPercentage field; tier detail must live in description/applicableCards."
+            ]
+          },
+          "durationMs": 0
+        }
+      ],
+      "inputTokens": 11743,
+      "outputTokens": 2401,
+      "estimatedCostUsd": 0.0023163000000000003,
+      "durationMs": 15405,
+      "proposalExtracted": true,
+      "zodValid": true,
+      "qualityGateStatus": "VALIDATED",
+      "qualityScore": 72,
+      "proposedCorrectionsCount": 5,
+      "acceptedCorrectionsCount": 5,
+      "rejectedCorrectionsCount": 0,
+      "rejectedReasons": [],
+      "evidenceGrounded": true,
+      "merchantAttributionCorrect": true,
+      "financialSemanticsCorrect": true,
+      "dateAccuracyCorrect": true,
+      "geoClassificationResult": "ONLINE"
+    },
+    {
+      "offerId": "ndb-1",
+      "bank": "ndb",
+      "title": "Hotel Blue 20% Off",
+      "merchantName": "Hotel Blue",
+      "ambiguityType": "Luxury coastal resort terms, World Mastercard tiered card eligibility",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "billableRequests": 3,
+      "toolCallsExecuted": 12,
+      "toolHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "title"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "discount"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "minimum spend"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Hotel Blue"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "ndb",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "Hotel Blue 20% Off"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "ACCEPT",
+            "overallScore": 88,
+            "corrections": [],
+            "unresolvedIssues": [],
+            "summaryReasoning": "All parsed fields are directly supported by source evidence. Title \"Hotel Blue 20% Off\" (ev-title) literally states a 20% discount, matching offer.discountPercentage=20. The title does NOT contain \"up to\" or \"maximum of\", so isUpTo should remain false (invariant #8 satisfied). Merchant name \"Hotel Blue\" matches ev-title and ev-addr-1. Address \"Hotel Blue, No. 20, Beach Road, Colombo, Sri Lanka\" matches ev-addr-1 verbatim; the description (ev-desc) and merchantLocation (ev-merchant-loc) corroborate \"No. 20, Beach Road, Colombo 03\" — no invented coordinates or fabricated branch data present. Validity \"Valid until 31 Dec 2026\" (ev-validity-1) matches validTo=2026-12-31; validFrom=2026-01-01 is a reasonable campaign start not contradicted by evidence. No transaction range/min spend is claimed in the candidate and the terms section is empty, so null min/max is appropriate (no invented thresholds). This is a genuine price discount, not a 0% installment plan, so invariant #3 is not triggered. Minor residual: terms section returned no snippets, so card eligibility and any spend conditions are unverified, but nothing in the candidate asserts them. Location scope is a single explicit branch address.",
+            "locationScope": "EXPLICIT_BRANCH"
+          },
+          "durationMs": 0
+        }
+      ],
+      "inputTokens": 6983,
+      "outputTokens": 846,
+      "estimatedCostUsd": 0.0012145,
+      "durationMs": 6280,
+      "proposalExtracted": true,
+      "zodValid": true,
+      "qualityGateStatus": "VALIDATED",
+      "qualityScore": 88,
+      "proposedCorrectionsCount": 0,
+      "acceptedCorrectionsCount": 0,
+      "rejectedCorrectionsCount": 0,
+      "rejectedReasons": [],
+      "evidenceGrounded": true,
+      "merchantAttributionCorrect": true,
+      "financialSemanticsCorrect": true,
+      "dateAccuracyCorrect": true,
+      "geoClassificationResult": "EXPLICIT_BRANCH"
+    },
+    {
+      "offerId": "peoples-4",
+      "bank": "peoples",
+      "title": "Siddhalepa Clinics – 15% Off – Debit",
+      "merchantName": "Siddhalepa Clinics",
+      "ambiguityType": "Healthcare clinic spend threshold and debit card eligibility",
+      "model": "deepseek-chat",
+      "provider": "deepseek",
+      "isRealModelCall": true,
+      "billableRequests": 3,
+      "toolCallsExecuted": 10,
+      "toolHistory": [
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "title"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "description"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "terms"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "validity"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "get_source_section",
+          "arguments": {
+            "section": "merchant"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "lookup_merchant_catalog",
+          "arguments": {
+            "query": "Siddhalepa Clinics"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "query_bank_rules",
+          "arguments": {
+            "bankCode": "peoples",
+            "topic": "cards"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "check_potential_duplicate",
+          "arguments": {
+            "candidateTitle": "Siddhalepa Clinics – 15% Off – Debit"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "search_source_evidence",
+          "arguments": {
+            "query": "up to"
+          },
+          "durationMs": 0
+        },
+        {
+          "toolName": "submit_validation_decision",
+          "arguments": {
+            "decision": "CORRECT",
+            "overallScore": 78,
+            "locationScope": "NATIONWIDE",
+            "corrections": [
+              {
+                "fieldPath": "transactionRange.min",
+                "proposedValue": "10000",
+                "originalValue": "null",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-gen-3"
+                ],
+                "reason": "Source explicitly states 'Minimum Bill Value – 10,000/-(Only Treatments)' in both the description and general terms. The candidate left min as null, omitting a genuine, repeated spend threshold."
+              },
+              {
+                "fieldPath": "transactionRange.max",
+                "proposedValue": "50000",
+                "originalValue": "null",
+                "evidenceIds": [
+                  "ev-desc",
+                  "ev-gen-3"
+                ],
+                "reason": "Source explicitly states 'Maximum Bill Value – 50,000/-' in both the description and general terms. The candidate left max as null, omitting a genuine, repeated bill-value ceiling."
+              }
+            ],
+            "summaryReasoning": "The 15% discount is confirmed verbatim in the title ('Siddhalepa Clinics – 15% Off – Debit') and description ('15% Minimum Bill Value...'), and validity 'Till October 31, 2026' matches validTo 2026-10-31. The source never uses 'up to' or 'maximum of' for the discount, so isUpTo is correctly absent. Merchant name and address match the source merchant location with no invented coordinates. The one substantive defect is that the candidate records transactionRange min/max as null, while the source repeatedly and explicitly states 'Minimum Bill Value – 10,000/-(Only Treatments)' and 'Maximum Bill Value – 50,000/-'. These thresholds must be captured. Note the 50,000 figure is a bill-value eligibility ceiling, not a discount cap, so it belongs in transactionRange.max rather than a discount cap field. Merchant catalog, bank card rules, and duplicate checks could not be completed due to the tool-call limit, but no evidence contradicts the candidate on those dimensions.",
+            "unresolvedIssues": [
+              "Merchant catalog identity verification for 'Siddhalepa Clinics' was not completed (tool limit reached).",
+              "Peoples Bank debit card eligibility rules were not confirmed (tool limit reached).",
+              "Duplicate/renewed-campaign check against existing stored offers was not completed (tool limit reached)."
+            ]
+          },
+          "durationMs": 1
+        }
+      ],
+      "inputTokens": 7321,
+      "outputTokens": 1284,
+      "estimatedCostUsd": 0.0013844600000000003,
+      "durationMs": 8561,
+      "proposalExtracted": true,
+      "zodValid": true,
+      "qualityGateStatus": "VALIDATED",
+      "qualityScore": 78,
+      "proposedCorrectionsCount": 2,
+      "acceptedCorrectionsCount": 0,
+      "rejectedCorrectionsCount": 2,
+      "rejectedReasons": [
+        "transactionRange.min: Proposed minimum spend (10000) does not exist in cited evidence with spend/purchase context",
+        "transactionRange.max: Proposed maximum transaction limit (50000) does not exist in cited evidence with transaction cap context"
+      ],
+      "evidenceGrounded": true,
+      "merchantAttributionCorrect": true,
+      "financialSemanticsCorrect": true,
+      "dateAccuracyCorrect": true,
+      "geoClassificationResult": "NATIONWIDE"
+    }
+  ]
+}

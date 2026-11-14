@@ -93,10 +93,7 @@ export interface BankBenchmarkMetrics {
   reviewRequiredRatePercent: number;
 }
 
-describe('Offer Accuracy Benchmark — All 10 Banks (Batch 4 / Phase 9)', () => {
-  const validator = new OfferValidator();
-
-  const BENCHMARK_CORPUS: GoldBenchmarkItem[] = [
+export const BENCHMARK_CORPUS: GoldBenchmarkItem[] = [
     // ══════════════════════════════════════════════════════════════════════════
     // 1. HNB (Hatton National Bank)
     // ══════════════════════════════════════════════════════════════════════════
@@ -1144,6 +1141,10 @@ describe('Offer Accuracy Benchmark — All 10 Banks (Batch 4 / Phase 9)', () => 
     },
   ];
 
+if (typeof describe !== 'undefined') {
+  describe('Offer Accuracy Benchmark — All 10 Banks (Batch 4 / Phase 9)', () => {
+    const validator = new OfferValidator();
+
   it('measures field-level accuracy and completeness across all 10 banks (D1, D2)', () => {
     const banks = ['hnb', 'boc', 'sampath', 'ndb', 'dfcc', 'seylan', 'peoples', 'pabc', 'nsb', 'combank'];
     const bankMetrics: Record<string, BankBenchmarkMetrics> = {};
@@ -1453,3 +1454,5 @@ describe('Offer Accuracy Benchmark — All 10 Banks (Batch 4 / Phase 9)', () => 
     expect(valExpired.errors.some((e) => e.field === 'validityPeriods' && e.message.includes('expired'))).toBe(true);
   });
 });
+}
+

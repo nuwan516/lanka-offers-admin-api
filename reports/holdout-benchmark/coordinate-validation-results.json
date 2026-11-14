@@ -1,0 +1,21 @@
+{
+  "evaluatedAt": "2026-10-29T13:16:21.335Z",
+  "metrics": {
+    "truePositives": 49,
+    "falsePositives": 0,
+    "falseNegatives": 11,
+    "exactDenominator": 60,
+    "verifiedCoordinatePrecisionPercent": 100,
+    "verifiedCoordinateRecallPercent": 81.67,
+    "corporateHeadquartersRejectionsCount": 0,
+    "cityCentroidRejectionsCount": 0,
+    "selectedOutletOffersReceivingVerifiedPins": 20,
+    "selectedOutletOffersSuppressedDueToNoBranches": 5
+  },
+  "safetyInvariants": [
+    "Zero false coordinates placed (coordinate precision is 100%).",
+    "Unlisted chain outlets strictly receive no coordinates.",
+    "Corporate headquarters rejected from outlet queries.",
+    "Area and city centroids rejected as merchant premises."
+  ]
+}

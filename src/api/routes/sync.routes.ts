@@ -26,4 +26,15 @@ router.get('/sync/runs', async (req: Request, res: Response) => {
   res.json({ items: rows });
 });
 
+router.post('/sync/:id/rollback', async (req: Request, res: Response) => {
+  const { actor = 'admin:rollback', reason } = req.body ?? {};
+  const { rollbackPublicationRun } = await import('@/infrastructure/db/rollback-operations');
+  const result = await rollbackPublicationRun(String(req.params.id), { actor, reason });
+  if (result.outcome === 'not_found') {
+    res.status(404).json(result);
+    return;
+  }
+  res.json(result);
+});
+
 export const syncRoutes = router;

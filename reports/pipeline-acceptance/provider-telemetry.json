@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-10-29T00:41:37.535Z",
+  "offerId": "hnb_2425",
+  "bank": "hnb",
+  "merchantName": "Centauria Wild - Udawalawa",
+  "title": "20% off on BB, FB & HB basis at Centauria Wild Udawalawa ",
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "isRealModelCall": true,
+  "billableRequests": 3,
+  "toolCallsExecuted": 9,
+  "inputTokens": 14699,
+  "outputTokens": 2338,
+  "totalTokens": 17037,
+  "wallClockTimeMs": 21246,
+  "estimatedCostUsd": 0.0027125000000000005,
+  "zodValidationPassed": false,
+  "proposalStatus": null,
+  "proposalScore": null,
+  "reasons": [],
+  "correctionsProposed": 0,
+  "correctionsAccepted": 0,
+  "correctionsRejected": 0,
+  "acceptedDetails": [],
+  "rejectedDetails": [],
+  "toolExecutionHistory": [
+    {
+      "tool": "get_raw_offer",
+      "arguments": {
+        "offerId": "hnb_2425"
+      },
+      "durationMs": 0
+    },
+    {
+      "tool": "get_source_section",
+      "arguments": {
+        "offerId": "hnb_2425",
+        "section": "title"
+      },
+      "durationMs": 1
+    },
+    {
+      "tool": "get_source_section",
+      "arguments": {
+        "offerId": "hnb_2425",
+        "section": "description"
+      },
+      "durationMs": 0
+    },
+    {
+      "tool": "get_source_section",
+      "arguments": {
+        "offerId": "hnb_2425",
+        "section": "merchant"
+      },
+      "durationMs": 0
+    },
+    {
+      "tool": "compare_financial_terms",
+      "arguments": {
+        "offerId": "hnb_2425",
+        "discountPercentage": 20,
+        "isUpTo": false
+      },
+      "durationMs": 22
+    },
+    {
+      "tool": "extract_financial_terms",
+      "arguments": {
+        "text": "20% off (from rack rates) on Bed & Breakfast ,Full Board and Half Board basis Period: 12th January to 20th December 2026"
+      },
+      "durationMs": 0,
+      "error": "Tool call limit exceeded for this attempt (max 5)"
+    },
+    {
+      "tool": "extract_offer_dates",
+      "arguments": {
+        "periodText": "Period: 12th January to 20th December 2026"
+      },
+      "durationMs": 0,
+      "error": "Tool call limit exceeded for this attempt (max 5)"
+    },
+    {
+      "tool": "extract_card_eligibility",
+      "arguments": {
+        "text": "Eligibility: All HNB Credit / Debit Cards. The promotions are open to all holders of Mastercard and Visa Credit / Debit Cards issued by Hatton National Bank PLC.",
+        "bankCode": "hnb"
+      },
+      "durationMs": 0,
+      "error": "Tool call limit exceeded for this attempt (max 5)"
+    },
+    {
+      "tool": "compare_merchant_identity",
+      "arguments": {
+        "candidateName": "Centauria Wild - Udawalawa",
+        "rawTitle": "20% off on BB, FB & HB basis at Centauria Wild Udawalawa",
+        "rawDescription": "20% off (from rack rates) on Bed & Breakfast ,Full Board and Half Board basis"
+      },
+      "durationMs": 0,
+      "error": "Tool call limit exceeded for this attempt (max 5)"
+    }
+  ]
+}

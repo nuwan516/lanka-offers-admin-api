@@ -148,14 +148,24 @@ describe('decideOfferQuality', () => {
       expect(res.decision).toBe('REVIEW_REQUIRED');
     });
 
-    it('classifies VALID_HIGH_CONFIDENCE when 0 errors, 0 warnings, and score meets threshold', () => {
+    it('classifies VALID_EXPIRED and returns EXPIRE decision for expired valid promotions', () => {
       const res = classifyDetailedOfferQuality({
-        ruleValid: true, ruleErrorCount: 0, ruleWarningCount: 0,
-        llmScore: 95, llmValid: true, llmStatus: 'validated',
+        ruleValid: false, ruleErrorCount: 1, ruleWarningCount: 0,
+        llmScore: null, llmValid: null, llmStatus: null,
+        isExpired: true,
       });
-      expect(res.category).toBe('VALID_HIGH_CONFIDENCE');
-      expect(res.decision).toBe('AUTO_APPROVE');
-      expect(res.reasons.length).toBeGreaterThan(0);
+      expect(res.category).toBe('VALID_EXPIRED');
+      expect(res.decision).toBe('EXPIRE');
+      expect(res.reasons[0]).toContain('expired');
+    });
+
+    it('decideOfferQuality returns EXPIRE for expired offers', () => {
+      const decision = decideOfferQuality({
+        ruleValid: false, ruleErrorCount: 1, ruleWarningCount: 0,
+        llmScore: null, llmValid: null, llmStatus: null,
+        isExpired: true,
+      });
+      expect(decision).toBe('EXPIRE');
     });
   });
 });

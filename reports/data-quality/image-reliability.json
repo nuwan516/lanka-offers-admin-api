@@ -1,0 +1,462 @@
+{
+  "generatedAt": "2026-10-29T23:52:13.352Z",
+  "totalSampled": 40,
+  "statsByBank": {
+    "boc": {
+      "total": 10,
+      "downloaded": 10,
+      "cached": 0,
+      "failed": 0,
+      "rejectedType": 0
+    },
+    "nsb": {
+      "total": 10,
+      "downloaded": 4,
+      "cached": 6,
+      "failed": 0,
+      "rejectedType": 0
+    },
+    "peoples": {
+      "total": 10,
+      "downloaded": 8,
+      "cached": 2,
+      "failed": 0,
+      "rejectedType": 0
+    },
+    "hnb": {
+      "total": 10,
+      "downloaded": 0,
+      "cached": 0,
+      "failed": 0,
+      "rejectedType": 10
+    }
+  },
+  "resilienceGuarantees": {
+    "ssrfProtected": true,
+    "magicBytesVerified": true,
+    "sha256Deduplicated": true,
+    "atomicWrites": true,
+    "maxSizeBytes": 5242880,
+    "timeoutMs": 8000,
+    "supportedFormats": [
+      "jpeg",
+      "png",
+      "webp",
+      "gif",
+      "svg"
+    ],
+    "fallbackStrategy": "Bank-branded local placeholder SVG/PNG if remote image fails"
+  },
+  "sampleAudits": [
+    {
+      "bank": "boc",
+      "offerId": "boc_pegasus-reef",
+      "title": "Pegasus Reef",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9464/media-261029124956.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 374777,
+      "hash": "765db65e3adb94dfa5efc7cd66f5bd481cf1f865770728b3821001000662e98a"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_ola-tangalle",
+      "title": "OLA Tangalle",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9407/media-261019091653.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 378268,
+      "hash": "d4e1628b2c0c4b3cda1ca371cfa262d018a2df7873bfc796ca78ef817ae81859"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_amaya-beach",
+      "title": "Amaya Beach",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9362/media-261009033524.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 372711,
+      "hash": "4e74818fafc735589561e5ab55b813c2bb7094deb83f98dcac04f77bcffb6278"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_amaya-lake",
+      "title": "Amaya Lake",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9360/media-261009033151.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 371224,
+      "hash": "668c4266a61b38830654812b948984c494503bd7926b317688c313146ed203f3"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_amaya-hills",
+      "title": "Amaya Hills",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9358/media-261009032913.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 371339,
+      "hash": "052a788d99678a29d25d614d9a0525129e688e60f17c48ba4492c9097f2dcbc7"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_clove-villa",
+      "title": "CLOVE VILLA",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/9325/media-260930012212.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 370988,
+      "hash": "c6de12fc4622431d4454dbb24ae80a90d719a1ea60f70e689426b3020b447269"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_fox-kandy",
+      "title": "Fox Kandy",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/5508/media-230819051349.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 207170,
+      "hash": "7eb3dcb984e9512efab8ef15f3b93cfff50301a0dbb345e8acfc371f0abbfae7"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_the-swiss-residence",
+      "title": "The Swiss Residence",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/8795/media-260520104821.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 383361,
+      "hash": "21c822184c0a4f267309b5b1be920a1bf7b88c47b901f96bb0a85fa233756a8b"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_royal-beach-hotel",
+      "title": "Royal Beach Hotel",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/8966/media-260708011150.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 372114,
+      "hash": "27997736082eea7027402b21d5bb048085fbdb55e5bc02bdbbffe81c0ef70d22"
+    },
+    {
+      "bank": "boc",
+      "offerId": "boc_fox-jaffna",
+      "title": "Fox Jaffna",
+      "url": "https://s3.ap-southeast-1.amazonaws.com/static.boc.lk/5506/media-230819051118.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 159263,
+      "hash": "eb6e84528fd60f7583a33c75f317e65e3a9a18d5c02072f729823c4e2c4d1508"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_spend-and-win-with-your-nsb-mastercard-debit-car",
+      "title": "Spend and Win with your NSB Mastercard Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-a-20-off-at-kelly-felder-with-your-nsb-mas",
+      "title": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-up-to-50-off-at-christell-wellness-with-yo",
+      "title": "Enjoy up to 50% off at Christell Wellness with your NSB Mastercard Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-a-10-off-at-taru-villas-levita-taru-villas",
+      "title": "Enjoy a 10% off at Taru Villas Levita & Taru Villas Kandy with your NSB Mastercard Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-a-10-off-at-hayleys-hotels-with-your-nsb-m",
+      "title": "Enjoy upto 30% off at Hayleys hotels with your NSB Mastercard Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-a-10-off-at-wishque-with-your-nsb-masterca",
+      "title": "Enjoy a 10% off at Wishque with your NSB Mastercard Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-a-10-off-at-lassana-flora-with-your-nsb-ma",
+      "title": "Enjoy a 10% off at Lassana Flora with your NSB Master card Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2023/01/iPhone-13-Series_Offer-New-01-1.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 53930,
+      "hash": "65b4ddfdb9446746e6ffe3c20ff909237a9e9c6faf6578a8bd07fb826ee56a71"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_nsb-debit-card-cash-back",
+      "title": "NSB Debit Card Cash Back",
+      "url": "https://www.nsb.lk/wp-content/uploads/2018/04/news-thumb.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 9537,
+      "hash": "f2a6259c49907478c383137c7df8b349b57255e50c052483fd6562bb00bdba3b"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_enjoy-a-15-off-at-spring-summer-with-your-nsb-de",
+      "title": "Enjoy a 15% off at Spring & Summer with your NSB Debit Card!",
+      "url": "https://www.nsb.lk/wp-content/uploads/2025/03/IMG-20250315-WA00121.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 161912,
+      "hash": "fdc16ced985a36affe5516e087c8a444bebd4419cdec319d756bc2fec322fee0"
+    },
+    {
+      "bank": "nsb",
+      "offerId": "nsb_20-cashback-exclusively-for-nsb-sthree-account-h",
+      "title": "20% Cashback Exclusively for NSB Sthree Account Holders",
+      "url": "https://www.nsb.lk/wp-content/uploads/2025/03/18a9f7bd-d279-4911-b3e4-1d0ef62cd617-1.jpeg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 25018,
+      "hash": "b1c5eefb70b5bce29d72fd38679878e9105b6773299cf9e31c42f9ad4c6e5c93"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_siddhalepa-ayurveda-hospital-30-off-credit",
+      "title": "Siddhalepa Ayurveda Hospital – 20% Off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2026/06/Siddhalepa_Hospital.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 13244,
+      "hash": "d7ebb12cbbe7d5932244efb8601ea9fe5060c3248c97ec3688169a880b0d9e11"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_vision-care-20-off-credit",
+      "title": "Vision Care – 15% off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2025/11/Vision_Care_Ori.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 17255,
+      "hash": "a153d6f962a6c917ea4e8a7145b8460bb1b8f36d17331e37b25974f92cccb8eb"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_siddhalepa-clinics-25-off-credit",
+      "title": "Siddhalepa Clinics – 15% Off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2026/06/Siddhalepa-Clinic.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 10638,
+      "hash": "ff90ae4268d39eab2167fa25d7ae110d4b46606125a3f096ef336c7a36b18197"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_siddhalepa-ayurveda-hospital-20-off-debit",
+      "title": "Siddhalepa Ayurveda Hospital – 20% Off – Debit",
+      "url": "https://www.peoplesbank.lk/roastoth/2026/06/Siddhalepa_Hospital.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 13244,
+      "hash": "d7ebb12cbbe7d5932244efb8601ea9fe5060c3248c97ec3688169a880b0d9e11"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_siddhalepa-clinics-15-off-debit",
+      "title": "Siddhalepa Clinics – 15% Off – Debit",
+      "url": "https://www.peoplesbank.lk/roastoth/2026/06/Siddhalepa-Clinic.jpg",
+      "status": "CACHED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 10638,
+      "hash": "ff90ae4268d39eab2167fa25d7ae110d4b46606125a3f096ef336c7a36b18197"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_amaara-sky-hotel-kandy-30-off-credit",
+      "title": "Amaara Sky Hotel – Kandy – 40% off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2022/10/amaara_sky.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 16249,
+      "hash": "2835c510f2ef2c57da835b894a404cb31878e5333dc277e6719fbbb5b65bc7db"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_amaara-forest-hotel-sigiriya-30-off-credit",
+      "title": "Amaara Forest Hotel- Sigiriya – 40% off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2022/10/amaara_forest.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 17352,
+      "hash": "f01eb214979c498f35c6aea446621d3b28c479073922bfeb41501da222646255"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_sennya-resorts-belihuloya-35-off-credit",
+      "title": "Sennya Resorts, Belihuloya – 35% off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2022/02/sennya.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 7584,
+      "hash": "0f47910afcde0332d89b4130dae660fc0f9b59b95af308643bbecc180877a9e4"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_trio-lodge-habarana-35-off-credit",
+      "title": "Trio Lodge – Habarana – 35% Off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2026/02/Trio-Lodge.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 5180,
+      "hash": "cfdc888f411b0fdd5c6aa746043ed8d5e22fe495c8740a7c7d91bd00c6740717"
+    },
+    {
+      "bank": "peoples",
+      "offerId": "peoples_sooriya-resort-tangalle-25-off-credit",
+      "title": "Sooriya Resort Tangalle – 25% off – Credit",
+      "url": "https://www.peoplesbank.lk/roastoth/2025/11/Sooriya-Tangalle.jpg",
+      "status": "DOWNLOADED",
+      "mimeType": "image/jpeg",
+      "sizeBytes": 7278,
+      "hash": "ad931168ded97c5346db8ab4a06ab7dd719aeebedc2d68371118f01213bb8b2a"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_4326",
+      "title": "30% off on BB, HB & FB basis at Pullman Bentota Resort & Spa",
+      "url": "https://www.hnb.lk/merchants/Pullman Bentota NEW/PullmanBentotaNEW.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_728",
+      "title": "20% off on HB & FB basis at Jie Jie Beach Hotel, Panadura",
+      "url": "https://www.hnb.lk/merchants/jie-jie-beach.jpg.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2183",
+      "title": "20% off on room rate for in-door patients at Siddhalepa Ayurveda Hospital",
+      "url": "https://www.hnb.lk/merchants/Siddhalepa Ayurveda Hospital/SiddhalepaAyurvedaHospital.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2401",
+      "title": "35% off on FB & HB basis at Wattura Resort & Spa  ",
+      "url": "https://www.hnb.lk/merchants/Wattura Resort & Spa New/WatturaResort&SpaNew.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2425",
+      "title": "20% off on BB, FB & HB basis at Centauria Wild Udawalawa ",
+      "url": "https://www.hnb.lk/merchants/Centauria Wild Udawalawa /CentauriaWildUdawalawa.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2426",
+      "title": "15% off on BB, FB & HB basis at Centauria Lake - Embilipitiya ",
+      "url": "https://www.hnb.lk/merchants/Centauria Lake /CentauriaLake.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2427",
+      "title": "15% off on BB ,FB & HB basis at Centauria Hill Resort, Ratnapura ",
+      "url": "https://www.hnb.lk/merchants/centauria-hill-resort.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2444",
+      "title": "20% off on BB, HB and FB basis at Apa Villa Thalpe ",
+      "url": "https://www.hnb.lk/merchants/apa-villa-thalpe.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2445",
+      "title": "20% off on BB, HB and FB basis at Era Beach Thalpe ",
+      "url": "https://www.hnb.lk/merchants/era-beach-thalpe.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    },
+    {
+      "bank": "hnb",
+      "offerId": "hnb_2449",
+      "title": "20% off on BB, HB and FB basis at Joes Resort Unawatuna ",
+      "url": "https://www.hnb.lk/merchants/joe-s-resort-unawatuna.jpg",
+      "status": "REJECTED_INVALID_TYPE",
+      "mimeType": "",
+      "sizeBytes": 4125,
+      "hash": "",
+      "error": "INVALID_IMAGE_MAGIC_BYTES (detected: unknown)"
+    }
+  ]
+}

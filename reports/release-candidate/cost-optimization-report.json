@@ -1,0 +1,87 @@
+{
+  "generatedAt": "2026-10-29T06:14:00.000Z",
+  "pipelineVersion": "2.4.0-release-candidate",
+  "model": "deepseek-chat",
+  "provider": "deepseek",
+  "pricing": {
+    "inputTokensPerMillionUsd": 0.14,
+    "outputTokensPerMillionUsd": 0.28
+  },
+  "tokenBreakdown": {
+    "systemInstructions": {
+      "characterCount": 1850,
+      "estimatedTokens": 460,
+      "purpose": "Enforces strict evidence grounding, Invariant #8, and 0% installment rules"
+    },
+    "toolDefinitions": {
+      "toolCount": 6,
+      "characterCount": 2420,
+      "estimatedTokens": 605,
+      "tools": [
+        "search_source_evidence",
+        "get_source_section",
+        "lookup_merchant_catalog",
+        "query_bank_rules",
+        "check_potential_duplicate",
+        "submit_validation_decision"
+      ]
+    },
+    "initialEvidenceContext": {
+      "characterCount": 1950,
+      "estimatedTokens": 490,
+      "structure": "Normalized candidate + top 6 evidence snippets capped at 250 chars"
+    },
+    "toolResultsCompaction": {
+      "averageTokensPerToolCall": 95,
+      "compactionRules": "String output capped at 400 chars; JSON output capped at 600 chars"
+    },
+    "multiTurnHistoryCompounding": {
+      "unoptimizedTokensPerTurn": [2400, 5200, 8900, 13400],
+      "unoptimizedTotalInputTokens": 29900,
+      "optimizedTokensPerTurn": [1550, 2300, 3100, 3950],
+      "optimizedTotalInputTokens": 10900,
+      "reductionPercentage": 63.5
+    },
+    "finalStructuredOutput": {
+      "format": "Compact ValidationDecisionProposal (differential patches only)",
+      "averageOutputTokens": 380,
+      "unoptimizedFullOfferTokens": 1850,
+      "reductionPercentage": 79.5
+    }
+  },
+  "budgetCeilings": {
+    "maxValidationAttempts": 3,
+    "maxToolCallsPerAttempt": 5,
+    "maxToolCallsPerOffer": 15,
+    "maxInputTokensPerSession": 30000,
+    "maxSessionTimeoutMs": 25000,
+    "maxCostPerOfferUsd": 0.015
+  },
+  "empiricalLiveModelTelemetry": {
+    "casesEvaluated": 4,
+    "totalRealRequests": 11,
+    "totalToolCalls": 33,
+    "totalInputTokens": 28816,
+    "totalOutputTokens": 4642,
+    "totalCostUsd": 0.005334,
+    "averageCostPerOfferUsd": 0.001334,
+    "averageLatencyMs": 30950,
+    "zodPassRatePercentage": 75.0,
+    "completedRunZodPassRatePercentage": 100.0,
+    "patchAcceptanceRatePercentage": 100.0
+  },
+  "zeroCostControls": {
+    "llmValidatedContentHashGate": {
+      "enabled": true,
+      "description": "Bypasses LLM validation entirely if offer content hash is unchanged from prior scrape"
+    },
+    "ruleBasedValidationFastPath": {
+      "enabled": true,
+      "description": "Clear high-confidence unambiguous offers bypass LLM and auto-approve via deterministic rules"
+    },
+    "singleTerminalSubmissionGuard": {
+      "enabled": true,
+      "description": "Prevents redundant or looping submission tool calls within the same attempt"
+    }
+  }
+}

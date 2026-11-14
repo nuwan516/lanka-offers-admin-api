@@ -1,0 +1,22 @@
+{
+  "funnelName": "Funnel C — Verified Coordinate Coverage",
+  "evaluatedAt": "2026-10-29T13:18:03.637Z",
+  "description": "Measures how many correctly extracted, eligible participating branches have independently verified physical coordinates with zero false pins.",
+  "populationDefinition": "Eligible physical participating branch venues in currently active, published promotions (57 venues; 3 in expired promotion suppressed).",
+  "metrics": {
+    "activeEligibleVenuesCount": 57,
+    "verifiedExactPinsPlaced": 53,
+    "falsePinsPlaced": 0,
+    "unverifiedAwaitingReview": 4,
+    "expiredSuppressedBranches": 3,
+    "precisionPercent": 100,
+    "recallPercent": 92.98,
+    "exactDenominator": 57
+  },
+  "safetyProtections": {
+    "corporateHqRejected": 0,
+    "centroidsRejected": 0,
+    "expiredOffersSuppressed": 3,
+    "falsePinPrecision": "100.00% (Zero false coordinates placed)"
+  }
+}

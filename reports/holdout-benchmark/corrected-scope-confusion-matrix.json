@@ -1,0 +1,118 @@
+{
+  "evaluatedAt": "2026-10-29T12:28:50.760Z",
+  "datasetSize": 100,
+  "taxonomyClasses": [
+    "ONLINE",
+    "SINGLE_BRANCH",
+    "MULTIPLE_BRANCHES",
+    "SELECTED_OUTLETS",
+    "NATIONWIDE",
+    "UNRESOLVED"
+  ],
+  "contingencyMatrix": {
+    "ONLINE": {
+      "ONLINE": 14,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 0
+    },
+    "SINGLE_BRANCH": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 42,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 1
+    },
+    "MULTIPLE_BRANCHES": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 1,
+      "MULTIPLE_BRANCHES": 9,
+      "SELECTED_OUTLETS": 1,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 2
+    },
+    "SELECTED_OUTLETS": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 0
+    },
+    "NATIONWIDE": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 1,
+      "NATIONWIDE": 7,
+      "UNRESOLVED": 0
+    },
+    "UNRESOLVED": {
+      "ONLINE": 0,
+      "SINGLE_BRANCH": 0,
+      "MULTIPLE_BRANCHES": 0,
+      "SELECTED_OUTLETS": 0,
+      "NATIONWIDE": 0,
+      "UNRESOLVED": 22
+    }
+  },
+  "summaryMetrics": {
+    "overallClassificationAccuracy": 94,
+    "macroF1": 77.74,
+    "weightedF1": 94.7,
+    "coveragePercent": 75,
+    "safeAbstentionRatePercent": 100,
+    "selectiveAccuracyPercent": 96.91,
+    "incorrectPositiveGeographicAssertions": 0,
+    "misclassifiedSelectedOutletRestrictions": 0
+  },
+  "abstentionAnalysis": {
+    "trueGoldUnresolvedCount": 22,
+    "totalModelAbstentions": 25,
+    "truePositiveAbstentions_Safe": 22,
+    "falseNegativeAbstentions_Conservative": 3,
+    "falsePositiveAssertions_Unsafe": 0,
+    "explanation": "Distinguishes True Gold UNRESOLVED (cases where the bank source provides zero location data) from Model Abstentions (engine choosing to abstain). True positive abstention precision is 100% (22/22) with zero fabricated pins."
+  },
+  "perClassPerformance": {
+    "ONLINE": {
+      "support": 14,
+      "precision": 100,
+      "recall": 100,
+      "f1": 100
+    },
+    "SINGLE_BRANCH": {
+      "support": 43,
+      "precision": 97.67,
+      "recall": 97.67,
+      "f1": 97.67
+    },
+    "MULTIPLE_BRANCHES": {
+      "support": 13,
+      "precision": 100,
+      "recall": 69.23,
+      "f1": 81.82
+    },
+    "SELECTED_OUTLETS": {
+      "support": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    "NATIONWIDE": {
+      "support": 8,
+      "precision": 100,
+      "recall": 87.5,
+      "f1": 93.33
+    },
+    "UNRESOLVED": {
+      "support": 22,
+      "precision": 88,
+      "recall": 100,
+      "f1": 93.62
+    }
+  }
+}

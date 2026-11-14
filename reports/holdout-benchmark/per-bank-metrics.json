@@ -1,0 +1,162 @@
+{
+  "hnb": {
+    "bank": "hnb",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 89.29,
+      "scopeAccuracy": 50,
+      "branchAccuracy": 50,
+      "avgLatencyMs": 8.29
+    },
+    "pipelineB": {
+      "accuracy": 89.29,
+      "scopeAccuracy": 50,
+      "branchAccuracy": 50,
+      "avgLatencyMs": 6.29
+    }
+  },
+  "boc": {
+    "bank": "boc",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 75,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.32
+    },
+    "pipelineB": {
+      "accuracy": 75,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 1.04
+    }
+  },
+  "sampath": {
+    "bank": "sampath",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 89.29,
+      "scopeAccuracy": 0,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.44
+    },
+    "pipelineB": {
+      "accuracy": 89.29,
+      "scopeAccuracy": 0,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 2.43
+    }
+  },
+  "seylan": {
+    "bank": "seylan",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 92.86,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.45
+    },
+    "pipelineB": {
+      "accuracy": 92.86,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 1.3
+    }
+  },
+  "peoples": {
+    "bank": "peoples",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 96.43,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.41
+    },
+    "pipelineB": {
+      "accuracy": 96.43,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 1.76
+    }
+  },
+  "nsb": {
+    "bank": "nsb",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 92.86,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.52
+    },
+    "pipelineB": {
+      "accuracy": 92.86,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 1.98
+    }
+  },
+  "combank": {
+    "bank": "combank",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 89.29,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.54
+    },
+    "pipelineB": {
+      "accuracy": 89.29,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 18.3
+    }
+  },
+  "ndb": {
+    "bank": "ndb",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 96.43,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.41
+    },
+    "pipelineB": {
+      "accuracy": 96.43,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 1.43
+    }
+  },
+  "dfcc": {
+    "bank": "dfcc",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 100,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.38
+    },
+    "pipelineB": {
+      "accuracy": 100,
+      "scopeAccuracy": 100,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 1.41
+    }
+  },
+  "pabc": {
+    "bank": "pabc",
+    "totalOffers": 2,
+    "pipelineA": {
+      "accuracy": 67.86,
+      "scopeAccuracy": 50,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 0.41
+    },
+    "pipelineB": {
+      "accuracy": 67.86,
+      "scopeAccuracy": 50,
+      "branchAccuracy": 100,
+      "avgLatencyMs": 2.56
+    }
+  }
+}

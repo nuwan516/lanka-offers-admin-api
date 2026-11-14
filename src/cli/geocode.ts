@@ -128,22 +128,29 @@ function deriveGeoStatus(row: GeocodedOfferRow): GeoStatus {
  */
 async function persistGeoResults(rows: GeocodedOfferRow[], logger: Logger): Promise<void> {
   let written = 0;
-  for (const row of rows) {
-    if (!row.offerId) continue;
-    const locations = row.locations.filter((l) => l.success !== false).map(toGeoLocation);
-    const status = deriveGeoStatus(row);
-    const geoCacheKey = crypto
-      .createHash('md5')
-      .update(JSON.stringify({ type: row.locationType, addresses: row.locations.map((l) => l.searchAddress).sort() }))
-      .digest('hex');
-    try {
-      await updateOfferGeoLocations(row.offerId, locations, status, geoCacheKey);
-      written++;
-    } catch (e) {
-      logger.warn('DB', `Failed to persist geo result for ${row.offerId}: ${e instanceof Error ? e.message : e}`);
-    }
+  const validRows = rows.filter((r) => !!r.offerId);
+  const CHUNK_SIZE = 15;
+
+  for (let i = 0; i < validRows.length; i += CHUNK_SIZE) {
+    const chunk = validRows.slice(i, i + CHUNK_SIZE);
+    await Promise.all(
+      chunk.map(async (row) => {
+        const locations = row.locations.filter((l) => l.success !== false).map(toGeoLocation);
+        const status = deriveGeoStatus(row);
+        const geoCacheKey = crypto
+          .createHash('md5')
+          .update(JSON.stringify({ type: row.locationType, addresses: row.locations.map((l) => l.searchAddress).sort() }))
+          .digest('hex');
+        try {
+          await updateOfferGeoLocations(row.offerId, locations, status, geoCacheKey);
+          written++;
+        } catch (e) {
+          logger.warn('DB', `Failed to persist geo result for ${row.offerId}: ${e instanceof Error ? e.message : e}`);
+        }
+      })
+    );
   }
-  logger.success('DB', `Persisted geo results for ${written}/${rows.length} offers to Postgres`);
+  logger.success('DB', `Persisted geo results for ${written}/${validRows.length} offers to Postgres`);
 }
 
 // ─── Geocode a single bank ────────────────────────────────────────────────────

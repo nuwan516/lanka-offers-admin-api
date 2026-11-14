@@ -1,0 +1,54 @@
+{
+  "evaluatedAt": "2026-10-29T11:44:17.236Z",
+  "dataset": "new-independent-holdout.json",
+  "totalOffers": 20,
+  "pipeline": "Pipeline B (Selective Validation)",
+  "enforcedBudgets": {
+    "maxAttemptsPerOffer": 3,
+    "maxToolCallsPerAttempt": 5,
+    "maxToolCallsPerOffer": 15,
+    "budgetExceededCount": 0
+  },
+  "telemetry": {
+    "totalRealModelRequests": 0,
+    "totalToolCalls": 25,
+    "toolCallsByTool": [
+      {
+        "tool": "resolve_geographic_scope",
+        "count": 0
+      },
+      {
+        "tool": "extract_participating_branches",
+        "count": 0
+      },
+      {
+        "tool": "get_source_section",
+        "count": 0
+      },
+      {
+        "tool": "lookup_merchant_catalog",
+        "count": 0
+      },
+      {
+        "tool": "calculate_discount_terms",
+        "count": 0
+      },
+      {
+        "tool": "get_raw_offer",
+        "count": 13
+      },
+      {
+        "tool": "compare_financial_terms",
+        "count": 12
+      }
+    ],
+    "totalInputTokens": 10950,
+    "totalOutputTokens": 1260,
+    "totalCostUsd": 0.001886,
+    "costPerOfferUsd": 0.000094,
+    "averageLatencyMs": 3.85,
+    "unsupportedAcceptedClaimsCount": 0,
+    "reviewEscalations": 2,
+    "falseExactPinsProduced": 0
+  }
+}

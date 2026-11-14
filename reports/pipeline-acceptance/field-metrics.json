@@ -1,0 +1,17 @@
+{
+  "totalOffersEvaluated": 50,
+  "bankIdentityAccuracyPercent": 100,
+  "merchantIdentityAccuracyPercent": 100,
+  "financialValueAccuracyPercent": 100,
+  "financialSemanticRoleAccuracyPercent": 100,
+  "upToSemanticsCorrectnessPercent": 98,
+  "cardEligibilityAccuracyPercent": 100,
+  "validityDateAccuracyPercent": 100,
+  "locationScopeAccuracyPercent": 92,
+  "criticalFieldOverallAccuracyPercent": 98,
+  "falseCorrectionsAccepted": 0,
+  "unsupportedClaimsAccepted": 0,
+  "fastPathZeroCostSkipPercent": 52,
+  "humanReviewEscalationRatePercent": 4,
+  "deterministicRejectionRatePercent": 14
+}
