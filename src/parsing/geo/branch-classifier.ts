@@ -7,6 +7,21 @@ import { SRI_LANKAN_CITIES } from '@/core/constants/cities';
 
 const ONLINE_PATTERNS = /\b(?:uber(?:\s*eats)?|daraz|pickme(?:\s*food)?|food\s*panda|shopee|lazada)\b/i;
 
+/** A location/address field that is only a URL or bare domain, not a street. */
+function isWebOnlyLocation(value: string): boolean {
+  const t = value.trim();
+  if (!t || /\s/.test(t)) return false;
+  return (
+    /^https?:\/\//i.test(t) ||
+    /^www\./i.test(t) ||
+    /^[\w.-]+\.(?:lk|com|net|org|io)(?:\/\S*)?$/i.test(t)
+  );
+}
+
+function hasPhysicalAddressText(value: string): boolean {
+  return /\b(?:Road|Street|Lane|Avenue|Mawatha|Rd|St)\b/i.test(value) || /\bNo\.?\s*\d+/i.test(value);
+}
+
 // ─── "All outlets" pattern ────────────────────────────────────────────────────
 
 const ALL_OUTLETS_PATTERN = /\ball\s+(?:outlets?|branches)\b/i;
@@ -106,12 +121,18 @@ export function classify(locData: LocationData): LocationClassification {
 
   // ── 2. ONLINE: URL location, domain-style name, campaign, or known
   //      online-only merchant — none of these have a geocodable venue ────────
+  const addressBlobs = [address ?? '', ...(addresses ?? []), ...(branches ?? [])];
+  const hasPhysicalAddress = addressBlobs.some((a) => hasPhysicalAddressText(a));
+  const webOnlyLocation =
+    !hasPhysicalAddress &&
+    (isWebOnlyLocation(location ?? '') || isWebOnlyLocation(address ?? ''));
   if (
     (location ?? '').startsWith('http') ||
     (name ?? '').startsWith('www.') ||
     /\.(?:lk|com|net|org)\b/i.test(name) ||           // "BuyMe.lk", "crazyjets.com"
     /\b(?:visa|mastercard)\b.*\boffers?\b/i.test(name) || // "Visa Concierge Offers 2026"
-    ONLINE_PATTERNS.test(name)
+    ONLINE_PATTERNS.test(name) ||
+    webOnlyLocation
   ) {
     return { type: LocationType.ONLINE, addresses: [], chainQuery: null, merchantForSearch: name };
   }
@@ -122,7 +143,14 @@ export function classify(locData: LocationData): LocationClassification {
     if (!/selected|participating/i.test(location ?? '')) {
       const chain = matchChain(name);
       const chainQuery = chain ? chain.query : `${name} Sri Lanka`;
-      return { type: LocationType.CHAIN, addresses: [], chainQuery, merchantForSearch: name };
+      // Island-wide / all-outlets is coverage, not a confirmed branch list.
+      return {
+        type: LocationType.CHAIN,
+        addresses: [],
+        chainQuery,
+        merchantForSearch: name,
+        emitConfirmedCoordinates: false,
+      };
     }
   }
 
@@ -138,7 +166,14 @@ export function classify(locData: LocationData): LocationClassification {
   // ── 4. CHAIN: known chain with no specific address ───────────────────────
   const chain = matchChain(name);
   if (chain && !address && !city && (!addresses || addresses.length === 0)) {
-    return { type: LocationType.CHAIN, addresses: [], chainQuery: chain.query, merchantForSearch: name };
+    // A chain name alone does not prove every outlet participates.
+    return {
+      type: LocationType.CHAIN,
+      addresses: [],
+      chainQuery: chain.query,
+      merchantForSearch: name,
+      emitConfirmedCoordinates: false,
+    };
   }
 
   // ── 5. NONE: absolutely nothing ─────────────────────────────────────────

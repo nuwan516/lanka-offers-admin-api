@@ -7,6 +7,7 @@
  */
 
 import { pool } from '@/infrastructure/db/db-client';
+import { nearbyScopePredicate } from '@/infrastructure/db/offer-branches';
 
 export interface PublicOfferSummary {
   id: string;
@@ -152,7 +153,7 @@ export class PublicOfferQueryHarness {
       "o.geo_locations IS NOT NULL",
       "jsonb_typeof(o.geo_locations) = 'array'",
       "jsonb_array_length(o.geo_locations) > 0",
-      "(o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'UNRESOLVED'))",
+      nearbyScopePredicate('o.location_scope'),
     ];
 
     const params: unknown[] = [options.lat, options.lng, radius];
@@ -176,7 +177,12 @@ export class PublicOfferQueryHarness {
       paramIndex++;
     }
 
-    const whereSql = `WHERE ${conditions.join(' AND ')}`;
+    const whereSql = `WHERE ${conditions.join(' AND ')}
+          AND COALESCE(loc->>'coordinate_status', loc->>'coordinateStatus', 'VERIFIED') IN ('VERIFIED')
+          AND COALESCE(loc->>'participation_status', loc->>'participationStatus', 'SOURCE_VERIFIED')
+              NOT IN ('UNCONFIRMED', 'EXCLUDED')
+          AND COALESCE(loc->>'confirmed', 'true') <> 'false'
+          AND COALESCE(loc->>'success', 'true') <> 'false'`;
 
     const dataSql = `
       WITH valid_branches AS (
@@ -223,8 +229,9 @@ export class PublicOfferQueryHarness {
         FROM valid_branches
         WHERE branch_lat IS NOT NULL
           AND branch_lng IS NOT NULL
-          AND branch_lat BETWEEN -90.0 AND 90.0
-          AND branch_lng BETWEEN -180.0 AND 180.0
+          AND branch_lat BETWEEN 5.9 AND 10.0
+          AND branch_lng BETWEEN 79.5 AND 82.0
+          AND NOT (abs(branch_lat - 7.8731) < 0.05 AND abs(branch_lng - 80.7718) < 0.05)
           AND branch_lat BETWEEN ($1 - ($3 / 111.0)) AND ($1 + ($3 / 111.0))
           AND branch_lng BETWEEN ($2 - ($3 / (111.0 * greatest(0.01, cos(radians(least(89.0, greatest(-89.0, $1))))))))
                              AND ($2 + ($3 / (111.0 * greatest(0.01, cos(radians(least(89.0, greatest(-89.0, $1))))))))
@@ -283,8 +290,9 @@ export class PublicOfferQueryHarness {
         FROM valid_branches
         WHERE branch_lat IS NOT NULL
           AND branch_lng IS NOT NULL
-          AND branch_lat BETWEEN -90.0 AND 90.0
-          AND branch_lng BETWEEN -180.0 AND 180.0
+          AND branch_lat BETWEEN 5.9 AND 10.0
+          AND branch_lng BETWEEN 79.5 AND 82.0
+          AND NOT (abs(branch_lat - 7.8731) < 0.05 AND abs(branch_lng - 80.7718) < 0.05)
           AND branch_lat BETWEEN ($1 - ($3 / 111.0)) AND ($1 + ($3 / 111.0))
           AND branch_lng BETWEEN ($2 - ($3 / (111.0 * greatest(0.01, cos(radians(least(89.0, greatest(-89.0, $1))))))))
                              AND ($2 + ($3 / (111.0 * greatest(0.01, cos(radians(least(89.0, greatest(-89.0, $1))))))))

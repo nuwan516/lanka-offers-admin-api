@@ -90,6 +90,7 @@ describe('classify()', () => {
       const result = classify({ ...base(), merchantName: 'Cargills Food City', location: 'All Outlets Island Wide' });
       expect(result.type).toBe(LocationType.CHAIN);
       expect(result.chainQuery).not.toBeNull();
+      expect(result.emitConfirmedCoordinates).toBe(false);
     });
 
     it('returns CHAIN for known chain case-insensitively', () => {
@@ -124,6 +125,12 @@ describe('classify()', () => {
     it('returns ONLINE for Uber', () => {
       const result = classify({ ...base(), merchantName: 'Uber Eats' });
       expect(result.type).toBe(LocationType.ONLINE);
+    });
+
+    it('returns ONLINE for a website-only location instead of expanding a chain', () => {
+      const result = classify({ ...base(), merchantName: 'Cool Planet', location: 'www.coolplanet.lk' });
+      expect(result.type).toBe(LocationType.ONLINE);
+      expect(result.addresses).toEqual([]);
     });
   });
 

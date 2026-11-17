@@ -1,0 +1,51 @@
+{
+  "textQuery": "Cinnamon Grand Colombo",
+  "places": [
+    {
+      "id": "place-grand",
+      "displayName": { "text": "Cinnamon Grand Colombo" },
+      "formattedAddress": "77 Galle Road, Colombo 00300, Sri Lanka",
+      "location": { "latitude": 6.917, "longitude": 79.848 },
+      "types": ["lodging", "point_of_interest"],
+      "businessStatus": "OPERATIONAL"
+    },
+    {
+      "id": "place-lakeside",
+      "displayName": { "text": "Cinnamon Lakeside Colombo" },
+      "formattedAddress": "115 Sir Chittampalam A Gardiner Mawatha, Colombo 00200, Sri Lanka",
+      "location": { "latitude": 6.927, "longitude": 79.849 },
+      "types": ["lodging", "point_of_interest"],
+      "businessStatus": "OPERATIONAL"
+    },
+    {
+      "id": "place-grand",
+      "displayName": { "text": "Cinnamon Grand Colombo" },
+      "formattedAddress": "77 Galle Road, Colombo 00300, Sri Lanka",
+      "location": { "latitude": 6.917, "longitude": 79.848 },
+      "types": ["lodging"],
+      "businessStatus": "OPERATIONAL"
+    },
+    {
+      "id": "place-india",
+      "displayName": { "text": "Cinnamon Grand Colombo" },
+      "formattedAddress": "Mumbai, India",
+      "location": { "latitude": 19.076, "longitude": 72.877 },
+      "types": ["lodging"],
+      "businessStatus": "OPERATIONAL"
+    },
+    {
+      "id": "place-kandy",
+      "displayName": { "text": "Cinnamon Grand" },
+      "formattedAddress": "Kandy, Sri Lanka",
+      "location": { "latitude": 7.29, "longitude": 80.63 },
+      "types": ["lodging"],
+      "businessStatus": "OPERATIONAL"
+    },
+    {
+      "id": "place-missing",
+      "displayName": { "text": "Cinnamon Grand Colombo" },
+      "formattedAddress": "Colombo, Sri Lanka",
+      "businessStatus": "OPERATIONAL"
+    }
+  ]
+}

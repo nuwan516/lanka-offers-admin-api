@@ -200,6 +200,59 @@ function isNoise(text: string): boolean {
     return NOISE_PATTERNS.some(p => p.test(text));
 }
 
+const CARD_LOCATION_WORD = /^(?:both|all|your|nsb|and|&|the|with|visa|mastercard|master|card|cards|credit|debit)$/i;
+
+/**
+ * A token that is only a card brand or card-eligibility phrase, never a place.
+ * "Visa", "Mastercard", "Credit", "Debit", "Cards", "both Debit", "Credit Cards".
+ */
+function isCardLocationToken(token: string): boolean {
+    const words = token.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0 || words.length > 8) return false;
+    if (!words.some((w) => /^(?:visa|mastercard|credit|debit|cards?)$/i.test(w))) return false;
+    return words.every((w) => CARD_LOCATION_WORD.test(w));
+}
+
+function sameLabel(a: string, b: string): boolean {
+    const norm = (v: string) => v.trim().toLowerCase().replace(/[!.?,]+$/g, '').replace(/\s+/g, ' ');
+    return Boolean(norm(a) && norm(b) && norm(a) === norm(b));
+}
+
+function hasPlaceSignal(text: string): boolean {
+    return (
+        /\b(?:Road|Street|Lane|Avenue|Mawatha|Place|Rd|St|Hotel|Resort|Restaurant|Café|Cafe|Mall|Junction)\b/i.test(text) ||
+        /\bNo\.?\s*\d+/i.test(text) ||
+        /\bColombo\s+\d{1,2}\b/i.test(text) ||
+        /\b(?:Nugegoda|Maharagama|Kandy|Galle|Wattala|Negombo|Kottawa|Rajagiriya|Battaramulla|Dehiwala|Mt\.?\s+Lavinia|Mount\s+Lavinia)\b/i.test(text)
+    );
+}
+
+/** Marketing headline with a card brand and no street, town, or venue. */
+function isOfferHeadline(text: string): boolean {
+    if (!text || hasPlaceSignal(text)) return false;
+    const hasBrand = /\b(?:visa|mastercard|master\s*card|debit\s+card|credit\s+card|nsb)\b/i.test(text);
+    const hasPitch = /\b(?:off|offer|spend|win|discount|cardholders?)\b/i.test(text);
+    return hasBrand && hasPitch;
+}
+
+/**
+ * Drop card-brand and title/merchant prefixes so they are never the location token.
+ * A remaining street, town, or venue is kept.
+ */
+function stripNonLocationPrefix(text: string, blocked: string[]): string {
+    const parts = text.split(/\s*,\s*/).map((p) => p.trim()).filter(Boolean);
+    while (parts.length > 0) {
+        const head = parts[0];
+        const blockedHead = blocked.some((b) => sameLabel(head, b));
+        if (isCardLocationToken(head) || blockedHead) {
+            parts.shift();
+            continue;
+        }
+        break;
+    }
+    return parts.join(', ');
+}
+
 // ─── AddressEngine ────────────────────────────────────────────────────────────
 
 export class AddressEngine {
@@ -208,6 +261,8 @@ export class AddressEngine {
     private readonly excludePatterns: RegExp[];
     private readonly fallbackToMerchant: boolean;
     private readonly rejectPatterns: () => RegExp[];
+    /** Merchant name and offer title for the extract() call in progress. */
+    private blockedLocationLabels: string[] = [];
 
     constructor(config: AddressEngineConfig = {}) {
         this.country = config.country ?? 'Sri Lanka';
@@ -230,10 +285,13 @@ export class AddressEngine {
      *
      * @param rawText      Raw offer content (may contain HTML)
      * @param merchantName Merchant name used as fallback query hint
+     * @param title        Offer title. Never returned as a location by itself.
      */
-    extract(rawText: string, merchantName = ''): string[] {
+    extract(rawText: string, merchantName = '', title = ''): string[] {
         if (!rawText && !merchantName) return [];
 
+        this.blockedLocationLabels = [merchantName, title].map((s) => s.trim()).filter(Boolean);
+        try {
         // Newlines are preserved — one-branch-per-line lists (BOC) depend on them
         const text = rawText ? stripHtmlKeepLines(rawText) : '';
 
@@ -249,11 +307,15 @@ export class AddressEngine {
         const fromStructure = this.extractFromStructure(text, merchantName);
         if (fromStructure.length > 0) return fromStructure;
 
-        // 4. Fallback — only if explicitly enabled
+        // 4. Fallback — only if explicitly enabled.
+        // The merchant-name query is a Places hint, not a confirmed branch.
         if (this.fallbackToMerchant && merchantName) {
             return [this.appendCountry(merchantName)];
         }
         return [];
+        } finally {
+            this.blockedLocationLabels = [];
+        }
     }
 
     /**
@@ -294,7 +356,10 @@ export class AddressEngine {
         cleaned = cleaned.replace(/\s*[-–]?\s*\bSpecial\s+Terms\b.*$/i, '');
         cleaned = stripTrailing(cleaned);
 
+        cleaned = stripNonLocationPrefix(cleaned, this.blockedLocationLabels);
         if (cleaned.length < 3) return null;
+        if (isCardLocationToken(cleaned) || isOfferHeadline(cleaned)) return null;
+        if (this.blockedLocationLabels.some((label) => sameLabel(cleaned, label))) return null;
         if (isNoise(cleaned)) return null;
         if (this.rejectPatterns().some(p => p.test(cleaned))) return null;
 
@@ -316,6 +381,16 @@ export class AddressEngine {
                 // No noise pre-check here: lines like "No 33, ... - Contact: 011 269 8161"
                 // must have contact info stripped (inside normalize) before judging noise.
                 const content = cutSentenceBoundary(match[1].trim());
+                // "Location: Visa" / a marketing title must not become the place.
+                // A labeled value that also contains a street still continues,
+                // and the card-brand token is removed in normalize().
+                if (
+                    isCardLocationToken(content) ||
+                    isOfferHeadline(content) ||
+                    this.blockedLocationLabels.some((label) => sameLabel(content, label))
+                ) {
+                    continue;
+                }
                 const continuation: string[] = [];
                 const followingLines = text.slice(gMarker.lastIndex).split('\n').slice(1);
                 for (const line of followingLines) {

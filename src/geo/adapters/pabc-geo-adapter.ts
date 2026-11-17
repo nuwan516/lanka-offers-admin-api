@@ -1,6 +1,7 @@
 import { Offer } from '@/core/types/offers';
 import { LocationData } from '@/core/types/geo';
 import { IGeoAdapter } from './geo-adapter.interface';
+import { hasStrongStreetAddress } from '@/domain/location-scope';
 
 /**
  * Pan Asia Bank (PABC) Geo Adapter
@@ -28,7 +29,8 @@ export class PABCGeoAdapter implements IGeoAdapter {
         : null;
 
     let candidateAddresses: string[] = [];
-    if (!isOnlineCategory) {
+    const keepPhysical = addresses.some((a) => hasStrongStreetAddress(a));
+    if (!isOnlineCategory || keepPhysical) {
       if (addresses.length > 0) {
         candidateAddresses = addresses.map((addr) =>
           addr.toLowerCase().includes(name.toLowerCase()) ? addr : `${name}, ${addr}`,

@@ -334,7 +334,7 @@ CREATE INDEX IF NOT EXISTS idx_offer_branches_lat_lng
   ON offer_branches (lat, lng);
 
 -- Idempotent backfill from geo_locations JSONB (supports both lat/lng and latitude/longitude keys).
--- Skips ONLINE/NATIONWIDE/UNRESOLVED scopes and malformed coordinates.
+-- Skips ONLINE/NATIONWIDE/UNRESOLVED scopes, unconfirmed hits, and malformed coordinates.
 -- Does not invent coordinates (no false location precision).
 INSERT INTO offer_branches (offer_id, branch_name, branch_address, lat, lng, confidence, geom)
 SELECT
@@ -371,11 +371,17 @@ CROSS JOIN LATERAL (
       ELSE NULL
     END AS branch_lng
 ) coords
-WHERE o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'UNRESOLVED')
+WHERE (o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'NATIONWIDE', 'UNRESOLVED'))
+  AND COALESCE(loc->>'confirmed', 'true') <> 'false'
+  AND COALESCE(loc->>'success', 'true') <> 'false'
+  AND COALESCE(loc->>'coordinate_status', loc->>'coordinateStatus', 'VERIFIED') IN ('VERIFIED')
+  AND COALESCE(loc->>'participation_status', loc->>'participationStatus', 'SOURCE_VERIFIED')
+      NOT IN ('UNCONFIRMED', 'EXCLUDED')
   AND branch_lat IS NOT NULL
   AND branch_lng IS NOT NULL
-  AND branch_lat BETWEEN -90.0 AND 90.0
-  AND branch_lng BETWEEN -180.0 AND 180.0
+  AND branch_lat BETWEEN 5.9 AND 10.0
+  AND branch_lng BETWEEN 79.5 AND 82.0
+  AND NOT (abs(branch_lat - 7.8731) < 0.05 AND abs(branch_lng - 80.7718) < 0.05)
   AND NOT EXISTS (
     SELECT 1 FROM offer_branches ob
     WHERE ob.offer_id = o.id

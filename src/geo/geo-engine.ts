@@ -14,6 +14,10 @@ import { classify } from '@/parsing/geo/branch-classifier';
 import { Geocoder } from '@/infrastructure/geo/geocoder';
 import { PlacesClient } from '@/infrastructure/geo/places-client';
 import { Logger } from '@/infrastructure/logger/logger';
+import { LocationScope } from '@/domain/location-scope';
+import { assessAddressQuality } from '@/geo/address-quality';
+import { GeocodingVerifier } from '@/geo/geocoding-verifier';
+import { confirmPlacesMatches } from '@/geo/places-confirmation';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -151,7 +155,8 @@ export class GeoEngine {
         const addr = classification.addresses[0];
         this.logger.info('Geo', `${progress} SINGLE  ${safeName.padEnd(32)} → ${addr.substring(0, 50)}`);
         const result = await this.geocoder.geocodeAddress(addr);
-        locations.push(result);
+        const stamped = stampGeocodeConfirmation(result, addr, LocationScope.EXPLICIT_BRANCH);
+        if (stamped.confirmed) locations.push(stamped);
         break;
       }
 
@@ -160,15 +165,21 @@ export class GeoEngine {
         const batch = await this.geocoder.geocodeBatch(classification.addresses);
         for (const addr of classification.addresses) {
           const result = batch.get(addr);
-          if (result) {
-            locations.push({ ...result, branchName: addr });
-          }
+          if (!result) continue;
+          const stamped = stampGeocodeConfirmation(
+            { ...result, branchName: addr },
+            addr,
+            LocationScope.MULTIPLE_BRANCHES,
+          );
+          if (stamped.confirmed) locations.push(stamped);
         }
         break;
       }
 
       case LocationType.CHAIN: {
-        if (this.skipChains) {
+        if (classification.emitConfirmedCoordinates === false) {
+          this.logger.info('Geo', `${progress} CHAIN   ${safeName.padEnd(32)} → unconfirmed (no branch pins)`);
+        } else if (this.skipChains) {
           this.logger.info('Geo', `${progress} CHAIN   ${safeName.padEnd(32)} → SKIPPED`);
         } else {
           const query = classification.chainQuery!;
@@ -179,8 +190,25 @@ export class GeoEngine {
           const limited = classification.chainResultLimit
             ? branches.slice(0, classification.chainResultLimit)
             : branches;
-          locations.push(...limited);
-          this.logger.debug('Geo', `Found ${branches.length} branches, kept ${limited.length}`);
+          const decisions = confirmPlacesMatches(
+            query,
+            limited.map((b) => ({
+              placeId: b.placeId,
+              name: b.branchName,
+              formattedAddress: b.formattedAddress,
+              latitude: b.latitude,
+              longitude: b.longitude,
+              types: b.types,
+              businessStatus: b.businessStatus,
+            })),
+          );
+          const confirmedIds = new Set(decisions.filter((d) => d.confirmed).map((d) => d.placeId));
+          for (const branch of limited) {
+            if (branch.placeId && confirmedIds.has(branch.placeId)) {
+              locations.push({ ...branch, confirmed: true });
+            }
+          }
+          this.logger.debug('Geo', `Found ${branches.length} branches, confirmed ${locations.length}`);
         }
         break;
       }
@@ -237,6 +265,21 @@ export class GeoEngine {
       duplicatesRemoved,
     };
   }
+}
+
+/**
+ * A geocode hit becomes a confirmed branch coordinate only when the verifier
+ * accepts an exact pin. Area centroids, country centroids, and rejected
+ * matches stay unconfirmed and are not returned as pins.
+ */
+export function stampGeocodeConfirmation(
+  result: GeoResult,
+  query: string,
+  scope: LocationScope,
+): GeoResult {
+  const quality = assessAddressQuality({ candidateAddresses: [query] }).quality;
+  const verification = GeocodingVerifier.verifyResult(result, query, quality, scope);
+  return { ...result, confirmed: verification.isVerifiedExactPin };
 }
 
 // ─── Output helpers ───────────────────────────────────────────────────────────

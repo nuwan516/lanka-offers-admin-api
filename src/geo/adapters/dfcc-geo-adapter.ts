@@ -1,6 +1,7 @@
 import { Offer } from '@/core/types/offers';
 import { LocationData } from '@/core/types/geo';
 import { IGeoAdapter } from './geo-adapter.interface';
+import { hasStrongStreetAddress } from '@/domain/location-scope';
 
 /**
  * DFCC Geo Adapter
@@ -30,7 +31,9 @@ export class DFCCGeoAdapter implements IGeoAdapter {
         : null;
 
     let candidateAddresses: string[] = [];
-    if (!isOnlineCategory) {
+    // An "Online" category must not discard a real street address on the same offer.
+    const keepPhysical = addresses.some((a) => hasStrongStreetAddress(a));
+    if (!isOnlineCategory || keepPhysical) {
       if (addresses.length > 0) {
         candidateAddresses = addresses.map((addr) =>
           addr.toLowerCase().includes(name.toLowerCase()) ? addr : `${name}, ${addr}`,
