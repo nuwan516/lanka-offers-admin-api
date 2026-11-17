@@ -8,6 +8,8 @@ import type { Offer, GeoLocation } from '@/core/types/offers';
 import type { ValidatorReport } from '@/core/types/validation';
 import type { OfferLifecycleStatus, OfferChangeStatus } from '@/domain/offer-lifecycle';
 import { classifyScraperFailure } from '@/domain/failure-classifier';
+import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
+import { determineLocationScope } from '@/domain/location-scope';
 import { syncOfferBranches, syncOfferBranchesByUniqueId } from './offer-branches';
 
 // ─── Scrape Runs & Fencing ───────────────────────────────────────────────────
@@ -206,7 +208,9 @@ function offerColumnValues(offer: Offer, rawOfferSource?: Offer) {
   const validity = offer.validityPeriods?.[0];
   const merchantName = offer.merchant?.name ?? offer.title;
   const canonicalRes = resolveCanonicalMerchant(merchantName);
-  const scopeRes = determineLocationScope({
+  // `terms` is read by determineLocationScope, but that parameter type does
+  // not list it yet (location-scope.ts). A non-literal keeps the property.
+  const scopeInput = {
     location: offer.merchant?.location,
     title: offer.title,
     description: offer.offer?.description,
@@ -214,7 +218,8 @@ function offerColumnValues(offer: Offer, rawOfferSource?: Offer) {
     addresses: offer.merchant?.addresses,
     geoLocations: offer.merchant?.geocodedLocations,
     terms: offer.offer?.generalTerms,
-  });
+  };
+  const scopeRes = determineLocationScope(scopeInput);
   const merchantPhone = offer.merchant?.phone?.[0] ?? null;
   const imageUrl = offer.images?.images?.[0]?.url ?? offer.images?.logo?.url ?? null;
   const termsText = (offer.offer as any)?.terms ?? (offer.offer?.generalTerms?.length ? offer.offer.generalTerms.join('\n') : null);

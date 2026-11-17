@@ -355,7 +355,9 @@ async function syncOneOfferWithClient(
 
   const merchantName = effective.merchant?.name ?? effective.title;
   const canonicalRes = resolveCanonicalMerchant(merchantName);
-  const scopeRes = determineLocationScope({
+  // `terms` is read by determineLocationScope, but that parameter type does
+  // not list it yet (location-scope.ts). A non-literal keeps the property.
+  const scopeInput = {
     location: effective.merchant?.location,
     title: effective.title,
     description: effective.offer?.description,
@@ -363,7 +365,8 @@ async function syncOneOfferWithClient(
     addresses: effective.merchant?.addresses,
     geoLocations: effective.merchant?.geocodedLocations,
     terms: effective.offer?.generalTerms,
-  });
+  };
+  const scopeRes = determineLocationScope(scopeInput);
   const merchantPhone = effective.merchant?.phone?.[0] ?? null;
   const imageUrl = effective.images?.images?.[0]?.url ?? effective.images?.logo?.url ?? null;
   const validity = effective.validityPeriods?.[0];

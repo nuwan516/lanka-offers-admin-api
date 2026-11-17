@@ -62,8 +62,11 @@ import type { OfferLifecycleStatus } from '@/domain/offer-lifecycle';
 import {
   detectAndRecordDuplicates,
   flagOfferAsDuplicate,
+  loadBankCandidates,
   shouldRunDuplicateDetection,
+  type CandidateOfferRow,
 } from '@/infrastructure/db/duplicate-repository';
+import { getDuplicatePolicyConfig } from '@/config/duplicate-policy';
 import { exportDryRunArtifacts } from '@/cli/dry-run-exporter';
 import { ImageAcquisitionService, getOfferImageSource } from '@/infrastructure/images/image-acquisition-service';
 
@@ -188,7 +191,7 @@ function saveValidationReport(bankName: string, reports: ValidationPipelineRepor
 
 // ─── Main ────────────────────────────────────────────────────────────────────────
 
-async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
+export async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
   const logger = new Logger(bankName);
   const bankConfig = getBankConfig(bankName);
 
@@ -441,6 +444,23 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       await Promise.all(imageWorkers);
 
       logger.info('DB', `Persisting ${offers.length} offers to Neon…`);
+      // One same-bank snapshot for every NEW/CHANGED offer in this run.
+      // `loadBankCandidates` is optional input to detectAndRecordDuplicates;
+      // if the preload fails, leave it unset so detection queries per offer.
+      let bankCandidates: CandidateOfferRow[] | undefined;
+      try {
+        const duplicatePolicy = getDuplicatePolicyConfig();
+        bankCandidates = await loadBankCandidates(
+          bankName,
+          duplicatePolicy.candidateSearchLimit,
+          duplicatePolicy.candidateMaxStaleDays,
+        );
+      } catch (e) {
+        logger.warn(
+          'Duplicate',
+          `Candidate preload failed; each offer will query its own candidate set: ${e instanceof Error ? e.message : e}`,
+        );
+      }
       let dbNew = 0,
         dbChanged = 0,
         dbUnchanged = 0,
@@ -645,7 +665,9 @@ async function main(): Promise<void> {
   await closePool().catch(() => null);
 }
 
-main().catch((err) => {
-  console.error('\n  ❌ Fatal error:', err instanceof Error ? err.message : err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('\n  ❌ Fatal error:', err instanceof Error ? err.message : err);
+    process.exit(1);
+  });
+}
