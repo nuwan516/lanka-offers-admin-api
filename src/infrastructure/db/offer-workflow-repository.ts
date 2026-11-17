@@ -563,7 +563,7 @@ export async function reconcileExpiredOffers(
          FROM offers
          WHERE db_status = 'PUBLISHED'
            AND valid_to IS NOT NULL
-           AND valid_to < CURRENT_DATE`,
+           AND valid_to < (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date`,
       );
 
       return {
@@ -579,7 +579,7 @@ export async function reconcileExpiredOffers(
            updated_at = NOW()
        WHERE db_status = 'PUBLISHED'
          AND valid_to IS NOT NULL
-         AND valid_to < CURRENT_DATE
+         AND valid_to < (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date
        RETURNING id, unique_id`,
     );
 
