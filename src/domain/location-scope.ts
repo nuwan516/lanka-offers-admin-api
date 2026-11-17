@@ -150,6 +150,14 @@ function hasStreetPattern(text: string): boolean {
   return STREET_PATTERNS.some((p) => p.test(text));
 }
 
+/** House number plus a road word. Stronger than a bare "Road" mention. */
+export function hasStrongStreetAddress(text: string): boolean {
+  if (!text) return false;
+  const hasNumber = /\bNo\.?\s*\d+[A-Za-z]?\b/i.test(text) || /\b\d{1,4}\s*,\s*[A-Za-z]/i.test(text);
+  const hasRoad = /\b(?:Road|Street|Lane|Avenue|Mawatha|Rd|St)\b/i.test(text);
+  return hasNumber && hasRoad;
+}
+
 function hasMallPattern(text: string): boolean {
   if (!text) return false;
   return MALL_PATTERNS.some((p) => p.test(text));
@@ -220,6 +228,8 @@ export function determineLocationScope(input: {
   merchantName?: string | null;
   addresses?: string[];
   geoLocations?: unknown[];
+  /** Bank terms / restrictions. Included in evidence; not a geocode by themselves. */
+  terms?: string[] | null;
 }): LocationScopeResult {
   let loc = (input.location ?? '').trim();
   // Filter out noise in location string
@@ -254,6 +264,22 @@ export function determineLocationScope(input: {
     hasMallPattern(mName) ||
     hasConcreteSingleVenue(mName) ||
     mentionsPhysicalOutlets;
+
+  const evidenceForStreet = `${loc}\n${title}\n${desc}\n${termsText}\n${addresses.join('\n')}`;
+  if (/\b(?:online\s+only|website\s+only|app\s+only)\b/i.test(combined) && hasStrongStreetAddress(evidenceForStreet)) {
+    return {
+      scope: LocationScope.UNRESOLVED,
+      venueIdentity: 'UNRESOLVED_VENUE',
+      addressPrecision: 'NO_ADDRESS',
+      coordinateConfidence: 'NOT_GEOCODABLE',
+      branchListCompleteness: 'INSUFFICIENT_EVIDENCE',
+      rawEvidence: loc || title || desc,
+      explanation: 'Ambiguous: online-only wording and a street address are both present. Not confirmed as a branch pin.',
+      isGeocodableToCoordinates: false,
+      participatingBranchesCount: null,
+      participatingBranches: [],
+    };
+  }
 
   if (isOnline && !hasPhysicalVenue) {
     return {
@@ -431,6 +457,20 @@ export function determineLocationScope(input: {
   // 4. NATIONWIDE check (Islandwide / All Outlets)
   const isNationwide = NATIONWIDE_INDICATORS.some((pattern) => pattern.test(combined));
   if (isNationwide) {
+    if (hasStrongStreetAddress(evidenceForStreet)) {
+      return {
+        scope: LocationScope.UNRESOLVED,
+        venueIdentity: 'UNRESOLVED_VENUE',
+        addressPrecision: 'NO_ADDRESS',
+        coordinateConfidence: 'NOT_GEOCODABLE',
+        branchListCompleteness: 'INSUFFICIENT_EVIDENCE',
+        rawEvidence: loc || title,
+        explanation: 'Ambiguous: island-wide wording and a street address are both present. Not confirmed as a branch pin.',
+        isGeocodableToCoordinates: false,
+        participatingBranchesCount: null,
+        participatingBranches: [],
+      };
+    }
     return {
       scope: LocationScope.NATIONWIDE,
       venueIdentity: isKnownChainBrand(mName) ? 'MULTI_VENUE_CHAIN' : 'UNRESOLVED_VENUE',
@@ -593,6 +633,21 @@ export function determineLocationScope(input: {
         };
       }
     }
+  }
+
+  if (hasStrongStreetAddress(`${title}\n${desc}`)) {
+    return {
+      scope: LocationScope.EXPLICIT_BRANCH,
+      venueIdentity: 'SINGLE_CONCRETE_VENUE',
+      addressPrecision: 'EXACT_STREET_ADDRESS',
+      coordinateConfidence: 'GEOCODABLE',
+      branchListCompleteness: 'COMPLETE_BRANCH_LIST',
+      rawEvidence: desc || title,
+      explanation: 'Street address named in the offer text.',
+      isGeocodableToCoordinates: true,
+      participatingBranchesCount: 1,
+      participatingBranches: [desc || title],
+    };
   }
 
   // 6. UNRESOLVED

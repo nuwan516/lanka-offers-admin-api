@@ -59,7 +59,7 @@ export function parseNSBOffer(raw: NSBRawOffer): Offer | null {
   const cardText = `${title} ${description}`;
 
   const merchantName = extractMerchantName(title, description);
-  const addresses = addressEngine.extract(description, merchantName);
+  const addresses = addressEngine.extract(description, merchantName, title);
 
   const image = listing.thumbnailUrl || detail?.images?.[0] || null;
   const logo: ImageInfo | null = image ? { url: ensureAbsolute(image), alt: title, type: 'logo' } : null;

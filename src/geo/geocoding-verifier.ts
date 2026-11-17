@@ -122,10 +122,12 @@ export class GeocodingVerifier {
       };
     }
 
-    // 3. Area-only and digital restriction: AREA_ONLY and ONLINE never receive an exact map pin
-    // Note: Both SELECTED_OUTLETS and NATIONWIDE allow exact pins when the specific branch has verified physical premises coordinates.
+    // 3. Area-only, digital, island-wide, and unresolved scopes never receive an exact map pin.
+    // SELECTED_OUTLETS may still pin when the source named that outlet and the hit is an exact premise.
     if (quality === 'AREA_ONLY' || quality === 'ONLINE_ONLY' || quality === 'INVALID' ||
-        scope === LocationScope.ONLINE) {
+        scope === LocationScope.ONLINE ||
+        scope === LocationScope.NATIONWIDE ||
+        scope === LocationScope.UNRESOLVED) {
       return {
         isVerifiedExactPin: false,
         isVerifiedAreaCentroid: true,

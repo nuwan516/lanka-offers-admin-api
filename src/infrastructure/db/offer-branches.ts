@@ -5,7 +5,8 @@
  * unnesting offers.geo_locations + Haversine on every request.
  *
  * Invariants:
- * - Never invents coordinates for ONLINE / NATIONWIDE / SELECTED_OUTLETS / UNRESOLVED.
+ * - Never invents coordinates for ONLINE / NATIONWIDE / UNRESOLVED.
+ * - Unconfirmed, rejected, or out-of-country coordinates never become branch rows.
  * - Does not mutate offers.raw_offer (immutable evidence).
  * - Supports both public API shape (lat/lng) and admin GeoLocation (latitude/longitude).
  */
@@ -27,11 +28,45 @@ type Queryable = {
 };
 
 /**
- * Scopes that must never contribute nearby points even if JSONB has coords.
- * NATIONWIDE / SELECTED_OUTLETS may still sync when real coords already exist
- * (never invented) so includeNationwide nearby filtering can use them.
+ * Scopes that must never contribute nearby pins, even if JSONB already has coordinates.
+ * Island-wide (NATIONWIDE) offers are coverage statements, not branch pins.
+ * SELECTED_OUTLETS may still sync when a source-named outlet has confirmed coordinates.
  */
-const NON_PHYSICAL_SCOPES = new Set(['ONLINE', 'UNRESOLVED']);
+export const NEARBY_EXCLUDED_SCOPES = ['ONLINE', 'NATIONWIDE', 'UNRESOLVED'] as const;
+
+const NON_PHYSICAL_SCOPES = new Set<string>(NEARBY_EXCLUDED_SCOPES);
+
+const SRI_LANKA_BOUNDS = { minLat: 5.9, maxLat: 10.0, minLng: 79.5, maxLng: 82.0 };
+
+const AREA_ONLY_TYPES = new Set([
+  'locality',
+  'administrative_area_level_1',
+  'administrative_area_level_2',
+  'administrative_area_level_3',
+  'sublocality',
+  'postal_code',
+  'political',
+  'country',
+]);
+
+function inSriLanka(lat: number, lng: number): boolean {
+  return (
+    lat >= SRI_LANKA_BOUNDS.minLat &&
+    lat <= SRI_LANKA_BOUNDS.maxLat &&
+    lng >= SRI_LANKA_BOUNDS.minLng &&
+    lng <= SRI_LANKA_BOUNDS.maxLng
+  );
+}
+
+function isCountryCentroid(lat: number, lng: number): boolean {
+  return Math.abs(lat - 7.8731) < 0.05 && Math.abs(lng - 80.7718) < 0.05;
+}
+
+/** SQL fragment: nearby queries must drop online, island-wide, and unresolved offers. */
+export function nearbyScopePredicate(column = 'o.location_scope'): string {
+  const list = NEARBY_EXCLUDED_SCOPES.map((s) => `'${s}'`).join(', ');
+  return `(${column} IS NULL OR ${column} NOT IN (${list}))`;
+}
 
 function isFiniteCoord(lat: number, lng: number): boolean {
   return (
@@ -60,6 +95,16 @@ export function extractBranchPoints(
     const lat = typeof latRaw === 'number' ? latRaw : typeof latRaw === 'string' ? parseFloat(latRaw) : NaN;
     const lng = typeof lngRaw === 'number' ? lngRaw : typeof lngRaw === 'string' ? parseFloat(lngRaw) : NaN;
     if (!isFiniteCoord(lat, lng)) continue;
+    if (!inSriLanka(lat, lng) || isCountryCentroid(lat, lng)) continue;
+    if (loc.success === false || loc.confirmed === false) continue;
+
+    const coordinateStatus = String(loc.coordinate_status ?? loc.coordinateStatus ?? '').toUpperCase();
+    if (coordinateStatus && coordinateStatus !== 'VERIFIED') continue;
+    const participationStatus = String(loc.participation_status ?? loc.participationStatus ?? '').toUpperCase();
+    if (participationStatus === 'UNCONFIRMED' || participationStatus === 'EXCLUDED') continue;
+
+    const types = Array.isArray(loc.types) ? loc.types.map((t) => String(t)) : [];
+    if (types.length > 0 && types.every((t) => AREA_ONLY_TYPES.has(t))) continue;
 
     const name =
       (typeof loc.name === 'string' && loc.name) ||
