@@ -1,3 +1,4 @@
+import * as cheerio from 'cheerio';
 import { BankCategory } from '@/config/banks';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import { HttpClient } from '@/infrastructure/http/http-client';
@@ -177,8 +178,8 @@ function extractDFCCPromotionsFromListing(): DFCCListItem[] {
       offerText: card.querySelector('.cardOfferText, .card-title, h4, h5')?.textContent?.trim() ?? '',
       validityText: card.querySelector('.cardOfferValid, [class*="valid" i]')?.textContent?.trim() ?? '',
       discountBadge: card.querySelector('.Offerpercentage, .discount-badgee, [class*="discount-badge" i]')?.textContent?.trim() ?? '',
-      imageUrl: validImg?.src ?? '',
-      imageAlt: validImg?.alt ?? '',
+      imageUrl: img?.src ?? '',
+      imageAlt: img?.alt ?? '',
       detailUrl: detailUrl.startsWith('http') ? detailUrl : `https://www.dfcc.lk${detailUrl}`,
     };
   }).filter((item) => item.offerText || item.detailUrl);

@@ -152,6 +152,29 @@ describe('parseSampathOffer — live API field realities', () => {
         expect(offer!.validityPeriods[0].validTo).toBe('2026-10-31');
     });
 
+    it('detects Credit Card from prose via the keyword-rule fallback alone', () => {
+        const offer = parseSampathOffer(
+            listItem({
+                eligible_cards: [],
+                promotion_details: '20% off for Sampath credit cardholders.',
+            }),
+            null,
+        );
+        expect(offer!.cardEligibility.cardTypes).toContain('Credit Card');
+        expect(offer!.offer.discountPercentage).toBe(20);
+    });
+
+    it('does not invent a credit card when the prose only names debit', () => {
+        const offer = parseSampathOffer(
+            listItem({
+                eligible_cards: [],
+                promotion_details: '10% off for Sampath debit cardholders only.',
+            }),
+            null,
+        );
+        expect(offer!.cardEligibility.cardTypes).toEqual(['Debit Card']);
+    });
+
     it('eligible_card_categories string feeds applicable cards', () => {
         const offer = parseSampathOffer(
             listItem({ eligible_card_categories: 'Sampath Bank Credit & Debit Cards' }),
