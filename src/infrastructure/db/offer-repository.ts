@@ -208,9 +208,7 @@ function offerColumnValues(offer: Offer, rawOfferSource?: Offer) {
   const validity = offer.validityPeriods?.[0];
   const merchantName = offer.merchant?.name ?? offer.title;
   const canonicalRes = resolveCanonicalMerchant(merchantName);
-  // `terms` is read by determineLocationScope, but that parameter type does
-  // not list it yet (location-scope.ts). A non-literal keeps the property.
-  const scopeInput = {
+  const scopeRes = determineLocationScope({
     location: offer.merchant?.location,
     title: offer.title,
     description: offer.offer?.description,
@@ -218,8 +216,7 @@ function offerColumnValues(offer: Offer, rawOfferSource?: Offer) {
     addresses: offer.merchant?.addresses,
     geoLocations: offer.merchant?.geocodedLocations,
     terms: offer.offer?.generalTerms,
-  };
-  const scopeRes = determineLocationScope(scopeInput);
+  });
   const merchantPhone = offer.merchant?.phone?.[0] ?? null;
   const imageUrl = offer.images?.images?.[0]?.url ?? offer.images?.logo?.url ?? null;
   const termsText = (offer.offer as any)?.terms ?? (offer.offer?.generalTerms?.length ? offer.offer.generalTerms.join('\n') : null);

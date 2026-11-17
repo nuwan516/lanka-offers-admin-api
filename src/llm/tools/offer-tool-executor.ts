@@ -420,17 +420,14 @@ export class OfferToolExecutor {
         const text = String(args.text ?? `${this.offer.title} ${this.offer.offer?.description ?? ''}`);
         const mName = String(args.merchantName ?? this.offer.merchant?.name ?? '');
         const loc = String(args.locationString ?? this.offer.merchant?.location ?? '');
-        // `terms` is read by determineLocationScope, but that parameter type does
-        // not list it yet (location-scope.ts). A non-literal keeps the property.
-        const scopeInput = {
+        const res = determineLocationScope({
           title: this.offer.title,
           description: text,
           merchantName: mName,
           location: loc,
           addresses: this.offer.merchant?.addresses,
           terms: [...(this.offer.offer?.generalTerms ?? []), ...(this.offer.offer?.restrictions ?? [])],
-        };
-        const res = determineLocationScope(scopeInput);
+        });
         return {
           scope: res.scope,
           venueIdentity: res.venueIdentity,
