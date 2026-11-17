@@ -96,6 +96,19 @@ describe('parsePABCOffer', () => {
   // is the literal placeholder "Avatar" — never real content. Using it as a
   // merchant-name fallback let "Avatar" silently win over parsing the
   // description whenever the "at X" patterns failed to match.
+  it('extracts the merchant from "N% OFF at X" without a separate OFF-at pattern', () => {
+    const offer = parsePABCOffer({
+      imageUrl: '',
+      imageAlt: 'Avatar',
+      discount: '20% OFF',
+      validityDate: '01-01-2026',
+      description:
+        'Enjoy 20% OFF at Softlogic with your Pan Asia Bank Credit Card. Offer valid until 31 December 2026.',
+    });
+    expect(offer?.merchant.name).toBe('Softlogic');
+    expect(offer?.validityPeriods[0].validTo).toBe('2026-12-31');
+  });
+
   it('never uses the "Avatar" image-alt placeholder as the merchant name fallback', () => {
     const offer = parsePABCOffer({
       imageUrl: '',

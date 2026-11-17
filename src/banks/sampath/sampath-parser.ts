@@ -161,7 +161,9 @@ export function parseSampathOffer(
 
   // ── Card eligibility ────────────────────────────────────────────────────────
   const cardTypes = [
-    ...(applyKeywordRule('sampath', 'card_types', combinedProse, /credit/i, ruleContext) || /credit/i.test(combinedProse) ? ['Credit Card'] : []),
+    // The keyword rule's hardcoded fallback is already /credit/i, so a second
+    // identical test on the same prose cannot change the result.
+    ...(applyKeywordRule('sampath', 'card_types', combinedProse, /credit/i, ruleContext) ? ['Credit Card'] : []),
     ...(/debit/i.test(combinedProse) ? ['Debit Card'] : []),
   ];
 

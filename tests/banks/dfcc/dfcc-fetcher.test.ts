@@ -4,7 +4,9 @@
  * tested legacy scraper's approach), and PDF terms extraction — DFCC
  * categories were flagged pdfRequired in config but nothing consumed it.
  */
-import { DFCCFetcher } from '@/banks/dfcc/dfcc-fetcher';
+import * as fs from 'fs';
+import * as path from 'path';
+import { DFCCFetcher, extractDFCCPromotionsFromHtml } from '@/banks/dfcc/dfcc-fetcher';
 import { BrowserClient } from '@/infrastructure/browser/browser-client';
 import { HttpClient } from '@/infrastructure/http/http-client';
 
@@ -28,6 +30,28 @@ describe('DFCCFetcher — listing selector fallback chain', () => {
     expect(items).toHaveLength(1);
     expect(items[0].offerText).toBe('10% off at Laugfs');
     expect(items[0].detailUrl).toBe('https://www.dfcc.lk/cards-promotions/laugfs');
+    expect(items[0].imageUrl).toBe('/laugfs.png');
+    expect(items[0].imageAlt).toBe('Laugfs');
+  });
+});
+
+describe('DFCCFetcher — listing HTML without a.cardd', () => {
+  // Live dining listing (2026-11-17) has no a.cardd. Offer text sits in
+  // p.cardOfferText, validity in div.bIRM p.cardOfferValid, and the link is
+  // a plain Read More anchor. The HTTP extractor must still read that card.
+  it('reads cardOfferText, validity, and the Read More href from the current card', () => {
+    const html = fs.readFileSync(
+      path.join(__dirname, '__fixtures__/listing-card.html'),
+      'utf8',
+    );
+    const items = extractDFCCPromotionsFromHtml(html);
+
+    expect(items).toHaveLength(1);
+    expect(items[0].offerText).toContain('ITC Ratnadipa');
+    expect(items[0].validityText).toContain('20th December 2026');
+    expect(items[0].detailUrl).toBe('https://www.dfcc.lk/cards/cards-promotions/itc-ratnadipa');
+    expect(items[0].discountBadge).toBe('25%');
+    expect(items[0].imageAlt).toBe('ITC Ratnadipa');
   });
 });
 
