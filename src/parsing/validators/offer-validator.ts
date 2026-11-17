@@ -1,5 +1,6 @@
 import { Offer } from '@/core/types/offers';
 import { ValidationResult, FieldError } from '@/core/types/validation';
+import { colomboCalendarDate } from '@/parsing/period/period-engine';
 
 // ─── Date validation ──────────────────────────────────────────────────────────
 
@@ -74,7 +75,8 @@ export class OfferValidator {
     // ── Expired offers ───────────────────────────────────────────────────────
     // Banks leave dead offers on their sites; an offer whose every dated
     // period has already ended must not reach publication.
-    const today = new Date().toISOString().split('T')[0];
+    // validTo is inclusive through the end of that calendar day in Asia/Colombo.
+    const today = colomboCalendarDate();
     const datedPeriods = offer.validityPeriods.filter((p) => p.validTo && isValidDate(p.validTo));
     if (datedPeriods.length > 0 && datedPeriods.every((p) => p.validTo! < today)) {
       errors.push({

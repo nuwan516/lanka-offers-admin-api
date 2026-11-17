@@ -1,0 +1,45 @@
+[
+  {
+    "id": "boc-api-expiration",
+    "bank": "boc",
+    "text": "Enjoy exclusive savings on your favourite brands with BOC Credit Cards.",
+    "apiTo": "31 Dec 2026",
+    "today": "2026-07-12",
+    "fallbackYear": 2026,
+    "expect": [
+      { "validTo": "2026-12-31", "periodType": "offer" }
+    ]
+  },
+  {
+    "id": "pabc-mid-sentence-until",
+    "bank": "pabc",
+    "text": "Make your stay at Liyya Water Villa, Dambulla more rewarding with special discounts for Pan Asia Credit Cardholders. Enjoy 35% OFF Double Full Board (DBL FB) packages until 31 October 2026.",
+    "today": "2026-08-01",
+    "fallbackYear": 2026,
+    "expect": [
+      { "validTo": "2026-10-31", "periodType": "offer" }
+    ]
+  },
+  {
+    "id": "combank-stay-beside-headline",
+    "bank": "combank",
+    "text": "Offer valid till 31st October 2026\nStay Period – Till 30th September 2026",
+    "today": "2026-08-01",
+    "fallbackYear": 2026,
+    "expect": [
+      { "validTo": "2026-10-31", "periodType": "offer" },
+      { "validTo": "2026-09-30", "periodType": "stay" }
+    ]
+  },
+  {
+    "id": "combank-booking-beside-headline",
+    "bank": "combank",
+    "text": "Offer valid till 31st October 2026\nBooking Period - Until 15th August 2026",
+    "today": "2026-08-01",
+    "fallbackYear": 2026,
+    "expect": [
+      { "validTo": "2026-10-31", "periodType": "offer" },
+      { "validTo": "2026-08-15", "periodType": "booking" }
+    ]
+  }
+]
