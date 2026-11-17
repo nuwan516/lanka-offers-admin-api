@@ -376,13 +376,15 @@ describe('Phase 5 — Nearby User Acceptance Testing', () => {
     // TEST SCENARIO 4: Venue to Promotion Accuracy Verification
     // Verify that the marker at Fort Chatham St connects directly to the exact bank and discount
     const seylanFort = results5km.find((r: any) => r.unique_id === 'seylan-amante-outlets');
-    expect(seylanFort.bank).toBe('seylan');
-    expect(Number(seylanFort.discount_percentage)).toBe(25);
-    expect(seylanFort.branch_address).toBe('Chatham Street, Colombo 01');
+    expect(seylanFort).toBeDefined();
+    expect(seylanFort!.bank).toBe('seylan');
+    expect(Number(seylanFort!.discount_percentage)).toBe(25);
+    expect(seylanFort!.branch_address).toBe('Chatham Street, Colombo 01');
 
     const hnbFort = results5km.find((r: any) => r.unique_id === 'hnb-amante-fort');
-    expect(hnbFort.bank).toBe('hnb');
-    expect(Number(hnbFort.discount_percentage)).toBe(20);
+    expect(hnbFort).toBeDefined();
+    expect(hnbFort!.bank).toBe('hnb');
+    expect(Number(hnbFort!.discount_percentage)).toBe(20);
 
     // TEST SCENARIO 5: Consumer Deserialization for Next.js and Flutter
     // Verify client deserialization succeeds without error
