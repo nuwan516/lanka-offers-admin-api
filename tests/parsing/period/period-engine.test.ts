@@ -168,6 +168,54 @@ describe('parsePeriod', () => {
         expect(result[0].validTo).toBe('2025-12-15');
     });
 
+    it('rolls a missing end year forward across New Year instead of swapping', () => {
+        const [v] = parsePeriod('1st December 2026 to 15th January', { today: '2026-12-01', fallbackYear: 2026 });
+        expect(v.validFrom).toBe('2026-12-01');
+        expect(v.validTo).toBe('2027-01-15');
+    });
+
+    it('keeps a written year on "31 December, 2026" when the fallback year differs', () => {
+        expect(parseHumanDate('31 December, 2026', 2027)).toBe('2026-12-31');
+    });
+
+    it('parses a single "valid on" day as that day only', () => {
+        const [v] = parsePeriod('Valid only on 31st July 2026', { today: '2026-07-17', fallbackYear: 2026 });
+        expect(v.validFrom).toBe('2026-07-31');
+        expect(v.validTo).toBe('2026-07-31');
+    });
+
+    it('does not turn the year between two specific dates into a day number', () => {
+        const [v] = parsePeriod('31st December 2026 & 1st January 2027', { today: '2026-12-01', fallbackYear: 2026 });
+        expect(v.recurrenceType).toBe(RecurrenceType.SPECIFIC_DATES);
+        expect(v.recurrenceDays).toEqual(['2026-12-31', '2027-01-01']);
+        expect(v.validFrom).toBe('2026-12-31');
+        expect(v.validTo).toBe('2027-01-01');
+    });
+
+    it('uses the Asia/Colombo calendar date when today is omitted', () => {
+        // 01:30 on 17 Nov in Colombo is still 16 Nov in UTC.
+        jest.useFakeTimers({ now: new Date('2026-11-16T20:00:00.000Z') });
+        try {
+            const [v] = parsePeriod('Till 31st December 2026');
+            expect(v.validFrom).toBe('2026-11-17');
+            expect(v.validTo).toBe('2026-12-31');
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
+    it('uses the Colombo year when a bare day-month has no year', () => {
+        // 02:00 on 1 Jan 2026 in Colombo is still 31 Dec 2025 in UTC.
+        jest.useFakeTimers({ now: new Date('2025-12-31T20:30:00.000Z') });
+        try {
+            const [v] = parsePeriod('Till 15th January');
+            expect(v.validTo).toBe('2026-01-15');
+            expect(v.validFrom).toBe('2026-01-01');
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
     it('reconciles with apiTo when description text contains earlier start date', () => {
         const text = 'Up to 40% off for BOC Credit Cardholders From 01st September to 30th November 2026';
         const result = parsePeriod(text, { today: '2026-09-04', apiTo: '2026-11-30' });
