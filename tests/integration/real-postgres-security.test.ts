@@ -323,7 +323,7 @@ describe('Real PostgreSQL Security, Least-Privilege & Staging Integrity (Batch 6
       expect(publicQuery.isAdmin).toBe(false);
       // Query builder MUST ignore incoming status and enforce db_status = 'PUBLISHED'
       expect(publicQuery.whereSql).toContain("db_status = 'PUBLISHED'");
-      expect(publicQuery.whereSql).toContain('(valid_to IS NULL OR valid_to >= CURRENT_DATE)');
+      expect(publicQuery.whereSql).toContain("(valid_to IS NULL OR valid_to >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date)");
       expect(publicQuery.whereSql).not.toContain('REVIEW_REQUIRED');
 
       // Admin caller with explicit scope=admin

@@ -38,12 +38,16 @@ describe('buildOfferListQuery — public API safety (Step 3/19)', () => {
     expect(q.params).not.toContain('REJECTED');
   });
 
-  it('excludes expired offers (valid_to < CURRENT_DATE) from public queries while allowing unexpiring (null) offers', () => {
+  it('excludes expired offers using the Asia/Colombo calendar day, not the session date', () => {
     const pub = buildOfferListQuery({});
-    expect(pub.whereSql).toContain(`(valid_to IS NULL OR valid_to >= CURRENT_DATE)`);
+    expect(pub.whereSql).toContain(
+      `(valid_to IS NULL OR valid_to >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date)`,
+    );
+    expect(pub.whereSql).not.toContain('CURRENT_DATE');
 
     const admin = buildOfferListQuery({ scope: 'admin' });
     expect(admin.whereSql).not.toContain('CURRENT_DATE');
+    expect(admin.whereSql).not.toContain('Asia/Colombo');
   });
 
   it('isAdmin flag correctly reflects scope for the list endpoint SELECT branch decision', () => {

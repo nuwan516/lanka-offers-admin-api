@@ -1,4 +1,5 @@
 import { pool } from '../db/db-client';
+import { colomboCalendarDate } from '../../parsing/period/period-engine';
 
 export interface CustomRule {
   id: string;
@@ -88,7 +89,7 @@ export function evalCustomRule(rule: CustomRule, offer: Record<string, unknown>)
       break;
     case 'not_expired': {
       if (v) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = colomboCalendarDate();
         if (String(v) < today) return { passed: false, message: `${label} is expired: ${v}` };
       }
       break;
@@ -110,7 +111,7 @@ export function evalCustomRule(rule: CustomRule, offer: Record<string, unknown>)
     case 'array_any_not_expired': {
       const arr = Array.isArray(v) ? v : [];
       if (arr.length > 0) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = colomboCalendarDate();
         const dateField = String(c.date_field ?? '');
         const hasValid = arr.some((item: unknown) => {
           const d = isRecord(item) ? item[dateField] : undefined;

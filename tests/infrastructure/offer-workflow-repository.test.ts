@@ -278,7 +278,8 @@ describe('reconcileExpiredOffers', () => {
     const updateSql = mockClient.query.mock.calls[1][0] as string;
     expect(updateSql).toContain("SET db_status = 'EXPIRED'");
     expect(updateSql).toContain("WHERE db_status = 'PUBLISHED'");
-    expect(updateSql).toContain('valid_to < CURRENT_DATE');
+    expect(updateSql).toContain("valid_to < (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date");
+    expect(updateSql).not.toContain('CURRENT_DATE');
 
     expect(mockClient.query).toHaveBeenCalledTimes(4);
     const historySql1 = mockClient.query.mock.calls[2][0] as string;

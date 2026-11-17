@@ -113,7 +113,7 @@ describe('End-to-End Ingestion Lifecycle & Invariants (Batch C)', () => {
     // 1. Valid Offer
     const publicQuery = buildOfferListQuery({});
     expect(publicQuery.whereSql).toContain("db_status = 'PUBLISHED'");
-    expect(publicQuery.whereSql).toContain('(valid_to IS NULL OR valid_to >= CURRENT_DATE)');
+    expect(publicQuery.whereSql).toContain("(valid_to IS NULL OR valid_to >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date)");
 
     // 2. Simulate expired database record
     const expiredRow = {

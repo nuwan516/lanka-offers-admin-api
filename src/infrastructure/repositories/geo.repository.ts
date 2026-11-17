@@ -65,7 +65,7 @@ export class GeoRepository {
 
     const conditions: string[] = [
       "o.db_status = 'PUBLISHED'",
-      '(o.valid_to IS NULL OR o.valid_to >= CURRENT_DATE)',
+      `(o.valid_to IS NULL OR o.valid_to >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date)`,
       // ST_DWithin on geography uses metres; GIST index on offer_branches.geom.
       // Edge cases (poles / antimeridian / large radii): geography spheroid math —
       // no cos(lat) division, so polar queries remain correct.
