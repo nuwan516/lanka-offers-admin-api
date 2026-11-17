@@ -146,6 +146,21 @@ export function clearBankRulesCache(): void {
   tableExists = null;
 }
 
+/**
+ * Install rules the way preloadBankRules does, without querying Postgres.
+ * Tests use this to exercise the preloaded path. Priority ASC, same as the loader.
+ */
+export function installBankRules(bank: string, rules: BankParserRule[]): void {
+  const byField = new Map<string, BankParserRule[]>();
+  const sorted = [...rules].sort((a, b) => a.priority - b.priority);
+  for (const row of sorted) {
+    const existing = byField.get(row.field) ?? [];
+    existing.push(row);
+    byField.set(row.field, existing);
+  }
+  cache.set(bank, byField);
+}
+
 // ─── Safe regex compilation ───────────────────────────────────────────────────
 
 /**
@@ -263,7 +278,12 @@ export function executeRuleOnInput(
       }
       if (rawOffer && typeof rawOffer === 'object') {
         const val = resolveSourcePath(rawOffer as Record<string, unknown>, rule.pattern);
-        return { matched: val !== undefined, extracted: val ?? null };
+        // An empty array stringifies to "[]". That is not a value, so a later
+        // rule or the hardcoded fallback can still run.
+        if (val === undefined || val.trim() === '[]') {
+          return { matched: false, extracted: null };
+        }
+        return { matched: true, extracted: val };
       }
       return { matched: false, extracted: null, error: 'rawOffer object required for field_map' };
 
