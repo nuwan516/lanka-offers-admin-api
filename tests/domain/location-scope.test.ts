@@ -73,6 +73,26 @@ describe('Location Scope Domain Service', () => {
     expect(res.isGeocodableToCoordinates).toBe(false);
   });
 
+  it('does not geocode when island-wide wording and a street address both appear', () => {
+    const res = determineLocationScope({
+      title: 'Valid islandwide and at No. 10, Galle Road, Colombo 03',
+      merchantName: 'Keells',
+      addresses: ['No. 10, Galle Road, Colombo 03'],
+    });
+    expect(res.isGeocodableToCoordinates).toBe(false);
+    expect(res.explanation).toMatch(/Ambiguous/i);
+  });
+
+  it('reads a street address that is only in the description', () => {
+    const res = determineLocationScope({
+      title: 'Weekend dining offer',
+      description: 'Redeem at No. 45, Duplication Road, Colombo 04.',
+      merchantName: 'Barefoot',
+    });
+    expect(res.scope).toBe(LocationScope.EXPLICIT_BRANCH);
+    expect(res.isGeocodableToCoordinates).toBe(true);
+  });
+
   it('preserves UNRESOLVED when evidence is insufficient without guessing coordinates', () => {
     const res = determineLocationScope({
       title: 'Enjoy seasonal savings with credit cards',

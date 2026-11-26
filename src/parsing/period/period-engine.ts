@@ -49,6 +49,22 @@ function clean(text: string): string {
         .trim();
 }
 
+/** Calendar date in Asia/Colombo (UTC+05:30, no DST). `YYYY-MM-DD`. */
+export const COLOMBO_TIME_ZONE = 'Asia/Colombo';
+
+export function colomboCalendarDate(now: Date = new Date()): string {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: COLOMBO_TIME_ZONE,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(now);
+}
+
+export function colomboCalendarYear(now: Date = new Date()): number {
+    return parseInt(colomboCalendarDate(now).slice(0, 4), 10);
+}
+
 export function extractYear(text: string): number | null {
     const m = text.match(/\b(20\d{2})\b/);
     return m ? parseInt(m[1], 10) : null;
@@ -87,7 +103,7 @@ export function parseHumanDate(text: string, fallbackYear?: number): string | nu
     // fabricated day instead of correctly failing to match.
     const monthNames = Object.keys(MONTHS).join('|');
     const regex = new RegExp(
-        `(\\d{1,2})(?!\\d)\\s+(${monthNames})\\s*(\\d{4})?|(${monthNames})\\s+(\\d{1,2})(?!\\d)(?:,)?\\s*(\\d{4})?`,
+        `(\\d{1,2})(?!\\d)\\s+(${monthNames})\\s*,?\\s*(\\d{4})?|(${monthNames})\\s+(\\d{1,2})(?!\\d)(?:,)?\\s*(\\d{4})?`,
         'i'
     );
     m = cleaned.match(regex);
@@ -98,12 +114,12 @@ export function parseHumanDate(text: string, fallbackYear?: number): string | nu
         // DD Month YYYY
         day = String(parseInt(m[1], 10)).padStart(2, '0');
         month = MONTHS[m[2].toLowerCase()];
-        year = m[3] ? parseInt(m[3], 10) : fallbackYear ?? new Date().getFullYear();
+        year = m[3] ? parseInt(m[3], 10) : fallbackYear ?? colomboCalendarYear();
     } else {
         // Month DD YYYY
         month = MONTHS[m[4].toLowerCase()];
         day = String(parseInt(m[5], 10)).padStart(2, '0');
-        year = m[6] ? parseInt(m[6], 10) : fallbackYear ?? new Date().getFullYear();
+        year = m[6] ? parseInt(m[6], 10) : fallbackYear ?? colomboCalendarYear();
     }
 
     if (month === undefined || isNaN(month)) return null;
@@ -124,7 +140,7 @@ function parseMonthEndDate(text: string, fallbackYear?: number): string | null {
     if (!m) return null;
     const month = MONTHS[m[1].toLowerCase()];
     if (month === undefined) return null;
-    const year = m[2] ? parseInt(m[2], 10) : fallbackYear ?? new Date().getFullYear();
+    const year = m[2] ? parseInt(m[2], 10) : fallbackYear ?? colomboCalendarYear();
     const lastDay = new Date(year, month + 1, 0).getDate();
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 }
@@ -243,7 +259,7 @@ export function extractBlackoutPeriods(text: string, fallbackYear?: number): Dat
         const fromDay = parseInt(match[1], 10);
         const toDay = parseInt(match[2], 10);
         const monthKey = match[3].toLowerCase();
-        const year = match[4] ? parseInt(match[4], 10) : fallbackYear ?? new Date().getFullYear();
+        const year = match[4] ? parseInt(match[4], 10) : fallbackYear ?? colomboCalendarYear();
         const month = MONTHS[monthKey];
         if (month !== undefined) {
             const from = `${year}-${String(month + 1).padStart(2, '0')}-${String(fromDay).padStart(2, '0')}`;
@@ -278,30 +294,80 @@ export function extractSpecificDates(text: string, fallbackYear?: number): strin
             .filter(isValidDateStr);
     }
 
-    const year = extractYear(text) ?? fallbackYear ?? new Date().getFullYear();
+    const defaultYear = extractYear(text) ?? fallbackYear ?? colomboCalendarYear();
 
     // Only the contiguous day-list phrase directly before each month counts —
     // scanning ALL digits before the month turns phone numbers into "dates".
-    // Global: "27th June & 25th July" carries dates in two different months.
+    // A day token must not be a slice of a 4-digit year ("2026 & 1st January"
+    // used to invent day 26). Global: "27th June & 25th July" is two months.
     const monthNames = 'january|february|march|april|may|june|july|august|september|october|november|december';
+    const dayTok = '(?<!\\d)\\d{1,2}(?!\\d)(?:st|nd|rd|th)?';
     const phraseRe = new RegExp(
-        `((?:\\d{1,2}(?:st|nd|rd|th)?\\s*(?:[,&]|and)\\s*)*\\d{1,2}(?:st|nd|rd|th)?)\\s+(${monthNames})`,
+        `((?:${dayTok}\\s*(?:[,&]|and)\\s*)*${dayTok})\\s+(${monthNames})\\s*,?\\s*(20\\d{2})?`,
         'gi',
     );
 
-    const dates: string[] = [];
+    const phrases: Array<{ month: number; days: string[]; year: number | null }> = [];
     let phrase: RegExpExecArray | null;
     while ((phrase = phraseRe.exec(clean(text))) !== null) {
         const month = MONTHS[phrase[2].toLowerCase()];
         if (month === undefined) continue;
-        const dayMatches = phrase[1].match(/\d{1,2}/g) ?? [];
-        for (const d of dayMatches) {
-            const day = String(parseInt(d, 10)).padStart(2, '0');
-            dates.push(`${year}-${String(month + 1).padStart(2, '0')}-${day}`);
-        }
+        const dayMatches = phrase[1].match(/(?<!\d)\d{1,2}(?!\d)/g) ?? [];
+        const days = dayMatches.map(d => String(parseInt(d, 10)).padStart(2, '0'));
+        if (days.length === 0) continue;
+        phrases.push({
+            month,
+            days,
+            year: phrase[3] ? parseInt(phrase[3], 10) : null,
+        });
     }
 
+    const years = assignSpecificDateYears(phrases, defaultYear);
+    const dates: string[] = [];
+    phrases.forEach((p, i) => {
+        const year = years[i];
+        for (const day of p.days) {
+            dates.push(`${year}-${String(p.month + 1).padStart(2, '0')}-${day}`);
+        }
+    });
+
     return dates.filter(isValidDateStr);
+}
+
+/**
+ * A missing year on a later January after a November/December date is the
+ * next calendar year. Dates written in order with no year at all roll the
+ * same way. A single trailing year ("27th June & 25th July 2026") is shared.
+ */
+function assignSpecificDateYears(
+    phrases: Array<{ month: number; year: number | null }>,
+    defaultYear: number,
+): number[] {
+    const explicit: Array<{ index: number; year: number }> = [];
+    phrases.forEach((p, index) => {
+        if (p.year !== null) explicit.push({ index, year: p.year });
+    });
+
+    if (explicit.length === 0) {
+        let year = defaultYear;
+        let prevMonth: number | null = null;
+        return phrases.map(p => {
+            if (prevMonth !== null && prevMonth >= 10 && p.month <= 2) year += 1;
+            prevMonth = p.month;
+            return year;
+        });
+    }
+
+    return phrases.map((phrase, index) => {
+        if (phrase.year !== null) return phrase.year;
+        const next = explicit.find(e => e.index > index);
+        const prev = [...explicit].reverse().find(e => e.index < index);
+        if (next && phrase.month >= 10 && phrases[next.index].month <= 2) return next.year - 1;
+        if (prev && phrases[prev.index].month >= 10 && phrase.month <= 2) return prev.year + 1;
+        if (prev) return prev.year;
+        if (next) return next.year;
+        return defaultYear;
+    });
 }
 
 
@@ -309,27 +375,171 @@ export interface ParsePeriodOptions {
     fallbackYear?: number;
     today?: string;
     defaultPeriodType?: PeriodType;
-    apiFrom?: string | null;   // YYYY-MM-DD from API
-    apiTo?: string | null;     // YYYY-MM-DD from API
+    /** ISO date, or a human date such as BOC's "31 Dec 2026". */
+    apiFrom?: string | null;
+    /** ISO date, or a human date such as BOC's "31 Dec 2026". */
+    apiTo?: string | null;
+}
+
+/** isValidDateStr accepts only YYYY-MM-DD. Bank fields like "31 Dec 2026" are normalized first. */
+function coerceApiDate(value: string | null | undefined, fallbackYear: number): string | null {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (isValidDateStr(trimmed)) return trimmed;
+    const human = parseHumanDate(trimmed, fallbackYear);
+    return human && isValidDateStr(human) ? human : null;
+}
+
+function yearOf(iso: string): number {
+    return parseInt(iso.slice(0, 4), 10);
+}
+
+function withYear(iso: string, year: number): string {
+    const month = parseInt(iso.slice(5, 7), 10);
+    const day = parseInt(iso.slice(8, 10), 10);
+    const last = new Date(year, month, 0).getDate();
+    const clamped = Math.min(day, last);
+    return `${year}-${String(month).padStart(2, '0')}-${String(clamped).padStart(2, '0')}`;
+}
+
+function addYears(iso: string, delta: number): string {
+    return withYear(iso, yearOf(iso) + delta);
+}
+
+function daysBetween(from: string, to: string): number {
+    const [fy, fm, fd] = from.split('-').map(n => parseInt(n, 10));
+    const [ty, tm, td] = to.split('-').map(n => parseInt(n, 10));
+    return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000);
+}
+
+function shorterForward(
+    rolled: { from: string; to: string },
+    swapped: { from: string; to: string },
+): { from: string; to: string } {
+    const rollDays = daysBetween(rolled.from, rolled.to);
+    const swapDays = daysBetween(swapped.from, swapped.to);
+    if (rollDays >= 0 && rollDays < swapDays) return rolled;
+    return swapped;
+}
+
+/**
+ * A missing year is filled from the side that wrote one. When that still
+ * runs backwards, a short New Year wrap ("1 December 2026 to 15 January")
+ * wins over swapping into a long range. Both years written and reversed
+ * stay a typo swap ("31 August 2026 to 25 July 2026").
+ */
+function completeRangeYears(
+    fromDate: string,
+    toDate: string,
+    fromHasYear: boolean,
+    toHasYear: boolean,
+): { from: string; to: string } {
+    if (fromHasYear && !toHasYear) {
+        const toInStartYear = withYear(toDate, yearOf(fromDate));
+        if (toInStartYear >= fromDate) return { from: fromDate, to: toInStartYear };
+        return shorterForward(
+            { from: fromDate, to: addYears(toInStartYear, 1) },
+            { from: toInStartYear, to: fromDate },
+        );
+    }
+    if (!fromHasYear && toHasYear) {
+        const fromInEndYear = withYear(fromDate, yearOf(toDate));
+        if (fromInEndYear <= toDate) return { from: fromInEndYear, to: toDate };
+        return shorterForward(
+            { from: addYears(fromInEndYear, -1), to: toDate },
+            { from: toDate, to: fromInEndYear },
+        );
+    }
+    if (fromDate > toDate) {
+        if (fromHasYear && toHasYear) return { from: toDate, to: fromDate };
+        return shorterForward(
+            { from: fromDate, to: addYears(toDate, 1) },
+            { from: toDate, to: fromDate },
+        );
+    }
+    return { from: fromDate, to: toDate };
+}
+
+function resolveRangeEndpoints(
+    fromPart: string | null | undefined,
+    toPart: string,
+    fallbackYear: number,
+): { fromDate: string | null; toDate: string | null } | null {
+    const fromRaw = (fromPart ?? '').trim();
+    const toRaw = toPart.trim();
+    const toDate = parseHumanDate(toRaw, fallbackYear);
+    if (!toDate) return null;
+
+    const fromHasYear = /\b20\d{2}\b/.test(fromRaw);
+    const toHasYear = /\b20\d{2}\b/.test(toRaw);
+    let fromDate = fromRaw ? parseHumanDate(fromRaw, fallbackYear) : null;
+    if (fromRaw && !fromDate) {
+        const dayMatch = fromRaw.match(/(?<!\d)(\d{1,2})(?:st|nd|rd|th)?$/i);
+        if (dayMatch) {
+            const [toYear, toMonth] = toDate.split('-');
+            fromDate = `${toYear}-${toMonth}-${String(parseInt(dayMatch[1], 10)).padStart(2, '0')}`;
+        }
+    }
+    if (fromDate) {
+        const fixed = completeRangeYears(fromDate, toDate, fromHasYear, toHasYear);
+        return { fromDate: fixed.from, toDate: fixed.to };
+    }
+    return { fromDate: null, toDate };
+}
+
+const DASH_LABEL_RE = /\b(booking(?:\s*&\s*(?:stay|travel))?|stay|travel(?:\s*-\s*stay)?)\s+periods?\s*[-–:]\s*/gi;
+
+function dashLabelType(label: string): PeriodType {
+    const key = label.toLowerCase();
+    if (key.startsWith('booking')) return PeriodType.BOOKING;
+    if (key.startsWith('stay')) return PeriodType.STAY;
+    return PeriodType.TRAVEL;
+}
+
+/** Stay/Booking/Travel Period labels with a dash or colon, anywhere in the text. */
+function splitDashLabeledPeriods(
+    text: string,
+    defaultType: PeriodType,
+): Array<{ type: PeriodType; text: string }> | null {
+    const markers: Array<{ type: PeriodType; index: number; length: number }> = [];
+    const re = new RegExp(DASH_LABEL_RE.source, 'gi');
+    let match: RegExpExecArray | null;
+    while ((match = re.exec(text)) !== null) {
+        markers.push({ type: dashLabelType(match[1]), index: match.index, length: match[0].length });
+    }
+    if (markers.length === 0) return null;
+
+    const parts: Array<{ type: PeriodType; text: string }> = [];
+    if (markers[0].index > 0) {
+        const before = text.slice(0, markers[0].index).trim();
+        if (before) parts.push({ type: defaultType, text: before });
+    }
+    for (let i = 0; i < markers.length; i++) {
+        const start = markers[i].index + markers[i].length;
+        const end = i + 1 < markers.length ? markers[i + 1].index : text.length;
+        const sub = text.slice(start, end).trim();
+        if (sub) parts.push({ type: markers[i].type, text: sub });
+    }
+    return parts.length > 0 ? parts : null;
 }
 
 export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): Validity[] {
     const {
-        fallbackYear = new Date().getFullYear(),
-        today = new Date().toISOString().split('T')[0],
+        fallbackYear = colomboCalendarYear(),
+        today = colomboCalendarDate(),
         defaultPeriodType = PeriodType.OFFER,
         apiFrom = null,
         apiTo = null,
     } = options;
 
+    const apiFromIso = coerceApiDate(apiFrom, fallbackYear);
+    const apiToIso = coerceApiDate(apiTo, fallbackYear);
+
     if (!rawText || rawText.trim().length === 0) {
         // Only API dates available
-        const fromIsApi = Boolean(apiFrom && apiFrom.length >= 10 && isValidDateStr(apiFrom));
-        let from: string | null = fromIsApi ? apiFrom! : today;
-        let to = null;
-        if (apiTo && apiTo.length >= 10 && isValidDateStr(apiTo)) {
-            to = apiTo;
-        }
+        const fromIsApi = Boolean(apiFromIso);
+        let from: string | null = fromIsApi ? apiFromIso : today;
+        let to = apiToIso;
 
         if (from && to && from > to) {
             if (!fromIsApi) {
@@ -357,6 +567,16 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
 
     const cleaned = rawText.trim();
 
+    // Stay / Booking / Travel labels are not only at the start. ComBank puts
+    // "Stay Period – …" on its own bullet beside a different headline date.
+    const dashParts = splitDashLabeledPeriods(cleaned, defaultPeriodType);
+    if (dashParts && (dashParts.length > 1 || dashParts[0].text !== cleaned)) {
+        const dated = dashParts.filter(part => looksDated(part.text));
+        if (dated.length > 0) {
+            return dated.flatMap(part => parsePeriod(part.text, { ...options, defaultPeriodType: part.type }));
+        }
+    }
+
     // Sub‑period labels (Offer period, Booking period, Installment period, etc.)
     // Only parts that actually contain date-like content become periods — HNB
     // modal text feeds the whole body here, so "Offer: 20% off ..." parts must
@@ -373,18 +593,6 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
     // stripped, so this recursion terminates.
     if (subPeriods.length === 1 && subPeriods[0].text !== cleaned) {
         return parsePeriod(subPeriods[0].text, { ...options, defaultPeriodType: subPeriods[0].type });
-    }
-
-    // Dash-form labels (NDB): "Booking Period - Until 31st July 2026",
-    // "Booking & Stay Period - Until 30th November 2026". Anchored, so prose
-    // is never affected; the label is consumed before recursing.
-    const dashLabel = cleaned.match(/^\s*(booking(?:\s*&\s*(?:stay|travel))?|stay|travel(?:\s*-\s*stay)?)\s+periods?\s*[-–:]\s*(?=\S)/i);
-    if (dashLabel) {
-        const label = dashLabel[1].toLowerCase();
-        const type = label.startsWith('booking')
-            ? PeriodType.BOOKING
-            : label.startsWith('stay') ? PeriodType.STAY : PeriodType.TRAVEL;
-        return parsePeriod(cleaned.slice(dashLabel[0].length), { ...options, defaultPeriodType: type });
     }
 
     // Blackout parentheticals: "(Black out Period: 11th to 17th April 2026)".
@@ -457,7 +665,7 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
         // of that month, distinct from a day-bearing tail like "till 31st
         // December 2026" which parseHumanDate already handles directly.
         const monthlyTo = tail ? (parseHumanDate(tail[1], fallbackYear) ?? parseMonthEndDate(tail[1], fallbackYear)) : null;
-        const resolvedTo = monthlyTo ?? (isValidDateStr(apiTo) ? apiTo : null);
+        const resolvedTo = monthlyTo ?? apiToIso;
         const resolvedFrom = (resolvedTo && today > resolvedTo) ? null : today;
         return [{
             validFrom: resolvedFrom,
@@ -485,19 +693,10 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
     // Priority 1: Explicit "\bfrom <date> to <date>" within the text
     const explicitFromTo = rangeText.match(/\bfrom\s+([A-Za-z0-9\s,.-]+?)(?<!\bup)\s+(?:to|ti|untill?|till)\s+([A-Za-z0-9\s,.-]+?)(?:\s*(?:\*|conditions|for\b|\.|$|\())/i);
     if (explicitFromTo) {
-        const fp = explicitFromTo[1].trim();
-        const tp = explicitFromTo[2].trim();
-        const td = parseHumanDate(tp, fallbackYear);
-        if (td) {
-            toDate = td;
-            fromDate = parseHumanDate(fp, fallbackYear);
-            if (!fromDate) {
-                const dayMatch = fp.match(/\b(\d{1,2})(?:st|nd|rd|th)?$/i);
-                if (dayMatch) {
-                    const [toYear, toMonth] = toDate.split('-');
-                    fromDate = `${toYear}-${toMonth}-${String(parseInt(dayMatch[1])).padStart(2, '0')}`;
-                }
-            }
+        const resolved = resolveRangeEndpoints(explicitFromTo[1], explicitFromTo[2], fallbackYear);
+        if (resolved) {
+            fromDate = resolved.fromDate;
+            toDate = resolved.toDate;
         }
     }
 
@@ -505,40 +704,23 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
     if (!toDate) {
         const periodMatch = rangeText.match(/\b(?:period|validity|dates?)\s*[:–-]?\s*([A-Za-z0-9\s,.-]+?)(?<!\bup)\s+(?:to|ti|untill?|till|[-–])\s+([A-Za-z0-9\s,.-]+?)(?:\s*(?:\(|$|\.|\*))/i);
         if (periodMatch) {
-            const fp = periodMatch[1].trim();
-            const tp = periodMatch[2].trim();
-            const td = parseHumanDate(tp, fallbackYear);
-            if (td) {
-                toDate = td;
-                fromDate = parseHumanDate(fp, fallbackYear);
-                if (!fromDate) {
-                    const dayMatch = fp.match(/\b(\d{1,2})(?:st|nd|rd|th)?$/i);
-                    if (dayMatch) {
-                        const [toYear, toMonth] = toDate.split('-');
-                        fromDate = `${toYear}-${toMonth}-${String(parseInt(dayMatch[1])).padStart(2, '0')}`;
-                    }
-                }
+            const resolved = resolveRangeEndpoints(periodMatch[1], periodMatch[2], fallbackYear);
+            if (resolved) {
+                fromDate = resolved.fromDate;
+                toDate = resolved.toDate;
             }
         }
     }
 
-    // Priority 3: Compact date range "8th to 15th Dec 2025" or "01st September to 30th November 2026"
+    // Priority 3: Compact date range "8th to 15th Dec 2025" or "01st September to 30th November 2026".
+    // The start side keeps its own year ("1st December 2026 to 15th January").
     if (!toDate) {
-        const compactMatch = rangeText.match(/\b(\d{1,2}(?:st|nd|rd|th)?(?:\s+[a-z]+)?)\s+(?:to|ti|untill?|till|[-–])\s+(\d{1,2}(?:st|nd|rd|th)?\s+[a-z]+(?:\s+\d{4})?)/i);
+        const compactMatch = rangeText.match(/\b(\d{1,2}(?:st|nd|rd|th)?(?:\s+[a-z]+)?(?:\s+\d{4})?)\s+(?:to|ti|untill?|till|[-–])\s+(\d{1,2}(?:st|nd|rd|th)?\s+[a-z]+(?:\s+\d{4})?)/i);
         if (compactMatch) {
-            const fp = compactMatch[1].trim();
-            const tp = compactMatch[2].trim();
-            const td = parseHumanDate(tp, fallbackYear);
-            if (td) {
-                toDate = td;
-                fromDate = parseHumanDate(fp, fallbackYear);
-                if (!fromDate) {
-                    const dayMatch = fp.match(/\b(\d{1,2})(?:st|nd|rd|th)?$/i);
-                    if (dayMatch) {
-                        const [toYear, toMonth] = toDate.split('-');
-                        fromDate = `${toYear}-${toMonth}-${String(parseInt(dayMatch[1])).padStart(2, '0')}`;
-                    }
-                }
+            const resolved = resolveRangeEndpoints(compactMatch[1], compactMatch[2], fallbackYear);
+            if (resolved) {
+                fromDate = resolved.fromDate;
+                toDate = resolved.toDate;
             }
         }
     }
@@ -550,31 +732,26 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
                 rangeText.match(/^(.+?)\s*[-–]\s*(.+)/i);
 
         if (!m) {
-            const tillMatch = rangeText.match(/^(?:untill?|till)\s+(.+)/i);
+            // Not only at the start: PABC hotel copy ends with "until 31 October 2026".
+            const tillMatch = rangeText.match(/\b(?:untill?|till)\s+(.+)/i);
             if (tillMatch) {
                 m = [rangeText, '', tillMatch[1]] as RegExpMatchArray;
             }
         }
 
         if (m && m[2]) {
-            const fromPart = m[1]?.trim();
-            const toPart = m[2].trim();
-            fromDate = fromPart ? parseHumanDate(fromPart, fallbackYear) : null;
-            toDate = parseHumanDate(toPart, fallbackYear);
-            if (fromPart && !fromDate && toDate) {
-                const dayMatch = fromPart.match(/\b(\d{1,2})(?:st|nd|rd|th)?$/i);
-                if (dayMatch) {
-                    const [toYear, toMonth] = toDate.split('-');
-                    fromDate = `${toYear}-${toMonth}-${String(parseInt(dayMatch[1])).padStart(2, '0')}`;
-                }
-            }
-            if (!fromDate && !toDate) {
+            const resolved = resolveRangeEndpoints(m[1] ?? '', m[2], fallbackYear);
+            if (resolved) {
+                fromDate = resolved.fromDate;
+                toDate = resolved.toDate;
+            } else {
                 toDate = parseHumanDate(rangeText, fallbackYear);
             }
         } else {
             if (/month\s*end/i.test(rangeText)) {
                 const monthMatch = rangeText.match(/(january|february|march|april|may|june|july|august|september|october|november|december)/i);
-                const month = monthMatch ? MONTHS[monthMatch[1].toLowerCase()] : new Date().getMonth();
+                const todayMonth = /^\d{4}-\d{2}-\d{2}$/.test(today) ? parseInt(today.slice(5, 7), 10) - 1 : parseInt(colomboCalendarDate().slice(5, 7), 10) - 1;
+                const month = monthMatch ? MONTHS[monthMatch[1].toLowerCase()] : todayMonth;
                 const year = extractYear(rangeText) ?? fallbackYear;
                 const lastDay = new Date(year, month + 1, 0).getDate();
                 toDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
@@ -584,27 +761,39 @@ export function parsePeriod(rawText: string, options: ParsePeriodOptions = {}): 
         }
     }
 
+    // "Valid on 01st August 2026" / "Valid only on 31st July 2026" is that
+    // calendar day, not an open interval from the scrape date through it.
+    // "until/till/before/from" stays an open start (validFrom falls back to today).
+    const isPointDate =
+        !fromDate &&
+        !!toDate &&
+        /\bon\b/i.test(rangeText) &&
+        !/\b(?:until|untill|till|before|from)\b/i.test(rangeText);
+    if (isPointDate) {
+        fromDate = toDate;
+    }
+
     let fromIsFallback = false;
 
     // If we have API dates, fill gaps. Make sure they are valid.
     if (!fromDate) {
-        if (isValidDateStr(apiFrom)) {
-            fromDate = apiFrom!;
+        if (apiFromIso) {
+            fromDate = apiFromIso;
         } else {
             fromDate = today;
             fromIsFallback = true;
         }
     }
 
-    if (!toDate && isValidDateStr(apiTo)) toDate = apiTo!;
+    if (!toDate && apiToIso) toDate = apiToIso;
 
     // Reconcile with authoritative apiTo if available
-    if (isValidDateStr(apiTo)) {
+    if (apiToIso) {
         if (!toDate) {
-            toDate = apiTo!;
-        } else if (!fromIsFallback && fromDate && toDate < fromDate && apiTo! >= fromDate) {
+            toDate = apiToIso;
+        } else if (!fromIsFallback && fromDate && toDate < fromDate && apiToIso >= fromDate) {
             // Parser inverted or extracted earlier date, but apiTo is valid and matches fromDate
-            toDate = apiTo!;
+            toDate = apiToIso;
         }
     }
 

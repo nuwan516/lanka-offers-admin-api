@@ -6,6 +6,12 @@ import { parseSampathOffer, SampathListItem, SampathDetailPage } from '@/banks/s
 import { SampathFetcher } from '@/banks/sampath/sampath-fetcher';
 import { HttpClient } from '@/infrastructure/http/http-client';
 import { PeriodType } from '@/core/types/offers';
+import {
+    applyKeywordRule,
+    BankParserRule,
+    clearBankRulesCache,
+    installBankRules,
+} from '@/banks/bank-rules-loader';
 
 function listItem(overrides: Partial<SampathListItem> = {}): SampathListItem {
     return {
@@ -152,6 +158,29 @@ describe('parseSampathOffer — live API field realities', () => {
         expect(offer!.validityPeriods[0].validTo).toBe('2026-10-31');
     });
 
+    it('detects Credit Card from prose via the keyword-rule fallback alone', () => {
+        const offer = parseSampathOffer(
+            listItem({
+                eligible_cards: [],
+                promotion_details: '20% off for Sampath credit cardholders.',
+            }),
+            null,
+        );
+        expect(offer!.cardEligibility.cardTypes).toContain('Credit Card');
+        expect(offer!.offer.discountPercentage).toBe(20);
+    });
+
+    it('does not invent a credit card when the prose only names debit', () => {
+        const offer = parseSampathOffer(
+            listItem({
+                eligible_cards: [],
+                promotion_details: '10% off for Sampath debit cardholders only.',
+            }),
+            null,
+        );
+        expect(offer!.cardEligibility.cardTypes).toEqual(['Debit Card']);
+    });
+
     it('eligible_card_categories string feeds applicable cards', () => {
         const offer = parseSampathOffer(
             listItem({ eligible_card_categories: 'Sampath Bank Credit & Debit Cards' }),
@@ -220,5 +249,64 @@ describe('parseSampathOffer — address shapes', () => {
             detailPage({ reservationEmail: 'book@hotel.lk' }),
         );
         expect(offer!.merchant.email).toEqual(['book@hotel.lk']);
+    });
+});
+
+function preloadedRule(field: string, pattern: string): BankParserRule {
+    return {
+        id: `test-${field}`,
+        bank: 'sampath',
+        field,
+        rule_type: 'field_map',
+        pattern,
+        flags: '',
+        capture_group: 0,
+        enabled: true,
+        priority: 10,
+        source_path: null,
+        category: null,
+        source_type: null,
+        status: 'active',
+        version: 1,
+    };
+}
+
+describe('parseSampathOffer — preloaded field_map rules', () => {
+    afterEach(() => clearBankRulesCache());
+
+    it('preloaded short_discount field_map parses the percentage and keeps the up-to restriction', () => {
+        installBankRules('sampath', [preloadedRule('discount_pct', 'short_discount')]);
+        const offer = parseSampathOffer(
+            listItem({
+                short_discount: 'Up to 30% Off',
+                promotion_details: 'Save at the merchant this month.',
+                eligible_cards: ['Visa'],
+            }),
+            null,
+        );
+        expect(offer!.offer.discountPercentage).toBe(30);
+        expect(offer!.offer.restrictions).toContain(
+            'Discount is "up to" the stated percentage, may vary by item/venue',
+        );
+    });
+
+    it('preloaded empty eligible_cards field_map is not a credit-card match', () => {
+        installBankRules('sampath', [preloadedRule('card_types', 'eligible_cards')]);
+        const item = listItem({
+            title: 'Weekend offer',
+            eligible_cards: [],
+            short_discount: '10% Off',
+            promotion_details: '10% off for Sampath debit cardholders only.',
+        });
+        expect(applyKeywordRule(
+            'sampath',
+            'card_types',
+            '10% off for Sampath debit cardholders only.',
+            /credit/i,
+            { rawOffer: item as unknown as Record<string, unknown> },
+        )).toBe(false);
+
+        const offer = parseSampathOffer(item, null);
+        expect(offer!.cardEligibility.cardTypes).toEqual(['Debit Card']);
     });
 });

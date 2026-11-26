@@ -116,6 +116,34 @@ describe('OfferValidator', () => {
     expect(result.errors.some((e) => e.message.includes('expired'))).toBe(true);
   });
 
+  it('expires validTo at the end of that Asia/Colombo day, not at UTC midnight', () => {
+    // 00:30 on 1 Aug in Colombo is still 31 Jul in UTC. The offer's last day has ended.
+    jest.useFakeTimers({ now: new Date('2026-07-31T19:00:00.000Z') });
+    try {
+      const offer = makeValidOffer();
+      offer.validityPeriods[0].validFrom = '2026-07-01';
+      offer.validityPeriods[0].validTo = '2026-07-31';
+      const result = validator.validate(offer);
+      expect(result.errors.some((e) => e.message.includes('expired'))).toBe(true);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('keeps an offer whose validTo day is still in progress in Colombo', () => {
+    // 22:30 on 31 Jul in Colombo is the same calendar day in UTC.
+    jest.useFakeTimers({ now: new Date('2026-07-31T17:00:00.000Z') });
+    try {
+      const offer = makeValidOffer();
+      offer.validityPeriods[0].validFrom = '2026-07-01';
+      offer.validityPeriods[0].validTo = '2026-07-31';
+      const result = validator.validate(offer);
+      expect(result.errors.some((e) => e.message.includes('expired'))).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('does not flag expired when at least one period is still active', () => {
     const offer = makeValidOffer();
     offer.validityPeriods.push({

@@ -1,0 +1,20 @@
+{
+  "kellyFelder": {
+    "merchant": "Kelly Felder",
+    "title": "Enjoy a 20% off at Kelly Felder with your NSB Mastercard Debit Card!",
+    "text": "Discount : 20% Off (both Debit and Credit Cards)\nDuration : 8th Dec. and 9th Dec 2025\nBrands : KELLY FELDER\nOnline and in-store\nLocation details : Colombo 03 | Nugegoda | Colombo City Centre, Level 02 | Wattala\nPromo code : MC20 (Both Credit & Debit)"
+  },
+  "cardBrandLabels": [
+    "Location: Visa",
+    "Address: Mastercard",
+    "Location: Credit",
+    "Location: Debit",
+    "Location: Cards",
+    "Location: All Cards",
+    "Location: both Debit and Credit Cards"
+  ],
+  "streetBesideCardBrand": "Branches: Visa | No. 15, Galle Road, Colombo 03",
+  "streetAfterCardToken": "Location: Mastercard, No. 10, Flower Road, Colombo 07",
+  "townsAfterCardToken": "Outlets: Credit, Nugegoda, Maharagama",
+  "headline": "Location: Spend and Win with your NSB Mastercard Debit Card"
+}

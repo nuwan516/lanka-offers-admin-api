@@ -1,4 +1,5 @@
 import { pool } from '../db/db-client';
+import { nearbyScopePredicate } from '../db/offer-branches';
 
 export interface PostgisNearbyOffer {
   id: string;
@@ -71,11 +72,12 @@ export class GeoRepository {
 
     const conditions: string[] = [
       "o.db_status = 'PUBLISHED'",
-      '(o.valid_to IS NULL OR o.valid_to >= CURRENT_DATE)',
+      `(o.valid_to IS NULL OR o.valid_to >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date)`,
       // ST_DWithin on geography uses metres; GIST index on offer_branches.geom.
       // Edge cases (poles / antimeridian / large radii): geography spheroid math —
       // no cos(lat) division, so polar queries remain correct.
       'ST_DWithin(b.geom, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, $3 * 1000.0)',
+      nearbyScopePredicate('o.location_scope'),
     ];
 
     const params: unknown[] = [options.lat, options.lng, radiusKm];
@@ -301,13 +303,19 @@ export class GeoRepository {
             THEN o.geo_locations ELSE '[]'::jsonb
           END
         ) AS loc
-        WHERE o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'UNRESOLVED')
+        WHERE (o.location_scope IS NULL OR o.location_scope NOT IN ('ONLINE', 'NATIONWIDE', 'UNRESOLVED'))
+          AND COALESCE(loc->>'confirmed', 'true') <> 'false'
+          AND COALESCE(loc->>'success', 'true') <> 'false'
+          AND COALESCE(loc->>'coordinate_status', loc->>'coordinateStatus', 'VERIFIED') IN ('VERIFIED')
+          AND COALESCE(loc->>'participation_status', loc->>'participationStatus', 'SOURCE_VERIFIED')
+              NOT IN ('UNCONFIRMED', 'EXCLUDED')
       ),
       valid AS (
         SELECT * FROM candidates
         WHERE lat IS NOT NULL AND lng IS NOT NULL
-          AND lat BETWEEN -90.0 AND 90.0
-          AND lng BETWEEN -180.0 AND 180.0
+          AND lat BETWEEN 5.9 AND 10.0
+          AND lng BETWEEN 79.5 AND 82.0
+          AND NOT (abs(lat - 7.8731) < 0.05 AND abs(lng - 80.7718) < 0.05)
       ),
       inserted AS (
         INSERT INTO offer_branches (offer_id, branch_name, branch_address, lat, lng, geom)

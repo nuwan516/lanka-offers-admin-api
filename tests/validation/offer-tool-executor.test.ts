@@ -61,6 +61,29 @@ describe('Offer Tool Executor (Sandbox & Budget Guard)', () => {
     contentHash: 'c6f140e79756dcbf0ccaf380687325c4d8fe53418ba2d4650306c1d5698113e2',
   };
 
+  it('classifies geographic scope from general terms and restrictions', async () => {
+    const offer: Offer = {
+      ...sampleOffer,
+      title: 'Weekend promo',
+      merchant: {
+        ...sampleOffer.merchant,
+        name: 'Acme Goods',
+        location: '',
+        addresses: [],
+      },
+      offer: {
+        ...sampleOffer.offer,
+        description: '',
+        generalTerms: ['Valid online only'],
+        restrictions: [],
+      },
+    };
+
+    const result = await new OfferToolExecutor(offer).executeTool('resolve_geographic_scope', {});
+    expect(result.success).toBe(true);
+    expect((result.data as { scope: string }).scope).toBe('ONLINE');
+  });
+
   it('retrieves raw offer and evidence snippets safely', async () => {
     const executor = new OfferToolExecutor(sampleOffer);
     const result = await executor.executeTool('get_raw_offer', { offerId: 'hnb_2451' });

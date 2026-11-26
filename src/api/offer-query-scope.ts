@@ -129,7 +129,7 @@ export function buildOfferListQuery(rawInput: OfferListQueryInput): OfferListQue
     if (input.status) { conditions.push(`db_status = $${i++}`); params.push(input.status); }
   } else {
     conditions.push(`db_status = 'PUBLISHED'`);
-    conditions.push(`(valid_to IS NULL OR valid_to >= CURRENT_DATE)`);
+    conditions.push(`(valid_to IS NULL OR valid_to >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date)`);
   }
 
   if (input.locationScope) {

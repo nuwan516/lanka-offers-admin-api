@@ -126,7 +126,9 @@ export function parseSampathOffer(
 
   const discountSrc = item.short_discount ?? item.discount ?? promoDetails;
   const discountRaw = applyRegexRule('sampath', 'discount_pct', discountSrc, /(\d+(?:\.\d+)?)\s*%/, ruleContext);
-  const discountPercentage = discountRaw ? parseFloat(discountRaw) : null;
+  // A preloaded field_map returns the whole short_discount ("Up to 30% Off"),
+  // which parseFloat cannot read. Pull the percentage out of that string.
+  const discountPercentage = parseDiscountPercentage(discountRaw);
 
   const combinedProse = [
     item.title,
@@ -161,7 +163,9 @@ export function parseSampathOffer(
 
   // ── Card eligibility ────────────────────────────────────────────────────────
   const cardTypes = [
-    ...(applyKeywordRule('sampath', 'card_types', combinedProse, /credit/i, ruleContext) || /credit/i.test(combinedProse) ? ['Credit Card'] : []),
+    // The keyword rule's hardcoded fallback is already /credit/i, so a second
+    // identical test on the same prose cannot change the result.
+    ...(applyKeywordRule('sampath', 'card_types', combinedProse, /credit/i, ruleContext) ? ['Credit Card'] : []),
     ...(/debit/i.test(combinedProse) ? ['Debit Card'] : []),
   ];
 
@@ -247,6 +251,17 @@ function parseApplicableCards(eligibleCards: string[]): string[] {
     if (/debit/i.test(c)) result.push('Debit Card');
   }
   return [...new Set(result)];
+}
+
+function parseDiscountPercentage(raw: string | null): number | null {
+  if (!raw || !raw.trim()) return null;
+  const percent = raw.match(/(\d+(?:\.\d+)?)\s*%/);
+  if (percent) {
+    const value = parseFloat(percent[1]);
+    return Number.isNaN(value) ? null : value;
+  }
+  const leading = parseFloat(raw);
+  return Number.isNaN(leading) ? null : leading;
 }
 
 function extractRestrictions(text: string): string[] {

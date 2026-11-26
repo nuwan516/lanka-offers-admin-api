@@ -160,9 +160,9 @@ function extractMerchantName(description: string, fallback: string): string {
   // Kandy with exclusive cardholder privileges. Enjoy 35% off ...". Stop at
   // the first "with" clause too, since venue names never contain one.
   const stopAhead = /(?=\s+with\b|\s+(?:on|for)\s+(?:transactions?|purchases?)\b|[-,.!]|$)/;
-  const atMatch =
-    description.match(new RegExp(`\\bat\\s+([^-,.!]+?)${stopAhead.source}`, 'i')) ??
-    description.match(new RegExp(`OFF\\s+at\\s+([^-,.!]+?)${stopAhead.source}`, 'i'));
+  // "20% OFF at X" is already matched by `\bat`. A second `OFF at` alternative
+  // is a subset of that pattern and never ran.
+  const atMatch = description.match(new RegExp(`\\bat\\s+([^-,.!]+?)${stopAhead.source}`, 'i'));
   if (atMatch) return atMatch[1].replace(/\s+for\s+.*$/i, '').trim();
 
   return fallback || description.split(/[.!]/)[0].slice(0, 60).trim();

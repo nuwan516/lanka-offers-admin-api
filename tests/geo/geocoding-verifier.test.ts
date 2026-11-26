@@ -157,6 +157,28 @@ describe('Coordinate & Geocoding Verifier', () => {
     expect(verification.confidenceScore).toBeGreaterThanOrEqual(0.7);
   });
 
+  it('does not confirm an island-wide offer as an exact branch pin', () => {
+    const geoResult: GeoResult = {
+      success: true,
+      searchAddress: 'No. 20, Beach Road, Colombo, Sri Lanka',
+      formattedAddress: '20 Beach Rd, Colombo 00300, Sri Lanka',
+      latitude: 6.9012,
+      longitude: 79.8524,
+      types: ['street_address', 'premise'],
+      timestamp: new Date().toISOString(),
+      source: 'geocoding_api',
+    };
+
+    const verification = GeocodingVerifier.verifyResult(
+      geoResult,
+      'No. 20, Beach Road, Colombo, Sri Lanka',
+      'EXACT_ADDRESS',
+      LocationScope.NATIONWIDE
+    );
+
+    expect(verification.isVerifiedExactPin).toBe(false);
+  });
+
   it('rejects corporate headquarters results when searching for a branch outlet', () => {
     const geoResult: GeoResult = {
       success: true,

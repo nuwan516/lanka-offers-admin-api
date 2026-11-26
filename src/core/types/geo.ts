@@ -39,6 +39,11 @@ export interface GeoResult {
   rating?: number | null;
   userRatingsTotal?: number;
   businessStatus?: string;
+  /**
+   * False when these coordinates must not be written as a confirmed branch pin.
+   * Absent on legacy rows. New pipeline results set this explicitly.
+   */
+  confirmed?: boolean;
 }
 
 // ─── Chain Config ─────────────────────────────────────────────────────────────
@@ -87,6 +92,12 @@ export interface LocationClassification {
    * only the top few relevance-ranked hits; true chains keep everything.
    */
   chainResultLimit?: number;
+  /**
+   * False for island-wide "all outlets" and for a chain name with no listed
+   * branch. Those lookups must not create confirmed branch coordinates.
+   * Venue-name Places lookups leave this unset and confirm each result.
+   */
+  emitConfirmedCoordinates?: boolean;
   merchantForSearch: string;
 }
 

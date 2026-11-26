@@ -94,6 +94,32 @@ describe('upsertOffer — staging/review lifecycle', () => {
     expect(sql).not.toContain('title = $2'); // must not touch the live published columns
   });
 
+  it('stores the resolved canonical merchant and a location scope that uses general terms', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'offer-1', content_hash: 'old-hash', db_status: 'REVIEW_REQUIRED' }],
+    });
+    mockedQuery.mockResolvedValueOnce({ rows: [] });
+
+    const base = makeOffer();
+    await upsertOffer(
+      makeOffer({
+        contentHash: 'b'.repeat(64),
+        merchant: { ...base.merchant, name: 'Keells Super', location: null, addresses: [] },
+        offer: {
+          ...base.offer,
+          description: '',
+          generalTerms: ['Valid at all outlets islandwide'],
+        },
+      }),
+      'run-1',
+      { lifecycleStatus: 'APPROVED' },
+    );
+
+    const params = mockedQuery.mock.calls[1][1] as unknown[];
+    expect(params[16]).toBe('Keells');
+    expect(params[17]).toBe('NATIONWIDE');
+  });
+
   it('overwrites directly when the existing offer was never published', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'offer-1', content_hash: 'old-hash', db_status: 'REVIEW_REQUIRED' }] });
     mockedQuery.mockResolvedValueOnce({ rows: [] }); // direct UPDATE

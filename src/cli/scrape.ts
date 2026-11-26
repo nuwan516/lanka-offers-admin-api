@@ -64,7 +64,9 @@ import {
   flagOfferAsDuplicate,
   loadBankCandidates,
   shouldRunDuplicateDetection,
+  type CandidateOfferRow,
 } from '@/infrastructure/db/duplicate-repository';
+import { getDuplicatePolicyConfig } from '@/config/duplicate-policy';
 import { exportDryRunArtifacts } from '@/cli/dry-run-exporter';
 import { ImageAcquisitionService, getOfferImageSource } from '@/infrastructure/images/image-acquisition-service';
 
@@ -189,7 +191,7 @@ function saveValidationReport(bankName: string, reports: ValidationPipelineRepor
 
 // ─── Main ────────────────────────────────────────────────────────────────────────
 
-async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
+export async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
   const logger = new Logger(bankName);
   const bankConfig = getBankConfig(bankName);
 
@@ -650,7 +652,9 @@ async function main(): Promise<void> {
   await closePool().catch(() => null);
 }
 
-main().catch((err) => {
-  console.error('\n  ❌ Fatal error:', err instanceof Error ? err.message : err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('\n  ❌ Fatal error:', err instanceof Error ? err.message : err);
+    process.exit(1);
+  });
+}

@@ -90,6 +90,7 @@ export interface Merchant {
 
 export interface Validity {
   validFrom: string | null;
+  /** YYYY-MM-DD. Consumers treat the offer as valid through the end of this Asia/Colombo calendar day. */
   validTo: string | null;
   periodType: PeriodType;
   recurrenceType: RecurrenceType;
