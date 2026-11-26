@@ -1,13 +1,13 @@
 /**
- * Lanka Offers — Geo Validation Schema & Post-Validation Guards (Zod-Powered)
+ * Lanka Offers — Geo Validation Schema & Post-Validation Guards (Zod)
  *
- * Implements Section 8 of the Intelligent Address Validation Pipeline using Zod.
- * Enforces strict structural, safety, evidence grounding, and anti-hallucination constraints.
+ * Single source of truth: LocationScope comes from @/domain/location-scope.
+ * All consistency rules that the Zod schema alone cannot express live here
+ * so they cannot silently fail on a type or value mismatch.
  */
 
 import { z } from 'zod';
 import { LocationScope } from '@/domain/location-scope';
-
 
 export const GeoValidationDecisionEnum = z.enum([
   'ACCEPT',
@@ -18,14 +18,15 @@ export const GeoValidationDecisionEnum = z.enum([
 ]);
 export type GeoValidationDecision = z.infer<typeof GeoValidationDecisionEnum>;
 
+/** Derived from the domain enum so the string values cannot drift. */
 export const LocationScopeEnum = z.enum([
-  'EXPLICIT_BRANCH',
-  'MULTIPLE_BRANCHES',
-  'SELECTED_OUTLETS',
-  'DISTRICT_REGION',
-  'NATIONWIDE',
-  'ONLINE',
-  'UNRESOLVED',
+  LocationScope.EXPLICIT_BRANCH,
+  LocationScope.MULTIPLE_BRANCHES,
+  LocationScope.SELECTED_OUTLETS,
+  LocationScope.DISTRICT_REGION,
+  LocationScope.NATIONWIDE,
+  LocationScope.ONLINE,
+  LocationScope.UNRESOLVED,
 ]);
 
 export const AddressQualityEnum = z.enum([
@@ -57,7 +58,7 @@ export const GeoValidationProposalSchema = z
     needsHumanReview: z.boolean().default(false),
     reasoning: z.string().trim().optional(),
   })
-  .strict(); // Disallow extra undeclared root properties
+  .strict(); // Extra undeclared properties are rejected by Zod itself.
 
 export type GeoValidationProposal = z.infer<typeof GeoValidationProposalSchema>;
 
@@ -68,11 +69,21 @@ export interface SchemaValidationResult {
 }
 
 /**
- * Validates raw parsed LLM response against strict Zod schema and evidence grounding constraints.
+ * Validates raw LLM output against the schema + domain consistency rules.
+ *
+ * Note: the explicit coordinate / financial-field guards below overlap with
+ * `.strict()` (which already rejects unknown keys). They are kept so that
+ * the error messages stay CRITICAL and human-readable instead of a generic
+ * "unrecognized key" from Zod.
+ *
+ * Evidence-ID checks for `removedCandidates` and `uncertainties` are intentionally
+ * omitted: those fields are free-text human notes / rejected candidate strings,
+ * not structured citations. Only `proposedAddresses[].evidenceIds` are required
+ * to ground against the available evidence set.
  */
 export function validateGeoValidationProposal(
   raw: unknown,
-  availableEvidenceIds: string[]
+  availableEvidenceIds: string[],
 ): SchemaValidationResult {
   const errors: string[] = [];
 
@@ -82,12 +93,10 @@ export function validateGeoValidationProposal(
 
   const rawObj = raw as Record<string, unknown>;
 
-  // 1. Critical safety guard: reject hallucinated/fabricated coordinates
+  // Explicit guards (overlap with .strict() but give clearer CRITICAL messages).
   if ('latitude' in rawObj || 'longitude' in rawObj || 'lat' in rawObj || 'lng' in rawObj || 'coords' in rawObj) {
     errors.push('CRITICAL: LLM output contained prohibited coordinate fields');
   }
-
-  // 2. Critical safety guard: prohibit modifying non-geo financial / validity fields
   if (
     'discountPercentage' in rawObj ||
     'minSpend' in rawObj ||
@@ -98,7 +107,6 @@ export function validateGeoValidationProposal(
     errors.push('CRITICAL: LLM output attempted to modify financial, card, or validity fields');
   }
 
-  // 3. Zod Schema parse
   const parseResult = GeoValidationProposalSchema.safeParse(raw);
   if (!parseResult.success) {
     for (const issue of parseResult.error.issues) {
@@ -108,9 +116,9 @@ export function validateGeoValidationProposal(
   }
 
   const proposal = parseResult.data;
-
-  // 4. Grounding Check: all cited evidenceIds must exist in available evidence snippets
   const validEvIds = new Set(availableEvidenceIds);
+
+  // Grounding: proposed address evidence IDs must exist.
   for (let i = 0; i < proposal.proposedAddresses.length; i++) {
     const item = proposal.proposedAddresses[i];
     for (const evId of item.evidenceIds) {
@@ -120,27 +128,35 @@ export function validateGeoValidationProposal(
     }
   }
 
-  // 5. Anti-hallucination guard: AREA_ONLY must NEVER request geocoding to exact pin
+  // Consistency: ACCEPT / CORRECT must propose at least one address.
+  if (
+    (proposal.decision === 'ACCEPT' || proposal.decision === 'CORRECT') &&
+    proposal.proposedAddresses.length === 0
+  ) {
+    errors.push('ACCEPT or CORRECT requires at least one proposed address');
+  }
+
+  // Consistency: ONLINE scope cannot claim an exact physical address.
+  if (proposal.locationScope === LocationScope.ONLINE && proposal.addressQuality === 'EXACT_ADDRESS') {
+    errors.push('ONLINE location scope cannot have addressQuality EXACT_ADDRESS');
+  }
+
+  // Consistency: ACCEPT cannot also request human review.
+  if (proposal.decision === 'ACCEPT' && proposal.needsHumanReview) {
+    errors.push('ACCEPT decision cannot set needsHumanReview=true');
+  }
+
+  // Existing anti-hallucination rules.
   if (proposal.addressQuality === 'AREA_ONLY' && proposal.needsGeocoding) {
     errors.push('CRITICAL: AREA_ONLY address cannot request exact geocoding');
   }
-
-  // 6. ONLINE location scope cannot have physical proposed addresses
   if (proposal.locationScope === LocationScope.ONLINE && proposal.proposedAddresses.length > 0) {
     errors.push('ONLINE location scope cannot have physical proposed addresses');
   }
 
   if (errors.length > 0) {
-    return {
-      valid: false,
-      errors,
-      sanitizedProposal: null,
-    };
+    return { valid: false, errors, sanitizedProposal: null };
   }
 
-  return {
-    valid: true,
-    errors: [],
-    sanitizedProposal: proposal,
-  };
+  return { valid: true, errors: [], sanitizedProposal: proposal };
 }
