@@ -112,4 +112,34 @@ describe('ValidationPipeline', () => {
     expect(report.passed).toBe(false);
     expect(report.ruleValidation.errors.some((e) => e.field === 'uniqueId')).toBe(true);
   });
+
+  it('does not pass when LLM returns LLM_VALIDATION_FAILED or BUDGET_BLOCKED', async () => {
+    const failed = {
+      isValidOffer: false,
+      inferredCategory: null,
+      extractionScore: 0,
+      confidence: 0,
+      suggestedTitle: null,
+      scoreBreakdown: { identity: 0, merchant: 0, discount: 0, validity: 0, eligibility: 0, location: 0, terms: 0 },
+      fieldVerdicts: {},
+      issues: ['LLM_VALIDATION_FAILED'],
+      rawCompared: false,
+      promptVersion: 'offer-full-v1',
+      reasoning: 'timeout',
+      provider: 'openai',
+      model: 'test',
+    };
+    const llmValidator = {
+      isAvailable: true,
+      validate: jest.fn().mockResolvedValue(failed),
+    } as unknown as LlmValidator;
+
+    const pipeline = new ValidationPipeline({ llmValidator, forceLlm: true, sampleRate: 0 });
+    const report = await pipeline.validateOffer(makeOffer());
+    expect(report.passed).toBe(false);
+
+    failed.issues = ['BUDGET_BLOCKED'];
+    const report2 = await pipeline.validateOffer(makeOffer({ uniqueId: 'hnb_002' }));
+    expect(report2.passed).toBe(false);
+  });
 });

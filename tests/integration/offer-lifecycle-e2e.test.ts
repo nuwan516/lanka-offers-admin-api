@@ -101,22 +101,6 @@ class FakeOffersDb {
       return { rows: [] };
     }
 
-    // ── upsertOffer: direct overwrite (not yet published) ─────────────────
-    if (sql.includes('geo_locations = $11') && sql.includes('title = $2')) {
-      const [id, title, category, cardType, merchantName, merchantLocation, discount, validFrom, validTo,
-        cardEligibility, geoLocations, rawOffer, contentHash, scrapeRunId, dbStatus, changeStatus] = params as string[];
-      const row = this.offers.get(id)!;
-      Object.assign(row, {
-        title, category, card_type: cardType, merchant_name: merchantName, merchant_location: merchantLocation,
-        discount_percentage: discount, valid_from: validFrom, valid_to: validTo,
-        card_eligibility: JSON.parse(cardEligibility), geo_locations: JSON.parse(geoLocations),
-        raw_offer: JSON.parse(rawOffer), content_hash: contentHash, scrape_run_id: scrapeRunId,
-        db_status: dbStatus, change_status: changeStatus,
-        pending_candidate: null, pending_lifecycle_status: null, pending_change_status: null,
-      });
-      return { rows: [] };
-    }
-
     // ── generic row fetch (sync / transition / duplicate flag) ────────────
     if (/FROM offers WHERE id = \$1 FOR UPDATE/.test(sql) && !sql.includes('SELECT change_status')) {
       const row = this.offers.get(params[0] as string);
@@ -127,17 +111,50 @@ class FakeOffersDb {
       return { rows: row ? [{ change_status: row.change_status, pending_change_status: row.pending_change_status }] : [] };
     }
 
-    // ── syncOneOfferWithClient: publish ────────────────────────────────────
+    // ── syncOneOfferWithClient: publish (must run before scrape overwrite) ─
     if (sql.includes(`COALESCE(pending_candidate->>'contentHash'`)) {
-      const [id, title, category, cardType, merchantName, merchantLocation, discount, validFrom, validTo,
-        cardEligibility, rawOffer] = params as string[];
+      const id = params[0] as string;
+      const title = params[1] as string;
+      const category = params[2] as string;
+      const cardType = params[3] as string;
+      const merchantName = params[4] as string;
+      const merchantLocation = params[5] as string;
+      const discount = params[6] as string;
+      const validFrom = params[7] as string;
+      const validTo = params[8] as string;
+      const cardEligibility = params[9] as string;
+      // params[10]=geoLocations, params[11]=nextRawOffer (null keeps existing raw_offer)
+      const nextRawOffer = params[11] as string | null;
       const row = this.offers.get(id)!;
       Object.assign(row, {
         title, category, card_type: cardType, merchant_name: merchantName, merchant_location: merchantLocation,
         discount_percentage: discount, valid_from: validFrom, valid_to: validTo,
-        card_eligibility: JSON.parse(cardEligibility), raw_offer: JSON.parse(rawOffer),
+        card_eligibility: JSON.parse(cardEligibility),
+        raw_offer: nextRawOffer != null ? JSON.parse(nextRawOffer) : row.raw_offer,
         content_hash: row.pending_candidate?.contentHash ?? row.content_hash,
         db_status: 'PUBLISHED', change_status: row.pending_change_status ?? row.change_status,
+        pending_candidate: null, pending_lifecycle_status: null, pending_change_status: null,
+      });
+      return { rows: [] };
+    }
+
+    // ── upsertOffer: direct overwrite (not yet published) ─────────────────
+    // Must not match publish SQL (which also sets geo_locations = $11).
+    if (
+      sql.includes('geo_locations = $11') &&
+      sql.includes('title = $2') &&
+      sql.includes('content_hash = $13') &&
+      !sql.includes(`COALESCE(pending_candidate`)
+    ) {
+      const [id, title, category, cardType, merchantName, merchantLocation, discount, validFrom, validTo,
+        cardEligibility, geoLocations, rawOffer, contentHash, scrapeRunId, dbStatus, changeStatus] = params as string[];
+      const row = this.offers.get(id)!;
+      Object.assign(row, {
+        title, category, card_type: cardType, merchant_name: merchantName, merchant_location: merchantLocation,
+        discount_percentage: discount, valid_from: validFrom, valid_to: validTo,
+        card_eligibility: JSON.parse(cardEligibility), geo_locations: JSON.parse(geoLocations),
+        raw_offer: JSON.parse(rawOffer), content_hash: contentHash, scrape_run_id: scrapeRunId,
+        db_status: dbStatus, change_status: changeStatus,
         pending_candidate: null, pending_lifecycle_status: null, pending_change_status: null,
       });
       return { rows: [] };
@@ -174,6 +191,12 @@ class FakeOffersDb {
     if (sql.includes('INSERT INTO offer_review_history')) {
       const [offerId, action] = params as string[];
       this.history.push({ offerId, action });
+      return { rows: [] };
+    }
+
+    // ── syncOfferBranches (publish / upsert side-effect) ───────────────────
+    if (sql.includes('DELETE FROM offer_branches') || sql.includes('INSERT INTO offer_branches') ||
+        (sql.includes('UPDATE offers SET geom') && sql.includes('WHERE id = $1'))) {
       return { rows: [] };
     }
 

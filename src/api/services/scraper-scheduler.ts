@@ -391,7 +391,7 @@ export class ScraperScheduler {
     entry.lastStatus = 'running';
 
     try {
-      const job = jobManager.startScrapeJob(entry.bank, {
+      const job = await jobManager.startScrapeJob(entry.bank, {
         cache: true,
         concurrency: entry.concurrency,
         timeoutMs: entry.timeoutMs,
@@ -440,15 +440,19 @@ export class ScraperScheduler {
         this.retryTimers.delete(id);
         if (!jobManager.isBankRunning(entry.bank)) {
           console.log(`[ScraperScheduler] Executing scheduled retry ${entry.retryCount} for ${entry.bank}...`);
-          try {
-            jobManager.startScrapeJob(entry.bank, {
-              cache: true,
-              concurrency: entry.concurrency,
-              timeoutMs: entry.timeoutMs,
-            }, entry.retryCount);
-          } catch (err) {
-            console.error(`[ScraperScheduler] Retry execution error for ${entry.bank}:`, err);
-          }
+          jobManager
+            .startScrapeJob(
+              entry.bank,
+              {
+                cache: true,
+                concurrency: entry.concurrency,
+                timeoutMs: entry.timeoutMs,
+              },
+              entry.retryCount,
+            )
+            .catch((err) => {
+              console.error(`[ScraperScheduler] Retry execution error for ${entry.bank}:`, err);
+            });
         }
       }, delayMs);
 
@@ -531,7 +535,7 @@ export class ScraperScheduler {
             entry.lastRun = now.toISOString();
             entry.lastStatus = 'running';
             try {
-              jobManager.startScrapeJob(entry.bank, {
+              await jobManager.startScrapeJob(entry.bank, {
                 cache: true,
                 concurrency: entry.concurrency,
                 timeoutMs: entry.timeoutMs,

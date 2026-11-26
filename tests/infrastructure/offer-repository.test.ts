@@ -53,6 +53,7 @@ describe('upsertOffer — staging/review lifecycle', () => {
   it('inserts a brand-new offer with the caller-supplied lifecycle status', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [] }); // SELECT ... FOR UPDATE -> no existing row
     mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'offer-1' }] }); // INSERT
+    mockedQuery.mockResolvedValue({ rows: [] }); // syncOfferBranches follow-ups
 
     const result = await upsertOffer(makeOffer(), 'run-1', { lifecycleStatus: 'APPROVED' });
 
@@ -62,7 +63,11 @@ describe('upsertOffer — staging/review lifecycle', () => {
     const insertSql = mockedQuery.mock.calls[1][0] as string;
     const insertParams = mockedQuery.mock.calls[1][1] as unknown[];
     expect(insertSql).toContain('INSERT INTO offers');
+    expect(insertParams).toHaveLength(31);
     expect(insertParams).toContain('APPROVED');
+    // Extra denormalized columns must be bound (canonical may be null; scope is always set)
+    expect(insertParams.length).toBeGreaterThan(19);
+    expect(typeof insertParams[19]).toBe('string'); // location_scope
   });
 
   it('does not write anything when content_hash is unchanged', async () => {
@@ -92,6 +97,7 @@ describe('upsertOffer — staging/review lifecycle', () => {
   it('overwrites directly when the existing offer was never published', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'offer-1', content_hash: 'old-hash', db_status: 'REVIEW_REQUIRED' }] });
     mockedQuery.mockResolvedValueOnce({ rows: [] }); // direct UPDATE
+    mockedQuery.mockResolvedValue({ rows: [] }); // syncOfferBranches
 
     const result = await upsertOffer(makeOffer(), 'run-1', { lifecycleStatus: 'APPROVED' });
 
@@ -100,6 +106,36 @@ describe('upsertOffer — staging/review lifecycle', () => {
     const sql = mockedQuery.mock.calls[1][0] as string;
     expect(sql).toContain('title = $2');
     expect(sql).toContain('pending_candidate = NULL');
+  });
+
+  it('stages image-only changes as a full candidate JSON (not evidence-only raw_offer)', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{
+        id: 'offer-1',
+        content_hash: 'a'.repeat(64),
+        db_status: 'PUBLISHED',
+        image_content_hash: 'old-image-hash',
+      }],
+    });
+    mockedQuery.mockResolvedValueOnce({ rows: [] });
+
+    const offer = makeOffer({
+      verifiedImage: {
+        storageKey: `${'b'.repeat(64)}.png`,
+        contentHash: 'b'.repeat(64),
+        sourceUrl: 'https://example.com/img.png',
+        mimeType: 'image/png',
+        sizeBytes: 12,
+        verifiedAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
+    const result = await upsertOffer(offer, 'run-1', { lifecycleStatus: 'REVIEW_REQUIRED' });
+
+    expect(result.staged).toBe(true);
+    const stagedJson = mockedQuery.mock.calls[1][1][1] as string;
+    const parsed = JSON.parse(stagedJson);
+    expect(parsed.verifiedImage.contentHash).toBe('b'.repeat(64));
+    expect(parsed.title).toBe('Demo Offer');
   });
 });
 

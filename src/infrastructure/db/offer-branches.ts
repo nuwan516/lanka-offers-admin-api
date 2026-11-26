@@ -33,6 +33,25 @@ type Queryable = {
  */
 const NON_PHYSICAL_SCOPES = new Set(['ONLINE', 'UNRESOLVED']);
 
+/** Cached PostGIS probe — PGlite harness has no geography type / ST_* functions. */
+let postgisAvailable: boolean | null = null;
+
+async function hasPostgis(client: Queryable): Promise<boolean> {
+  if (postgisAvailable != null) return postgisAvailable;
+  try {
+    await client.query(`SELECT PostGIS_Version()`);
+    postgisAvailable = true;
+  } catch {
+    postgisAvailable = false;
+  }
+  return postgisAvailable;
+}
+
+/** Test-only: reset PostGIS probe cache (PGlite suites). */
+export function resetPostgisAvailabilityCache(): void {
+  postgisAvailable = null;
+}
+
 function isFiniteCoord(lat: number, lng: number): boolean {
   return (
     Number.isFinite(lat) &&
@@ -114,27 +133,46 @@ export async function syncOfferBranches(
     return 0;
   }
 
+  const postgis = await hasPostgis(client);
+
   for (const p of points) {
-    await client.query(
-      `INSERT INTO offer_branches (
-         offer_id, branch_name, branch_address, lat, lng, confidence, geom
-       ) VALUES (
-         $1, $2, $3, $4, $5, $6,
-         ST_SetSRID(ST_MakePoint($5, $4), 4326)::geography
-       )`,
-      [offerId, p.branchName ?? null, p.branchAddress ?? null, p.lat, p.lng, p.confidence ?? null]
-    );
+    if (postgis) {
+      await client.query(
+        `INSERT INTO offer_branches (
+           offer_id, branch_name, branch_address, lat, lng, confidence, geom
+         ) VALUES (
+           $1, $2, $3, $4, $5, $6,
+           ST_SetSRID(ST_MakePoint($5, $4), 4326)::geography
+         )`,
+        [offerId, p.branchName ?? null, p.branchAddress ?? null, p.lat, p.lng, p.confidence ?? null]
+      );
+    } else {
+      // PGlite / no PostGIS: persist lat/lng; geom left null (TEXT stand-in in harness).
+      await client.query(
+        `INSERT INTO offer_branches (
+           offer_id, branch_name, branch_address, lat, lng, confidence, geom
+         ) VALUES ($1, $2, $3, $4, $5, $6, NULL)`,
+        [offerId, p.branchName ?? null, p.branchAddress ?? null, p.lat, p.lng, p.confidence ?? null]
+      );
+    }
   }
 
   // Primary geom = first branch (admin nearby / backfill tools).
   const first = points[0];
-  await client.query(
-    `UPDATE offers
-     SET geom = ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography,
-         updated_at = NOW()
-     WHERE id = $3`,
-    [first.lat, first.lng, offerId]
-  );
+  if (postgis) {
+    await client.query(
+      `UPDATE offers
+       SET geom = ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography,
+           updated_at = NOW()
+       WHERE id = $3`,
+      [first.lat, first.lng, offerId]
+    );
+  } else {
+    await client.query(
+      `UPDATE offers SET geom = NULL, updated_at = NOW() WHERE id = $1`,
+      [offerId]
+    );
+  }
 
   return points.length;
 }

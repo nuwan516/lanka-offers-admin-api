@@ -5,7 +5,7 @@ export interface HttpClientConfig {
   timeout: number;
   retries: number;
   retryDelay: number;
-  cache?: FileCache; // optional caching layer
+  cache?: FileCache;
 }
 
 export interface HttpResponse<T> {

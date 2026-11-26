@@ -56,7 +56,12 @@ export class BankRepository {
           COUNT(*) AS total_offers,
           COUNT(*) FILTER (WHERE db_status = 'PUBLISHED') AS active_offers,
           COUNT(*) FILTER (WHERE db_status = 'PUBLISHED') AS published_count,
-          COUNT(*) FILTER (WHERE db_status IN ('PENDING_REVIEW', 'REVIEW_REQUIRED')) AS review_required_count,
+          -- Align with stats.pending_review: staged scrape updates on published
+          -- offers (pending_candidate) count as review backlog, not only greenfield statuses.
+          COUNT(*) FILTER (
+            WHERE db_status IN ('DISCOVERED', 'PENDING_REVIEW', 'REVIEW_REQUIRED')
+               OR pending_candidate IS NOT NULL
+          ) AS review_required_count,
           COUNT(*) FILTER (WHERE rule_passed = true) AS validated_count,
           ROUND(AVG(llm_score) FILTER (WHERE llm_score IS NOT NULL)) AS avg_llm_score,
           COUNT(*) FILTER (WHERE rule_passed = false) AS rule_failures,

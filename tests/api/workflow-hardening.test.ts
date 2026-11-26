@@ -140,7 +140,7 @@ describe('Workflow Hardening Tests (Phase 2)', () => {
       expect(jm.isValidBank('invalid_bank')).toBe(false);
     });
 
-    it('rejects concurrent scrape on the same bank', () => {
+    it('rejects concurrent scrape on the same bank', async () => {
       const jm = new JobManager();
       (jm as any).activeJobs.set('hnb', {
         child: { kill: jest.fn() },
@@ -149,12 +149,10 @@ describe('Workflow Hardening Tests (Phase 2)', () => {
         pid: 99999,
       });
 
-      expect(() => jm.startScrapeJob('hnb')).toThrow(
-        /already running/
-      );
+      await expect(jm.startScrapeJob('hnb')).rejects.toThrow(/already running/);
     });
 
-    it('forbids running all banks when a single bank is active', () => {
+    it('forbids running all banks when a single bank is active', async () => {
       const jm = new JobManager();
       (jm as any).activeJobs.set('boc', {
         child: { kill: jest.fn() },
@@ -163,9 +161,7 @@ describe('Workflow Hardening Tests (Phase 2)', () => {
         pid: 88888,
       });
 
-      expect(() => jm.startScrapeJob('all')).toThrow(
-        /Cannot run 'all'/
-      );
+      await expect(jm.startScrapeJob('all')).rejects.toThrow(/Cannot run 'all'/);
     });
 
     it('recovers stale runs on startup', async () => {

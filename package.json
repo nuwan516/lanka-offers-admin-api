@@ -30,14 +30,17 @@
     "scrape:nsb": "ts-node -r tsconfig-paths/register src/cli/scrape.ts --bank=nsb --cache",
     "scrape:combank": "ts-node -r tsconfig-paths/register src/cli/scrape.ts --bank=combank --cache",
     "scrape:all": "ts-node -r tsconfig-paths/register src/cli/scrape.ts --bank=all --cache",
+    "geo": "ts-node -r tsconfig-paths/register src/cli/geocode.ts --stats",
     "geo:hnb": "ts-node -r tsconfig-paths/register src/cli/geocode.ts --bank=hnb --stats",
     "geo:sampath": "ts-node -r tsconfig-paths/register src/cli/geocode.ts --bank=sampath --stats",
     "geo:boc": "ts-node -r tsconfig-paths/register src/cli/geocode.ts --bank=boc --stats",
     "geo:all": "ts-node -r tsconfig-paths/register src/cli/geocode.ts --bank=all --stats",
     "geo:dry-run": "ts-node -r tsconfig-paths/register src/cli/geocode.ts --bank=hnb --dry-run",
     "geo:rebuild-branches": "ts-node -r tsconfig-paths/register src/cli/rebuild-offer-branches.ts",
+    "llm:revalidate": "ts-node -r tsconfig-paths/register src/cli/revalidate-llm.ts",
     "llm:revalidate:hnb": "ts-node -r tsconfig-paths/register src/cli/revalidate-llm.ts --bank=hnb",
-    "llm:revalidate:boc": "ts-node -r tsconfig-paths/register src/cli/revalidate-llm.ts --bank=boc"
+    "llm:revalidate:boc": "ts-node -r tsconfig-paths/register src/cli/revalidate-llm.ts --bank=boc",
+    "llm:revalidate:all": "ts-node -r tsconfig-paths/register src/cli/revalidate-llm.ts --bank=all"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

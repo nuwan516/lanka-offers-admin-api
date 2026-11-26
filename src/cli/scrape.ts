@@ -62,6 +62,7 @@ import type { OfferLifecycleStatus } from '@/domain/offer-lifecycle';
 import {
   detectAndRecordDuplicates,
   flagOfferAsDuplicate,
+  loadBankCandidates,
   shouldRunDuplicateDetection,
 } from '@/infrastructure/db/duplicate-repository';
 import { exportDryRunArtifacts } from '@/cli/dry-run-exporter';
@@ -253,12 +254,14 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
     }
   }
 
-  // Create DB record for this run (skipped if dry-run)
+  // Create DB record for this run (skipped if dry-run).
+  // Authorized scrapes fail closed — never upsert offers without a scrape_run row.
   const runId = opts.dryRun
     ? null
     : await createScrapeRun(bankName, opts.cache ? 'cached' : 'full', 'cli', fencingToken).catch((err) => {
-        logger.warn('DB', `Failed to create scrape run: ${err instanceof Error ? err.message : err}`);
-        return null;
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.error('DB', `Failed to create scrape run (aborting authorized scrape): ${msg}`);
+        throw new Error(`createScrapeRun failed: ${msg}`);
       });
 
   // Load DB parser rules into module cache so parsers can use them synchronously
@@ -441,6 +444,8 @@ async function scrapeBank(bankName: BankName, opts: CliOptions): Promise<void> {
       await Promise.all(imageWorkers);
 
       logger.info('DB', `Persisting ${offers.length} offers to Neon…`);
+      // One narrow same-bank preload for duplicate scoring (avoids N lookups).
+      const bankCandidates = await loadBankCandidates(bankName).catch(() => []);
       let dbNew = 0,
         dbChanged = 0,
         dbUnchanged = 0,

@@ -1,12 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { pool } from '@/infrastructure/db/db-client';
-import { getOfferById } from '@/infrastructure/db/offer-repository';
+import { getOfferById, listOffersWithCount } from '@/infrastructure/db/offer-repository';
 import {
   getOfferWorkflow,
   getReviewHistory,
   computeEffectivePreview,
+  computePublishedBaseline,
   saveManualCorrection,
   transitionOffer,
+  bulkTransitionOffers,
   WorkflowError,
   reconcileExpiredOffers,
 } from '@/infrastructure/db/offer-workflow-repository';
@@ -15,6 +16,7 @@ import { buildOfferListQuery, sanitizePublicOffer } from '@/api/offer-query-scop
 import { computeThreeWayDiff } from '@/domain/offer-diff';
 import { getDuplicateCandidatesForOffer } from '@/infrastructure/db/duplicate-repository';
 import { statsRepository } from '@/infrastructure/repositories/stats.repository';
+import { validationRepository } from '@/infrastructure/repositories/validation.repository';
 import { directLifecyclePatchError } from '@/domain/publication/lifecycle-patch-policy';
 
 const router = Router();
@@ -23,44 +25,76 @@ const REVIEW_ACTIONS: OfferReviewAction[] = [
   'APPROVE', 'APPROVE_WITH_CORRECTIONS', 'REJECT', 'SEND_BACK', 'DISABLE', 'PUBLISH', 'UNPUBLISH',
 ];
 
+const BULK_ACTIONS: OfferReviewAction[] = ['APPROVE', 'REJECT'];
+
 router.get('/offers', async (req: Request, res: Response) => {
-  const { bank, status, limit = '50', offset = '0', search, scope, locationScope, merchant } = req.query as Record<string, string | undefined>;
-  const q = buildOfferListQuery({ bank, status, search, scope, locationScope, merchant });
+  const {
+    bank, status, limit = '50', offset = '0', search, scope, locationScope, merchant,
+    view, hasPendingCandidate, changeStatus, rulePassed, geoStatus, maxLlmScore,
+  } = req.query as Record<string, string | undefined>;
 
-  const lim = Math.min(parseInt(limit, 10), 500);
-  const off = parseInt(offset, 10);
-  let i = q.nextParamIndex;
+  const q = buildOfferListQuery({
+    bank, status, search, scope, locationScope, merchant,
+    view, hasPendingCandidate, changeStatus, rulePassed, geoStatus, maxLlmScore,
+  });
 
-  const [rows, countRes] = await Promise.all([
-    pool.query(
-      q.isAdmin
-        ? `SELECT id, unique_id, bank, title, category, card_type, merchant_name,
-              merchant_location, canonical_merchant, location_scope, discount_percentage, valid_from, valid_to, llm_score, llm_valid,
-              rule_passed, rule_errors, rule_warnings, db_status, change_status,
-              pending_candidate IS NOT NULL AS has_pending_candidate, pending_lifecycle_status,
-              created_at, updated_at, scrape_run_id, content_hash, geo_locations, geo_status
-           FROM offers ${q.whereSql}
-           ORDER BY updated_at DESC, id ASC
-           LIMIT $${i++} OFFSET $${i}`
-        : `SELECT id, unique_id, bank, source_url, title, category, card_type,
-              merchant_name, merchant_location, canonical_merchant, location_scope,
-              discount_percentage, valid_from, valid_to, card_eligibility,
-              geo_locations, geo_status, raw_offer, rule_passed, db_status,
-              created_at, updated_at
-           FROM offers ${q.whereSql}
-           ORDER BY updated_at DESC, id ASC
-           LIMIT $${i++} OFFSET $${i}`,
-      [...q.params, lim, off]
-    ),
-    pool.query(`SELECT COUNT(*) FROM offers ${q.whereSql}`, q.params),
-  ]);
+  const lim = Math.min(parseInt(limit, 10) || 50, 500);
+  const off = parseInt(offset, 10) || 0;
+  const { items, total } = await listOffersWithCount({
+    whereSql: q.whereSql,
+    params: q.params,
+    nextParamIndex: q.nextParamIndex,
+    isAdmin: q.isAdmin,
+    limit: lim,
+    offset: off,
+  });
 
-  res.json({ items: rows.rows, total: parseInt(countRes.rows[0].count, 10), limit: lim, offset: off });
+  res.json({ items, total, limit: lim, offset: off });
 });
 
 router.get('/merchants', async (_req: Request, res: Response) => {
   const items = await statsRepository.getMerchants(100);
   res.json({ items });
+});
+
+// Registered before /offers/:id so "bulk-transition" is not captured as an id.
+router.post('/offers/bulk-transition', async (req: Request, res: Response) => {
+  const { action, offerIds, reason, expectedUpdatedAtById } = req.body as {
+    action?: string;
+    offerIds?: string[];
+    reason?: string;
+    expectedUpdatedAtById?: Record<string, string>;
+  };
+
+  if (!action || !BULK_ACTIONS.includes(action as OfferReviewAction)) {
+    res.status(400).json({ error: `Invalid bulk action. Must be one of: ${BULK_ACTIONS.join(', ')}` });
+    return;
+  }
+  if (!Array.isArray(offerIds) || offerIds.length === 0) {
+    res.status(400).json({ error: 'offerIds must be a non-empty array' });
+    return;
+  }
+  if (offerIds.length > 100) {
+    res.status(400).json({ error: 'Bulk transition limited to 100 offers per request' });
+    return;
+  }
+
+  try {
+    const result = await bulkTransitionOffers(
+      offerIds,
+      action as OfferReviewAction,
+      'admin',
+      reason ?? null,
+      expectedUpdatedAtById,
+    );
+    res.json(result);
+  } catch (e) {
+    if (e instanceof WorkflowError) {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
 });
 
 router.get('/offers/:id', async (req: Request, res: Response) => {
@@ -90,14 +124,16 @@ router.get('/offers/:id/review', async (req: Request, res: Response) => {
     res.status(404).json({ error: 'Offer not found' });
     return;
   }
-  const [history, duplicates, valReport] = await Promise.all([
+  const [history, duplicates, validationReport] = await Promise.all([
     getReviewHistory(row.id),
     getDuplicateCandidatesForOffer(row.id),
-    pool.query(`SELECT * FROM validation_reports WHERE offer_id = $1 ORDER BY created_at DESC LIMIT 1`, [row.id]),
+    validationRepository.getLatestReportForOffer(row.id),
   ]);
 
   const effectiveOffer = computeEffectivePreview(row);
-  const published = row.pending_candidate ? row.raw_offer : null;
+  // Live published baseline = last published scrape evidence + manual_override
+  // (manual wins). Do not use raw_offer alone — that hides approved corrections.
+  const published = computePublishedBaseline(row);
   const candidate = row.pending_candidate ?? row.raw_offer;
   const diff = computeThreeWayDiff(published, candidate, effectiveOffer, row.manual_override, undefined, true);
 
@@ -105,8 +141,9 @@ router.get('/offers/:id/review', async (req: Request, res: Response) => {
     offer: row,
     rawOffer: row.raw_offer,
     pendingCandidate: row.pending_candidate,
+    publishedOffer: published,
     pendingValidation: (row as Record<string, unknown>).pending_validation ?? null,
-    validationReport: valReport.rows[0] ?? null,
+    validationReport,
     manualOverride: row.manual_override,
     effectiveOffer,
     diff,

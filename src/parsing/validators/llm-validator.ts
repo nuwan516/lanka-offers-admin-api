@@ -345,8 +345,9 @@ export class LlmValidator {
     const service = `${this.provider}_llm`;
     const guardDecision = await costGuard.canCall(service);
     if (guardDecision.verdict === 'BLOCK') {
+      // Fail safe: never look like a successful validation when the model did not run.
       return {
-        isValidOffer: true,
+        isValidOffer: false,
         inferredCategory: null,
         extractionScore: 0,
         confidence: 0,
@@ -386,8 +387,9 @@ export class LlmValidator {
       };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
+      // Fail safe → REVIEW_REQUIRED via quality gate; never auto-approve / silent-pass.
       return {
-        isValidOffer: true,
+        isValidOffer: false,
         inferredCategory: null,
         extractionScore: 0,
         confidence: 0,
@@ -408,7 +410,7 @@ export class LlmValidator {
 
   /**
    * Transient network faults (EAI_AGAIN DNS exhaustion during long batch runs,
-   * resets, timeouts, 429/5xx) get retried with backoff before failing open.
+   * resets, timeouts, 429/5xx) get retried with backoff before failing safe.
    */
   private async callWithRetry(prompt: string, attempt = 0): Promise<string> {
     try {

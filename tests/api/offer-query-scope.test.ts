@@ -71,6 +71,34 @@ describe('buildOfferListQuery — public API safety (Step 3/19)', () => {
     expect(q.params).toContain('hnb');
     expect(q.params.some(p => String(p).includes('dining'))).toBe(true);
   });
+
+  it('admin view=staged filters pending_candidate only', () => {
+    const q = buildOfferListQuery({ scope: 'admin', view: 'staged' });
+    expect(q.whereSql).toContain('pending_candidate IS NOT NULL');
+  });
+
+  it('admin view=changed includes staged or change_status CHANGED', () => {
+    const q = buildOfferListQuery({ scope: 'admin', view: 'changed' });
+    expect(q.whereSql).toContain(`pending_candidate IS NOT NULL OR change_status = 'CHANGED'`);
+  });
+
+  it('admin view=low_confidence includes unscored and score < 70', () => {
+    const q = buildOfferListQuery({ scope: 'admin', view: 'low_confidence' });
+    expect(q.whereSql).toContain('llm_score IS NULL OR llm_score <');
+    expect(q.params).toContain(70);
+  });
+
+  it('admin view=geo_issues filters unresolved and quota_blocked', () => {
+    const q = buildOfferListQuery({ scope: 'admin', view: 'geo_issues' });
+    expect(q.whereSql).toMatch(/geo_status IN/);
+    expect(q.params).toEqual(expect.arrayContaining(['unresolved', 'quota_blocked']));
+  });
+
+  it('admin view presets never apply for public callers', () => {
+    const q = buildOfferListQuery({ view: 'staged', hasPendingCandidate: true });
+    expect(q.whereSql).not.toContain('pending_candidate');
+    expect(q.whereSql).toContain(`db_status = 'PUBLISHED'`);
+  });
 });
 
 describe('sanitizePublicOffer — single-offer detail endpoint leakage guard', () => {

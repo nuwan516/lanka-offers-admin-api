@@ -8,7 +8,7 @@
  *   GOOGLE_MAPS_API_KEY=xxx npx ts-node -r tsconfig-paths/register src/cli/geocode.ts --bank=hnb
  *
  * Options:
- *   --bank=<name>       Bank name to geocode: hnb | sampath | boc | peoples | ndb | seylan | nsb | combank | all
+ *   --bank=<name>       Bank(s) to geocode: hnb | sampath | boc | ... | all | hnb,boc
  *   --input=<dir>       Directory containing <bank>_all.json (default: ./output)
  *   --output=<dir>      Directory to write geo output (default: ./output/geo)
  *   --cache-dir=<dir>   Geo cache directory (default: ./.geo-cache)
@@ -32,11 +32,13 @@ import { Offer, GeoLocation } from '@/core/types/offers';
 import { GeoSessionStats, LocationType, GeocodedOfferRow, GeoResult } from '@/core/types/geo';
 import { updateOfferGeoLocations, GeoStatus } from '@/infrastructure/db/offer-repository';
 import { closePool } from '@/infrastructure/db/db-client';
+import { parseBankList } from '@/cli/bank-arg';
 import * as crypto from 'crypto';
 
 // ─── CLI args ─────────────────────────────────────────────────────────────────
 
 interface CliOptions {
+  /** Raw --bank value (single, comma-list, or all). */
   bank: string;
   input: string;
   output: string;
@@ -284,8 +286,11 @@ async function main(): Promise<void> {
 
   const opts = parseArgs();
 
-  const banks =
-    opts.bank === 'all' ? listSupportedBanks() : [opts.bank];
+  const banks = parseBankList(opts.bank, {
+    capability: 'geocode',
+    available: listSupportedBanks(),
+    fallback: 'hnb',
+  });
 
   console.log(`\n  Banks:      ${banks.join(', ')}`);
   console.log(`  Dry run:    ${opts.dryRun}`);

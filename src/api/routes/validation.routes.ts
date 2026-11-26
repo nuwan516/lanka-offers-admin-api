@@ -33,8 +33,19 @@ router.get('/validation', async (req: Request, res: Response) => {
 
 // Built-in validation rules list & config
 router.get('/rules', async (_req: Request, res: Response) => {
-  const items = await ruleConfigRepository.getBuiltinRules();
-  res.json({ items, total: items.length });
+  try {
+    const items = await ruleConfigRepository.getBuiltinRules();
+    res.json({ items, total: items.length });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('does not exist')) {
+      res.status(503).json({
+        error: 'Rules tables missing. Run `npm run migrate` in admin/api, then restart the API.',
+      });
+      return;
+    }
+    throw e;
+  }
 });
 
 router.patch('/rules/:id', async (req: Request, res: Response) => {
@@ -56,8 +67,19 @@ router.patch('/rules/:id', async (req: Request, res: Response) => {
 
 // Custom rules CRUD
 router.get('/custom-rules', async (_req: Request, res: Response) => {
-  const items = await ruleConfigRepository.getCustomRules();
-  res.json({ items, total: items.length });
+  try {
+    const items = await ruleConfigRepository.getCustomRules();
+    res.json({ items, total: items.length });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('does not exist')) {
+      res.status(503).json({
+        error: 'Rules tables missing. Run `npm run migrate` in admin/api, then restart the API.',
+      });
+      return;
+    }
+    throw e;
+  }
 });
 
 router.post('/custom-rules', async (req: Request, res: Response) => {

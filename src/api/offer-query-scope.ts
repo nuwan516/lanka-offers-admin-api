@@ -6,7 +6,22 @@
  * Non-admin callers (the public Flutter app, or anyone omitting
  * `scope=admin`) ALWAYS get `db_status = 'PUBLISHED'` — the incoming
  * `status` filter is ignored for them so staging/review data can never leak.
+ *
+ * Admin triage `view` presets map to server-side filters so the dashboard
+ * does not rely on a 300-row client-side slice.
  */
+export type AdminOfferView =
+  | 'all'
+  | 'new'
+  | 'changed'
+  | 'staged'
+  | 'low_confidence'
+  | 'validation_failed'
+  | 'geo_issues'
+  | 'approved'
+  | 'rejected'
+  | 'published';
+
 export interface OfferListQueryInput {
   bank?: string;
   status?: string;
@@ -15,6 +30,13 @@ export interface OfferListQueryInput {
   paramOffset?: number;
   locationScope?: string;
   merchant?: string;
+  /** Admin-only review-queue presets. Ignored for non-admin callers. */
+  view?: string;
+  hasPendingCandidate?: boolean | string;
+  changeStatus?: string;
+  rulePassed?: boolean | string;
+  geoStatus?: string;
+  maxLlmScore?: number | string;
 }
 
 export interface OfferListQuery {
@@ -49,8 +71,54 @@ export function sanitizePublicOffer(offer: Record<string, unknown>): Record<stri
   return safe;
 }
 
-export function buildOfferListQuery(input: OfferListQueryInput): OfferListQuery {
-  const isAdmin = input.scope === 'admin';
+function parseBool(v: boolean | string | undefined): boolean | undefined {
+  if (v === undefined) return undefined;
+  if (typeof v === 'boolean') return v;
+  if (v === 'true') return true;
+  if (v === 'false') return false;
+  return undefined;
+}
+
+function parseNumber(v: number | string | undefined): number | undefined {
+  if (v === undefined || v === '') return undefined;
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/** Apply named admin review-queue presets onto discrete filter fields. */
+function applyAdminView(
+  view: string | undefined,
+  input: OfferListQueryInput
+): OfferListQueryInput {
+  if (!view || view === 'all') return input;
+  switch (view as AdminOfferView) {
+    case 'new':
+      return { ...input, changeStatus: 'NEW' };
+    case 'changed':
+      // Staged updates OR change_status CHANGED (awaiting review).
+      return { ...input, changeStatus: 'CHANGED_OR_PENDING' };
+    case 'staged':
+      return { ...input, hasPendingCandidate: true };
+    case 'low_confidence':
+      return { ...input, maxLlmScore: 70 };
+    case 'validation_failed':
+      return { ...input, rulePassed: false };
+    case 'geo_issues':
+      return { ...input, geoStatus: 'unresolved,quota_blocked' };
+    case 'approved':
+      return { ...input, status: 'APPROVED' };
+    case 'rejected':
+      return { ...input, status: 'REJECTED' };
+    case 'published':
+      return { ...input, status: 'PUBLISHED' };
+    default:
+      return input;
+  }
+}
+
+export function buildOfferListQuery(rawInput: OfferListQueryInput): OfferListQuery {
+  const isAdmin = rawInput.scope === 'admin';
+  const input = isAdmin ? applyAdminView(rawInput.view, rawInput) : rawInput;
   const conditions: string[] = [];
   const params: unknown[] = [];
   let i = (input.paramOffset ?? 0) + 1;
@@ -81,6 +149,49 @@ export function buildOfferListQuery(input: OfferListQueryInput): OfferListQuery 
     i++;
   }
 
+  // Admin-only triage filters — never applied for public callers.
+  if (isAdmin) {
+    const hasPending = parseBool(input.hasPendingCandidate);
+    if (hasPending === true) {
+      conditions.push('pending_candidate IS NOT NULL');
+    } else if (hasPending === false) {
+      conditions.push('pending_candidate IS NULL');
+    }
+
+    if (input.changeStatus === 'CHANGED_OR_PENDING') {
+      conditions.push(`(pending_candidate IS NOT NULL OR change_status = 'CHANGED')`);
+    } else if (input.changeStatus) {
+      conditions.push(`change_status = $${i++}`);
+      params.push(input.changeStatus);
+    }
+
+    const rulePassed = parseBool(input.rulePassed);
+    if (rulePassed === true) {
+      conditions.push('rule_passed = true');
+    } else if (rulePassed === false) {
+      conditions.push('rule_passed = false');
+    }
+
+    if (input.geoStatus) {
+      const statuses = input.geoStatus.split(',').map((s) => s.trim()).filter(Boolean);
+      if (statuses.length === 1) {
+        conditions.push(`geo_status = $${i++}`);
+        params.push(statuses[0]);
+      } else if (statuses.length > 1) {
+        const placeholders = statuses.map(() => `$${i++}`).join(', ');
+        conditions.push(`geo_status IN (${placeholders})`);
+        params.push(...statuses);
+      }
+    }
+
+    const maxLlm = parseNumber(input.maxLlmScore);
+    if (maxLlm !== undefined) {
+      // Unscored offers also need human eyes in the low-confidence queue.
+      conditions.push(`(llm_score IS NULL OR llm_score < $${i++})`);
+      params.push(maxLlm);
+    }
+  }
+
   return {
     whereSql: conditions.length ? `WHERE ${conditions.join(' AND ')}` : '',
     params,
@@ -88,4 +199,3 @@ export function buildOfferListQuery(input: OfferListQueryInput): OfferListQuery 
     isAdmin,
   };
 }
-

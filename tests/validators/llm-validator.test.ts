@@ -178,15 +178,15 @@ describe('LlmValidator', () => {
     expect(result?.issues).toEqual(['LOW_SCORE']);
   });
 
-  it('fails open on API error', async () => {
+  it('fails safe on API error (never looks like a successful validation)', async () => {
     mockedAxios.post.mockRejectedValueOnce(new Error('Network error'));
 
     const validator = new LlmValidator({ apiKey: 'test-key', provider: 'openai' });
     const result = await validator.validate(makeOffer());
 
-    // Should return a result with isValidOffer=true (fail open)
     expect(result).not.toBeNull();
-    expect(result?.isValidOffer).toBe(true);
+    expect(result?.isValidOffer).toBe(false);
+    expect(result?.extractionScore).toBe(0);
     expect(result?.issues).toContain('LLM_VALIDATION_FAILED');
     expect(result?.reasoning).toContain('LLM validation failed');
   });

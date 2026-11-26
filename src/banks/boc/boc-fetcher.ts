@@ -8,8 +8,6 @@ const BASE_URL = 'https://www.boc.lk';
 
 const addressEngine = new AddressEngine({ country: 'Sri Lanka', fallbackToMerchant: false });
 
-// ─── BOCFetcher ───────────────────────────────────────────────────────────────
-
 /**
  * Fetches BOC Bank promotions by HTML scraping with Cheerio.
  *
@@ -21,8 +19,6 @@ export class BOCFetcher {
   private hubLinksBySlug: Map<string, string[]> | null = null;
 
   constructor(private readonly http: HttpClient) {}
-
-  // ── List fetching ──────────────────────────────────────────────────────────
 
   async fetchList(category: BankCategory): Promise<{ url: string; title: string }[]> {
     const items: { url: string; title: string }[] = [];
@@ -106,14 +102,11 @@ export class BOCFetcher {
     return map;
   }
 
-  // ── Detail page fetching ───────────────────────────────────────────────────
 
   async fetchDetail(raw: { url: string; title: string; _categoryName?: string; _categoryId?: number }): Promise<BOCRawOffer> {
     const { data: html } = await this.http.getHTML(raw.url);
     return this.parseDetailPage(html, raw.url, raw._categoryName, raw._categoryId);
   }
-
-  // ── Detail parser ──────────────────────────────────────────────────────────
 
   private parseDetailPage(
     html: string,
@@ -160,7 +153,6 @@ export class BOCFetcher {
     };
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
 
   private parseLocation(lines: string[]): string | null {
     for (const line of lines) {

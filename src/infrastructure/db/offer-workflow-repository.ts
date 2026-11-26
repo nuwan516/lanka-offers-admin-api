@@ -18,6 +18,7 @@ import { validateSourceProvenance } from '@/domain/source-provenance';
 import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
 import { determineLocationScope } from '@/domain/location-scope';
 import { type FencingToken, assertActiveLease } from './offer-repository';
+import { syncOfferBranches } from './offer-branches';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,6 +72,90 @@ export async function getReviewHistory(offerId: string): Promise<ReviewHistoryEn
 export function computeEffectivePreview(row: OfferWorkflowRow): Offer {
   const candidate = row.pending_candidate ?? row.raw_offer;
   return computeEffectiveOffer(candidate, row.manual_override);
+}
+
+/**
+ * Live published baseline for 3-way review diffs.
+ * When a pending_candidate is staged, consumers still see raw_offer merged with
+ * manual_override (manual wins). raw_offer alone is evidence, not the live view.
+ * Returns null for greenfield offers that were never published.
+ */
+export function computePublishedBaseline(row: OfferWorkflowRow): Offer | null {
+  if (!row.pending_candidate) return null;
+  return computeEffectiveOffer(row.raw_offer, row.manual_override);
+}
+
+export interface BulkTransitionResult {
+  action: OfferReviewAction;
+  requested: number;
+  succeeded: number;
+  failed: number;
+  /** Concurrent-modification skips when expectedUpdatedAtById was supplied. */
+  conflicts: number;
+  results: Array<{
+    offerId: string;
+    outcome: 'ok' | 'failed' | 'conflict';
+    fromStatus?: string;
+    toStatus?: string;
+    error?: string;
+  }>;
+}
+
+/**
+ * Bulk APPROVE / REJECT only — never PUBLISH.
+ * Reuses single-offer transitionOffer (history, provenance, conflict checks).
+ * Optional expectedUpdatedAtById skips stale rows as outcome=conflict instead of hard-failing the batch.
+ */
+export async function bulkTransitionOffers(
+  offerIds: string[],
+  action: OfferReviewAction,
+  actor = 'admin',
+  reason: string | null = null,
+  expectedUpdatedAtById?: Record<string, string>,
+): Promise<BulkTransitionResult> {
+  const allowed: OfferReviewAction[] = ['APPROVE', 'REJECT'];
+  if (!allowed.includes(action)) {
+    throw new WorkflowError(`Bulk transition only supports APPROVE or REJECT (got ${action})`);
+  }
+
+  const uniqueIds = [...new Set(offerIds.map(String).filter(Boolean))];
+  const results: BulkTransitionResult['results'] = [];
+  let succeeded = 0;
+  let failed = 0;
+  let conflicts = 0;
+
+  for (const offerId of uniqueIds) {
+    const expectedUpdatedAt = expectedUpdatedAtById?.[offerId];
+    try {
+      const result = await transitionOffer(offerId, action, actor, reason, undefined, expectedUpdatedAt);
+      results.push({
+        offerId,
+        outcome: 'ok',
+        fromStatus: result.fromStatus,
+        toStatus: result.toStatus,
+      });
+      succeeded++;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      const isConflict = message.includes('Concurrent modification conflict');
+      if (isConflict) {
+        conflicts++;
+        results.push({ offerId, outcome: 'conflict', error: message });
+      } else {
+        failed++;
+        results.push({ offerId, outcome: 'failed', error: message });
+      }
+    }
+  }
+
+  return {
+    action,
+    requested: uniqueIds.length,
+    succeeded,
+    failed,
+    conflicts,
+    results,
+  };
 }
 
 // ─── Audit logging ────────────────────────────────────────────────────────────
@@ -369,14 +454,21 @@ async function syncOneOfferWithClient(
   const validity = effective.validityPeriods?.[0];
   const termsText = (effective.offer as any)?.terms ?? (effective.offer?.generalTerms?.length ? effective.offer.generalTerms.join('\n') : null);
 
+  // Persist already-resolved coords only — never invent for ONLINE / NATIONWIDE /
+  // SELECTED_OUTLETS / UNRESOLVED. syncOfferBranches enforces the same rule.
+  const existingGeo = Array.isArray(row.geo_locations) ? row.geo_locations : [];
+  const geoLocations = effective.merchant?.geocodedLocations ?? existingGeo;
+  const img = effective.verifiedImage ?? null;
+
   const cols = {
     discount: effective.offer?.discountPercentage?.toString() ?? null,
     validFrom: validity?.validFrom ?? null,
     validTo: validity?.validTo ?? null,
     cardEligibility: JSON.stringify(effective.cardEligibility ?? {}),
-    geoLocations: JSON.stringify(effective.merchant?.geocodedLocations ?? row.geo_locations ?? []),
-    rawOffer: JSON.stringify(effective),
-    image: effective.verifiedImage ?? null,
+    geoLocations: JSON.stringify(geoLocations),
+    // Promote staged scrape to new evidence baseline. Never bake manual_override
+    // into raw_offer (immutable evidence). Greenfield publish leaves raw_offer as-is.
+    nextRawOffer: row.pending_candidate ? JSON.stringify(row.pending_candidate) : null,
     canonicalMerchant: canonicalRes.canonicalName,
     locationScope: scopeRes.scope,
     description: effective.offer?.description ?? null,
@@ -392,30 +484,53 @@ async function syncOneOfferWithClient(
     imageUrl: imageUrl,
   };
 
+  // Sequential placeholders — denormalized columns get effective; raw_offer
+  // only advances when a staged candidate is being accepted.
   await client.query(
     `UPDATE offers SET
        title = $2, category = $3, card_type = $4, merchant_name = $5, merchant_location = $6,
        discount_percentage = $7, valid_from = $8, valid_to = $9, card_eligibility = $10,
-       raw_offer = $11, content_hash = COALESCE(pending_candidate->>'contentHash', content_hash),
-       image_source_url = COALESCE($12, image_source_url),
-       image_storage_key = COALESCE($13, image_storage_key),
-       image_content_hash = COALESCE($14, image_content_hash),
-       image_mime_type = COALESCE($15, image_mime_type),
-       image_size_bytes = COALESCE($16, image_size_bytes),
-       image_url = CASE WHEN $13::text IS NOT NULL THEN '/api/images/' || $13 ELSE image_url END,
+       geo_locations = $11::jsonb,
+       raw_offer = COALESCE($12::jsonb, raw_offer),
+       content_hash = COALESCE(pending_candidate->>'contentHash', content_hash),
        db_status = 'PUBLISHED', change_status = COALESCE(pending_change_status, change_status),
-       canonical_merchant = $12, location_scope = $13, description = $14, terms = $15,
-       min_spend = $16, max_discount = $17, max_bill_value = $18, installment_plans = $19,
-       recurrence = $20, booking_required = $21, booking_phone = $22, pdf_terms_url = $23, image_url = $24,
+       canonical_merchant = $13, location_scope = $14, description = $15, terms = $16,
+       min_spend = $17, max_discount = $18, max_bill_value = $19, installment_plans = $20,
+       recurrence = $21, booking_required = $22, booking_phone = $23, pdf_terms_url = $24,
+       image_url = CASE
+         WHEN $26::text IS NOT NULL THEN '/api/images/' || $26
+         WHEN $25::text IS NOT NULL THEN $25
+         ELSE image_url
+       END,
+       image_source_url = COALESCE($27, image_source_url),
+       image_storage_key = COALESCE($26, image_storage_key),
+       image_content_hash = COALESCE($28, image_content_hash),
+       image_mime_type = COALESCE($29, image_mime_type),
+       image_size_bytes = COALESCE($30, image_size_bytes),
        pending_candidate = NULL, pending_lifecycle_status = NULL, pending_change_status = NULL,
        published_at = NOW(), updated_at = NOW()
      WHERE id = $1`,
     [
       offerId, effective.title, effective.category, effective.cardType,
       effective.merchant?.name, effective.merchant?.location,
-      cols.discount, cols.validFrom, cols.validTo, cols.cardEligibility, cols.rawOffer,
+      cols.discount, cols.validFrom, cols.validTo, cols.cardEligibility,
+      cols.geoLocations, cols.nextRawOffer,
+      cols.canonicalMerchant, cols.locationScope, cols.description, cols.terms,
+      cols.minSpend, cols.maxDiscount, cols.maxBillValue, cols.installmentPlans,
+      cols.recurrence, cols.bookingRequired, cols.bookingPhone, cols.pdfTermsUrl,
+      cols.imageUrl,
+      img?.storageKey ?? null,
+      img?.sourceUrl ?? null,
+      img?.contentHash ?? null,
+      img?.mimeType ?? null,
+      img?.sizeBytes ?? null,
     ]
   );
+
+  await syncOfferBranches(offerId, geoLocations, {
+    locationScope: cols.locationScope,
+    client,
+  });
 
   await logHistory(client, offerId, 'published', row.db_status, 'PUBLISHED', {}, null);
   return { offerId, outcome: 'published' };

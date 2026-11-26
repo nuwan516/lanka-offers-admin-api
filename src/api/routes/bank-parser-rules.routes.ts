@@ -122,8 +122,19 @@ interface FieldBacktestSummary {
 
 router.get('/bank-parser-rules', async (req: Request, res: Response) => {
   const { bank } = req.query as Record<string, string>;
-  const rows = await bankParserRulesRepository.getRules(bank);
-  res.json({ items: rows, total: rows.length });
+  try {
+    const rows = await bankParserRulesRepository.getRules(bank);
+    res.json({ items: rows, total: rows.length });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('does not exist')) {
+      res.status(503).json({
+        error: 'Bank parser rules tables missing. Run `npm run migrate` in admin/api, then restart the API.',
+      });
+      return;
+    }
+    throw e;
+  }
 });
 
 router.post('/bank-parser-rules', async (req: Request, res: Response) => {

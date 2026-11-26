@@ -8,7 +8,6 @@
 import { z } from 'zod';
 import { LocationScope } from '@/domain/location-scope';
 
-// ─── Zod Enums & Schemas ───────────────────────────────────────────────────────
 
 export const GeoValidationDecisionEnum = z.enum([
   'ACCEPT',
@@ -67,8 +66,6 @@ export interface SchemaValidationResult {
   errors: string[];
   sanitizedProposal: GeoValidationProposal | null;
 }
-
-// ─── Deterministic Post-Validation & Safety Guards ────────────────────────────
 
 /**
  * Validates raw parsed LLM response against strict Zod schema and evidence grounding constraints.

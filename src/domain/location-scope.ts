@@ -220,6 +220,8 @@ export function determineLocationScope(input: {
   merchantName?: string | null;
   addresses?: string[];
   geoLocations?: unknown[];
+  /** Optional terms/conditions text used as extra scope signal (never invents coords). */
+  terms?: string[] | null;
 }): LocationScopeResult {
   let loc = (input.location ?? '').trim();
   // Filter out noise in location string

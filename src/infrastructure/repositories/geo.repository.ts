@@ -39,6 +39,13 @@ export interface NearbyQueryOptions {
 
 export interface GeoStats {
   totalOffers: number;
+  /** Dashboard contract (Overview / Geo pages). */
+  offersWithGeom: number;
+  offersWithoutGeom: number;
+  coveragePercent: number;
+  byBank: Array<{ bank: string; total: number; withGeom: number; coveragePercent: number }>;
+  byLocationScope: Array<{ scope: string; count: number; withGeom: number }>;
+  /** Legacy aliases kept for older callers. */
   geocodedOffers: number;
   unresolvedOffers: number;
   postgisGeometries: number;
@@ -145,38 +152,96 @@ export class GeoRepository {
 
   /**
    * Aggregate statistics about geographic coverage and PostGIS point coverage.
+   * Shape matches dashboard `ApiGeoStats` (offersWithGeom / coveragePercent / breakdowns).
+   * Coverage uses `offers.geom` (synced from real branch points) — never invented coords.
    */
   public async getGeoStats(): Promise<GeoStats> {
-    const res = await pool.query<{
-      total_offers: string;
-      geocoded_offers: string;
-      unresolved_offers: string;
-      postgis_geometries: string;
-      offer_branches: string;
-    }>(`
-      SELECT
-        COUNT(*)::text AS total_offers,
-        COUNT(*) FILTER (WHERE geo_status = 'resolved' OR (geo_locations IS NOT NULL AND jsonb_array_length(geo_locations) > 0))::text AS geocoded_offers,
-        COUNT(*) FILTER (WHERE geo_status = 'unresolved' OR geo_locations IS NULL OR jsonb_array_length(geo_locations) = 0)::text AS unresolved_offers,
-        COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS postgis_geometries,
-        (SELECT COUNT(*)::text FROM offer_branches) AS offer_branches
-      FROM offers
-      WHERE db_status = 'PUBLISHED'
-    `);
+    const [summaryRes, byBankRes, byScopeRes, branchCountRes] = await Promise.all([
+      pool.query<{
+        total_offers: string;
+        with_geom: string;
+        geocoded_offers: string;
+        unresolved_offers: string;
+        postgis_geometries: string;
+      }>(`
+        SELECT
+          COUNT(*)::text AS total_offers,
+          COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS with_geom,
+          COUNT(*) FILTER (
+            WHERE geo_status = 'resolved'
+               OR (geo_locations IS NOT NULL AND jsonb_typeof(geo_locations) = 'array' AND jsonb_array_length(geo_locations) > 0)
+          )::text AS geocoded_offers,
+          COUNT(*) FILTER (
+            WHERE geo_status = 'unresolved'
+               OR ((geo_locations IS NULL OR geo_locations = '[]'::jsonb) AND merchant_location IS NOT NULL)
+          )::text AS unresolved_offers,
+          COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS postgis_geometries
+        FROM offers
+        WHERE db_status = 'PUBLISHED'
+      `),
+      pool.query<{ bank: string; total: string; with_geom: string }>(`
+        SELECT
+          bank,
+          COUNT(*)::text AS total,
+          COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS with_geom
+        FROM offers
+        WHERE db_status = 'PUBLISHED'
+        GROUP BY bank
+        ORDER BY bank
+      `),
+      pool.query<{ scope: string; count: string; with_geom: string }>(`
+        SELECT
+          COALESCE(location_scope, 'UNSET') AS scope,
+          COUNT(*)::text AS count,
+          COUNT(*) FILTER (WHERE geom IS NOT NULL)::text AS with_geom
+        FROM offers
+        WHERE db_status = 'PUBLISHED'
+        GROUP BY COALESCE(location_scope, 'UNSET')
+        ORDER BY count DESC
+      `),
+      // Separate probe — offer_branches may be absent until `npm run migrate`.
+      pool.query<{ c: string }>(`SELECT COUNT(*)::text AS c FROM offer_branches`).catch(() => ({
+        rows: [{ c: '0' }],
+      })),
+    ]);
 
-    const total = parseInt(res.rows[0]?.total_offers ?? '0', 10);
-    const geocoded = parseInt(res.rows[0]?.geocoded_offers ?? '0', 10);
-    const unresolved = parseInt(res.rows[0]?.unresolved_offers ?? '0', 10);
-    const postgisGeom = parseInt(res.rows[0]?.postgis_geometries ?? '0', 10);
-    const offerBranches = parseInt(res.rows[0]?.offer_branches ?? '0', 10);
+    const total = parseInt(summaryRes.rows[0]?.total_offers ?? '0', 10);
+    const withGeom = parseInt(summaryRes.rows[0]?.with_geom ?? '0', 10);
+    const geocoded = parseInt(summaryRes.rows[0]?.geocoded_offers ?? '0', 10);
+    const unresolved = parseInt(summaryRes.rows[0]?.unresolved_offers ?? '0', 10);
+    const postgisGeom = parseInt(summaryRes.rows[0]?.postgis_geometries ?? '0', 10);
+    const offerBranches = parseInt(branchCountRes.rows[0]?.c ?? '0', 10);
+    const coveragePercent = total > 0 ? Math.round((withGeom / total) * 1000) / 10 : 0;
+
+    const byBank = byBankRes.rows.map((r) => {
+      const bankTotal = parseInt(r.total, 10);
+      const bankWithGeom = parseInt(r.with_geom, 10);
+      return {
+        bank: r.bank,
+        total: bankTotal,
+        withGeom: bankWithGeom,
+        coveragePercent: bankTotal > 0 ? Math.round((bankWithGeom / bankTotal) * 1000) / 10 : 0,
+      };
+    });
+
+    const byLocationScope = byScopeRes.rows.map((r) => ({
+      scope: r.scope,
+      count: parseInt(r.count, 10),
+      withGeom: parseInt(r.with_geom, 10),
+    }));
 
     return {
       totalOffers: total,
+      offersWithGeom: withGeom,
+      offersWithoutGeom: Math.max(0, total - withGeom),
+      coveragePercent,
+      byBank,
+      byLocationScope,
       geocodedOffers: geocoded,
       unresolvedOffers: unresolved,
       postgisGeometries: postgisGeom,
       offerBranches,
-      resolvedPercentage: total > 0 ? Math.round((geocoded / total) * 100) : 0,
+      resolvedPercentage: total > 0 ? Math.round((withGeom / total) * 100) : 0,
     };
   }
 

@@ -34,7 +34,7 @@ router.post('/geocode/:bank', (req: Request, res: Response) => {
   }
 });
 
-router.post('/scrape/:bank', (req: Request, res: Response) => {
+router.post('/scrape/:bank', async (req: Request, res: Response) => {
   const bank = String(req.params.bank);
   const { cache, llm, noValidate, skipDetails, concurrency, maxCategories, dryRun } = (req.body ?? {}) as {
     cache?: boolean;
@@ -47,7 +47,7 @@ router.post('/scrape/:bank', (req: Request, res: Response) => {
   };
 
   try {
-    const job = jobManager.startScrapeJob(bank, {
+    const job = await jobManager.startScrapeJob(bank, {
       cache,
       llm,
       noValidate,
@@ -67,7 +67,8 @@ router.post('/scrape/:bank', (req: Request, res: Response) => {
       msg.includes('already running') ||
       msg.includes('Cannot run') ||
       msg.includes('Cannot start') ||
-      msg.includes('limit reached')
+      msg.includes('limit reached') ||
+      msg.includes('lease already held')
     ) {
       res.status(409).json({ error: msg });
       return;

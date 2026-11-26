@@ -8,6 +8,8 @@ import type { Offer, GeoLocation } from '@/core/types/offers';
 import type { ValidatorReport } from '@/core/types/validation';
 import type { OfferLifecycleStatus, OfferChangeStatus } from '@/domain/offer-lifecycle';
 import { classifyScraperFailure } from '@/domain/failure-classifier';
+import { resolveCanonicalMerchant } from '@/domain/merchant-canonicalizer';
+import { determineLocationScope } from '@/domain/location-scope';
 import { syncOfferBranches, syncOfferBranchesByUniqueId } from './offer-branches';
 
 // ─── Scrape Runs & Fencing ───────────────────────────────────────────────────
@@ -286,6 +288,7 @@ export async function upsertOffer(
     const cols = offerColumnValues(offer, rawOffer);
 
     if (!existing) {
+      // 31 columns ↔ 31 binds (canonical_merchant … image_url were previously unbound).
       const insertRes = await client.query<{ id: string }>(
         `INSERT INTO offers (
            unique_id, bank, source_url, title, category, card_type,
@@ -305,11 +308,15 @@ export async function upsertOffer(
           offer.merchant?.name, offer.merchant?.location, cols.discount,
           cols.validFrom, cols.validTo, cols.cardEligibility, cols.geoLocations,
           cols.rawOffer, offer.contentHash, runId, decision.lifecycleStatus, NEW_CHANGE_STATUS,
+          cols.canonicalMerchant, cols.locationScope, cols.description, cols.terms,
+          cols.minSpend, cols.maxDiscount, cols.maxBillValue, cols.installmentPlans,
+          cols.recurrence, cols.bookingRequired, cols.bookingPhone, cols.pdfTermsUrl, cols.imageUrl,
         ]
       );
       const newId = insertRes.rows[0].id;
+      // Use determined scope — never invent pins for ONLINE / UNRESOLVED.
       await syncOfferBranches(newId, offer.merchant?.geocodedLocations ?? [], {
-        locationScope: (offer as { locationScope?: string }).locationScope ?? null,
+        locationScope: cols.locationScope,
         client,
       });
       return { id: newId, isNew: true, isChanged: false, isUnchanged: false, status: 'NEW', staged: false };
@@ -325,7 +332,8 @@ export async function upsertOffer(
            SET pending_candidate = $2, pending_lifecycle_status = $3,
                pending_change_status = 'CHANGED', scrape_run_id = $4, updated_at = NOW()
            WHERE id = $1`,
-          [existing.id, cols.rawOffer, decision.lifecycleStatus, runId],
+          // Same candidate shape as content-change staging (not evidence-only JSON).
+          [existing.id, cols.candidateJson, decision.lifecycleStatus, runId],
         );
         return {
           id: existing.id,
@@ -341,6 +349,7 @@ export async function upsertOffer(
 
     if (existing.db_status === 'PUBLISHED') {
       // Protect the live public record — stage the candidate for review.
+      // manual_override and live columns (including raw_offer) stay untouched.
       await client.query(
         `UPDATE offers
          SET pending_candidate = $2, pending_lifecycle_status = $3, pending_change_status = 'CHANGED',
@@ -352,6 +361,7 @@ export async function upsertOffer(
     }
 
     // Not yet published — safe to update directly, no live data to protect.
+    // raw_offer stores evidence (rawOfferSource ?? offer), columns store effective.
     await client.query(
       `UPDATE offers SET
          title = $2, category = $3, card_type = $4, merchant_name = $5, merchant_location = $6,
@@ -373,7 +383,7 @@ export async function upsertOffer(
       ]
     );
     await syncOfferBranches(existing.id, offer.merchant?.geocodedLocations ?? [], {
-      locationScope: (offer as { locationScope?: string }).locationScope ?? null,
+      locationScope: cols.locationScope,
       client,
     });
     return { id: existing.id, isNew: false, isChanged: true, isUnchanged: false, status: 'CHANGED', staged: false };
@@ -695,6 +705,51 @@ export async function getOffers(filters: {
     [...params, limit, offset]
   );
   return rows.rows;
+}
+
+/**
+ * Admin/public offer list used by GET /offers. Caller supplies the
+ * visibility-scoped WHERE fragment from `buildOfferListQuery`.
+ */
+export async function listOffersWithCount(args: {
+  whereSql: string;
+  params: unknown[];
+  nextParamIndex: number;
+  isAdmin: boolean;
+  limit: number;
+  offset: number;
+}): Promise<{ items: Record<string, unknown>[]; total: number }> {
+  const lim = Math.min(args.limit, 500);
+  const off = args.offset;
+  let i = args.nextParamIndex;
+
+  const adminSelect = `SELECT id, unique_id, bank, title, category, card_type, merchant_name,
+              merchant_location, canonical_merchant, location_scope, discount_percentage, valid_from, valid_to, llm_score, llm_valid,
+              rule_passed, rule_errors, rule_warnings, db_status, change_status,
+              pending_candidate IS NOT NULL AS has_pending_candidate, pending_lifecycle_status,
+              created_at, updated_at, scrape_run_id, content_hash, geo_locations, geo_status
+           FROM offers ${args.whereSql}
+           ORDER BY updated_at DESC, id ASC
+           LIMIT $${i++} OFFSET $${i}`;
+
+  const publicSelect = `SELECT id, unique_id, bank, source_url, title, category, card_type,
+              merchant_name, merchant_location, canonical_merchant, location_scope,
+              discount_percentage, valid_from, valid_to, card_eligibility,
+              geo_locations, geo_status, raw_offer, rule_passed, db_status,
+              created_at, updated_at
+           FROM offers ${args.whereSql}
+           ORDER BY updated_at DESC, id ASC
+           LIMIT $${i++} OFFSET $${i}`;
+
+  const [rows, countRes] = await Promise.all([
+    pool.query(args.isAdmin ? adminSelect : publicSelect, [...args.params, lim, off]),
+    pool.query(`SELECT COUNT(*) FROM offers ${args.whereSql}`, args.params),
+  ]);
+
+  return {
+    items: rows.rows,
+    total: parseInt(countRes.rows[0].count, 10),
+  };
 }
 
 export async function getOfferById(id: string) {

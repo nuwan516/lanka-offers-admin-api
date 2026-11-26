@@ -12,7 +12,7 @@ jest.mock('@/api/services/job-manager', () => ({
     getActiveJobs: jest.fn().mockReturnValue([]),
     isBankRunning: jest.fn().mockReturnValue(false),
     isBankLockedInDatabase: jest.fn().mockResolvedValue(false),
-    startScrapeJob: jest.fn().mockReturnValue({
+    startScrapeJob: jest.fn().mockResolvedValue({
       jobId: 'job-test-1',
       pid: 12345,
       bank: 'hnb',

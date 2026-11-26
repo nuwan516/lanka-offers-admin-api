@@ -3,15 +3,21 @@ import { PeriodType, RecurrenceType } from '@/core/types/offers';
 
 const mockClient = { query: jest.fn() };
 const mockPool = { query: jest.fn() };
+const mockSyncOfferBranches = jest.fn().mockResolvedValue(0);
 
 jest.mock('@/infrastructure/db/db-client', () => ({
   pool: mockPool,
   withTransaction: jest.fn((fn: (client: unknown) => unknown) => fn(mockClient)),
 }));
 
+jest.mock('@/infrastructure/db/offer-branches', () => ({
+  syncOfferBranches: (...args: unknown[]) => mockSyncOfferBranches(...args),
+}));
+
 import {
   transitionOffer, saveManualCorrection, syncApprovedOffer,
-  bulkSyncApprovedOffers, getSyncPreview, reconcileExpiredOffers, WorkflowError,
+  bulkSyncApprovedOffers, bulkTransitionOffers, computePublishedBaseline,
+  getSyncPreview, reconcileExpiredOffers, WorkflowError,
 } from '@/infrastructure/db/offer-workflow-repository';
 
 function makeOffer(overrides: Partial<Offer> = {}): Offer {
@@ -44,7 +50,11 @@ function makeRow(overrides: Record<string, unknown> = {}) {
   };
 }
 
-beforeEach(() => { mockClient.query.mockReset(); mockPool.query.mockReset(); });
+beforeEach(() => {
+  mockClient.query.mockReset();
+  mockPool.query.mockReset();
+  mockSyncOfferBranches.mockReset().mockResolvedValue(0);
+});
 
 describe('transitionOffer', () => {
   it('approves a review-required offer and records history', async () => {
@@ -131,6 +141,66 @@ describe('transitionOffer', () => {
   });
 });
 
+describe('computePublishedBaseline', () => {
+  it('returns null when there is no staged candidate (greenfield)', () => {
+    expect(computePublishedBaseline(makeRow() as any)).toBeNull();
+  });
+
+  it('applies manual_override onto raw_offer for the live published baseline', () => {
+    const baseline = computePublishedBaseline(makeRow({
+      pending_candidate: makeOffer({ title: 'Candidate Title' }),
+      raw_offer: makeOffer({ title: 'Published Title' }),
+      manual_override: { title: 'Operator Corrected Title' },
+    }) as any);
+    expect(baseline?.title).toBe('Operator Corrected Title');
+  });
+});
+
+describe('bulkTransitionOffers', () => {
+  it('approves each id via the single-offer workflow and never publishes', async () => {
+    mockClient.query
+      .mockResolvedValueOnce({ rows: [makeRow({ db_status: 'REVIEW_REQUIRED' })] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [makeRow({ id: 'offer-2', db_status: 'REVIEW_REQUIRED' })] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    const summary = await bulkTransitionOffers(['offer-1', 'offer-2'], 'APPROVE');
+    expect(summary.action).toBe('APPROVE');
+    expect(summary.succeeded).toBe(2);
+    expect(summary.failed).toBe(0);
+    expect(summary.conflicts).toBe(0);
+    expect(summary.results.every((r) => r.toStatus === 'APPROVED')).toBe(true);
+  });
+
+  it('skips concurrent conflicts when expectedUpdatedAtById is stale', async () => {
+    const row = makeRow({
+      db_status: 'REVIEW_REQUIRED',
+      updated_at: '2026-10-18T12:00:00.000Z',
+    });
+    mockClient.query.mockResolvedValueOnce({ rows: [row] }); // SELECT FOR UPDATE
+
+    const summary = await bulkTransitionOffers(
+      ['offer-1'],
+      'APPROVE',
+      'admin',
+      null,
+      { 'offer-1': '2026-10-18T10:00:00.000Z' },
+    );
+
+    expect(summary.succeeded).toBe(0);
+    expect(summary.failed).toBe(0);
+    expect(summary.conflicts).toBe(1);
+    expect(summary.results[0].outcome).toBe('conflict');
+    expect(summary.results[0].error).toMatch(/Concurrent modification conflict/);
+  });
+
+  it('rejects PUBLISH as a bulk action', async () => {
+    await expect(bulkTransitionOffers(['offer-1'], 'PUBLISH' as any)).rejects.toThrow(/APPROVE or REJECT/);
+  });
+});
+
 describe('saveManualCorrection', () => {
   it('merges only the sanitized override into manual_override, preserving raw_offer', async () => {
     const row = makeRow();
@@ -156,7 +226,17 @@ describe('syncApprovedOffer', () => {
     const result = await syncApprovedOffer('offer-1');
     expect(result.outcome).toBe('published');
     const updateSql = mockClient.query.mock.calls[1][0] as string;
+    const updateParams = mockClient.query.mock.calls[1][1] as unknown[];
     expect(updateSql).toContain(`db_status = 'PUBLISHED'`);
+    expect(updateSql).toContain('geo_locations = $11');
+    expect(updateSql).toContain('location_scope = $14');
+    // Every placeholder referenced in SQL must be bound (regression: $12–$24 unbound).
+    expect(updateParams.length).toBeGreaterThanOrEqual(30);
+    expect(mockSyncOfferBranches).toHaveBeenCalledWith(
+      'offer-1',
+      expect.anything(),
+      expect.objectContaining({ client: mockClient, locationScope: expect.any(String) }),
+    );
   });
 
   it('skips an offer that is not eligible (still REVIEW_REQUIRED)', async () => {
@@ -183,8 +263,14 @@ describe('syncApprovedOffer', () => {
     expect(mockClient.query).toHaveBeenCalledTimes(2);
   });
 
-  it('applies manual overrides onto the published result', async () => {
-    const row = makeRow({ db_status: 'APPROVED', manual_override: { title: 'Corrected Title' } });
+  it('applies manual overrides onto the published result without baking them into raw_offer', async () => {
+    const original = makeOffer({ title: 'Scraped Title' });
+    const row = makeRow({
+      db_status: 'APPROVED',
+      raw_offer: original,
+      manual_override: { title: 'Corrected Title' },
+      pending_candidate: null,
+    });
     mockClient.query.mockResolvedValueOnce({ rows: [row] });
     mockClient.query.mockResolvedValueOnce({ rows: [] });
     mockClient.query.mockResolvedValueOnce({ rows: [] });
@@ -192,12 +278,20 @@ describe('syncApprovedOffer', () => {
     await syncApprovedOffer('offer-1');
     const updateParams = mockClient.query.mock.calls[1][1] as unknown[];
     expect(updateParams[1]).toBe('Corrected Title');
+    // Greenfield publish: nextRawOffer is null → COALESCE keeps existing raw_offer
+    expect(updateParams[11]).toBeNull();
+    expect(mockSyncOfferBranches).toHaveBeenCalledWith(
+      'offer-1',
+      expect.anything(),
+      expect.objectContaining({ locationScope: expect.any(String), client: mockClient }),
+    );
   });
 
   it('publishes an approved update to an already-published offer from its pending_candidate', async () => {
     const candidate = makeOffer({ title: 'New Title' });
     const row = makeRow({
       db_status: 'PUBLISHED', pending_candidate: candidate, pending_lifecycle_status: 'APPROVED',
+      raw_offer: makeOffer({ title: 'Old Title' }),
     });
     mockClient.query.mockResolvedValueOnce({ rows: [row] });
     mockClient.query.mockResolvedValueOnce({ rows: [] });
@@ -207,6 +301,8 @@ describe('syncApprovedOffer', () => {
     expect(result.outcome).toBe('published');
     const updateParams = mockClient.query.mock.calls[1][1] as unknown[];
     expect(updateParams[1]).toBe('New Title');
+    // Staged candidate becomes the new immutable evidence baseline (not effective+override)
+    expect(JSON.parse(updateParams[11] as string).title).toBe('New Title');
   });
 });
 

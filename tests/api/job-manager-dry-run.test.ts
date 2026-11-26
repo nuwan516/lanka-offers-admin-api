@@ -49,21 +49,21 @@ describe('JobManager dry-run', () => {
 
   const spawnedArgs = (): string[] => mockSpawn.mock.calls[0][1] as string[];
 
-  it('passes --dry-run to the scraper CLI when requested', () => {
-    jm.startScrapeJob('hnb', { dryRun: true });
+  it('passes --dry-run to the scraper CLI when requested', async () => {
+    await jm.startScrapeJob('hnb', { dryRun: true });
 
     expect(spawnedArgs()).toContain('--dry-run');
     expect(spawnedArgs()).toContain('--bank=hnb');
   });
 
-  it('does not pass --dry-run for a normal scrape', () => {
-    jm.startScrapeJob('hnb', {});
+  it('does not pass --dry-run for a normal scrape', async () => {
+    await jm.startScrapeJob('hnb', {});
 
     expect(spawnedArgs()).not.toContain('--dry-run');
   });
 
-  it('only an explicit true enables dry-run (truthy values do not)', () => {
-    jm.startScrapeJob('hnb', { dryRun: 'yes' as unknown as boolean });
+  it('only an explicit true enables dry-run (truthy values do not)', async () => {
+    await jm.startScrapeJob('hnb', { dryRun: 'yes' as unknown as boolean });
 
     expect(spawnedArgs()).not.toContain('--dry-run');
   });
@@ -72,7 +72,7 @@ describe('JobManager dry-run', () => {
     const onCompleted = jest.fn().mockResolvedValue(undefined);
     jm.onJobCompleted = onCompleted;
 
-    jm.startScrapeJob('hnb', { dryRun: true });
+    await jm.startScrapeJob('hnb', { dryRun: true });
     mockPool.query.mockClear();
     child.emit('close', 0);
     await new Promise((resolve) => setImmediate(resolve));
@@ -82,12 +82,32 @@ describe('JobManager dry-run', () => {
     expect(sql.some((q) => q.includes('scrape_runs'))).toBe(false);
   });
 
+  it('acquires lease before spawn and passes LEASE_GENERATION for authorized scrapes', async () => {
+    await jm.startScrapeJob('hnb', {});
+
+    const leaseSql = mockPool.query.mock.calls.map((c) => String(c[0]));
+    expect(leaseSql.some((q) => q.includes('scraper_leases'))).toBe(true);
+    expect(mockSpawn).toHaveBeenCalled();
+    const env = mockSpawn.mock.calls[0][2]?.env as Record<string, string>;
+    expect(env.LEASE_GENERATION).toBe('1');
+    expect(env.JOB_ID).toBeTruthy();
+  });
+
+  it('skips durable lease for dry-run', async () => {
+    await jm.startScrapeJob('hnb', { dryRun: true });
+
+    const leaseSql = mockPool.query.mock.calls.map((c) => String(c[0]));
+    expect(leaseSql.some((q) => q.includes('INSERT INTO scraper_leases'))).toBe(false);
+    const env = mockSpawn.mock.calls[0][2]?.env as Record<string, string>;
+    expect(env.LEASE_GENERATION).toBeUndefined();
+  });
+
   it('still notifies the scheduler after a real scrape', async () => {
     const onCompleted = jest.fn().mockResolvedValue(undefined);
     jm.onJobCompleted = onCompleted;
     mockPool.query.mockResolvedValue({ rows: [{ status: 'completed', error_message: null }], rowCount: 1 });
 
-    jm.startScrapeJob('hnb', {});
+    await jm.startScrapeJob('hnb', {});
     child.emit('close', 0);
     await new Promise((resolve) => setImmediate(resolve));
 

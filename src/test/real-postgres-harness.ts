@@ -14,10 +14,14 @@ export class RealPostgresHarness {
     const schemaPath = path.resolve(__dirname, '../../src/infrastructure/db/schema.sql');
     let rawSql = fs.readFileSync(schemaPath, 'utf8');
 
-    // Strip PostGIS and trgm extensions for WASM compatibility while preserving all tables and constraints
+    // Strip PostGIS and trgm extensions for WASM compatibility while preserving all tables and constraints.
+    // Keep offers.geom / offer_branches.geom as TEXT so syncOfferBranches can clear/write without PostGIS.
     rawSql = rawSql
       .replace(/CREATE EXTENSION IF NOT EXISTS [^;]+;/gi, '')
-      .replace(/ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom [^;]+;/gi, '')
+      .replace(
+        /ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom geography\(Point,\s*4326\);/gi,
+        'ALTER TABLE offers ADD COLUMN IF NOT EXISTS geom TEXT;',
+      )
       .replace(/CREATE INDEX IF NOT EXISTS idx_offers_geom_gist [^;]+;/gi, '')
       .replace(/CREATE INDEX IF NOT EXISTS idx_offers_title_trgm [^;]+;/gi, '')
       .replace(/CREATE INDEX IF NOT EXISTS idx_offers_merchant_trgm [^;]+;/gi, '')

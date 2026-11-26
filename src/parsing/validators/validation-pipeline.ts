@@ -155,7 +155,14 @@ export class ValidationPipeline {
     if (!ruleValidation.valid) return false;
     if (unifiedValidation && unifiedValidation.qualityGate.status === 'INVALID') return false;
     if (!llmValidation) return true;
+    // Budget / timeout / provider faults are not passes — operator must review.
+    if (
+      llmValidation.issues.includes('LLM_VALIDATION_FAILED') ||
+      llmValidation.issues.includes('BUDGET_BLOCKED')
+    ) {
+      return false;
+    }
     if (!llmValidation.isValidOffer) return false;
-    return llmValidation.extractionScore >= this.minimumLlmScore || llmValidation.issues.includes('LLM_VALIDATION_FAILED');
+    return llmValidation.extractionScore >= this.minimumLlmScore;
   }
 }

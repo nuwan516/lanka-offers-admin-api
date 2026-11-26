@@ -86,12 +86,14 @@ export class JobManager {
 
   /**
    * Starts a scraper child process with sanitized arguments and concurrency checks.
+   * Authorized scrapes acquire the distributed lease *before* spawn and pass
+   * LEASE_GENERATION so the child can fence DB writes from the first query.
    */
-  public startScrapeJob(
+  public async startScrapeJob(
     bank: string,
     options: ScrapeExecutionOptions = {},
     retryCount = 0
-  ): { jobId: string; pid: number; bank: string; startedAt: string } {
+  ): Promise<{ jobId: string; pid: number; bank: string; startedAt: string }> {
     const b = bank.toLowerCase();
 
     if (!this.isValidBank(b)) {
@@ -130,22 +132,44 @@ export class JobManager {
       args.push(`--max-categories=${Math.floor(options.maxCategories)}`);
     }
 
+    const timeoutMs =
+      typeof options.timeoutMs === 'number' && options.timeoutMs > 0
+        ? options.timeoutMs
+        : Number(process.env.SCRAPER_JOB_TIMEOUT_MS) || 15 * 60 * 1000; // configurable via SCRAPER_JOB_TIMEOUT_MS with 15m default
+
+    // Dry-run must not take a durable DB lease — that would block authorized scrapes.
+    // Authorized: lease before spawn so the child never races unfenced writes.
+    let leaseGeneration: number | undefined;
+    if (options.dryRun === true) {
+      console.log(`[JobManager] Dry-run for ${b}: skipping distributed lease (authorized scrapes remain lease-fenced)`);
+    } else {
+      const leaseRes = await this.acquireDistributedLease(b, jobId, timeoutMs);
+      if (!leaseRes.acquired) {
+        throw new Error(
+          `Bank ${b.toUpperCase()} lease already held by another worker (or lease table unavailable)`
+        );
+      }
+      leaseGeneration = leaseRes.leaseGeneration;
+    }
+
     const child = spawn('npm', args, {
       cwd: this.projectRoot,
-      env: { ...process.env, JOB_ID: jobId },
+      env: {
+        ...process.env,
+        JOB_ID: jobId,
+        ...(leaseGeneration != null ? { LEASE_GENERATION: String(leaseGeneration) } : {}),
+      },
       stdio: 'ignore',
       shell: true,
       detached: true,
     });
 
     if (!child.pid) {
+      if (leaseGeneration != null) {
+        await this.releaseDistributedLease(b, jobId, leaseGeneration).catch(() => {});
+      }
       throw new Error('Failed to spawn scraper process. Ensure npm and node are accessible in system PATH.');
     }
-
-    const timeoutMs =
-      typeof options.timeoutMs === 'number' && options.timeoutMs > 0
-        ? options.timeoutMs
-        : Number(process.env.SCRAPER_JOB_TIMEOUT_MS) || 15 * 60 * 1000; // configurable via SCRAPER_JOB_TIMEOUT_MS with 15m default
 
     const timeoutTimer = setTimeout(() => {
       console.warn(
@@ -165,30 +189,22 @@ export class JobManager {
       options,
       retryCount,
       timeoutTimer,
+      leaseGeneration,
     };
 
     this.activeJobs.set(b, job);
 
-    // Acquire database-backed distributed execution lease with fencing token
-    this.acquireDistributedLease(b, jobId, timeoutMs)
-      .then((leaseRes) => {
-        if (leaseRes.acquired) {
-          job.leaseGeneration = leaseRes.leaseGeneration;
-          this.startHeartbeat(b, job, timeoutMs);
-        } else {
-          console.warn(`[JobManager] Bank ${b.toUpperCase()} lease already held by another worker. Terminating to prevent collision.`);
-          this.cancelScrapeJob(b, 'lease-collision-detected').catch(() => {});
-        }
-      })
-      .catch((err) => {
-        console.warn(`[JobManager] Non-fatal distributed lease acquisition warning for ${b}:`, err);
-      });
+    if (leaseGeneration != null) {
+      this.startHeartbeat(b, job, timeoutMs);
+    }
 
     child.on('close', async (code) => {
       clearTimeout(timeoutTimer);
       if (job.heartbeatTimer) clearInterval(job.heartbeatTimer);
       this.activeJobs.delete(b);
-      await this.releaseDistributedLease(b, jobId, job.leaseGeneration).catch(() => {});
+      if (options.dryRun !== true) {
+        await this.releaseDistributedLease(b, jobId, job.leaseGeneration).catch(() => {});
+      }
       console.log(`[JobManager] Scraper for ${b} exited with code ${code}`);
 
       // A dry-run writes no scrape_runs row, so the latest row would be an earlier
@@ -468,12 +484,13 @@ export class JobManager {
       }
       return { acquired: false, leaseGeneration: 0 };
     } catch (err) {
-      // In offline/test environments where table doesn't exist, allow fallback to in-memory lock
-      console.warn(
-        `[JobManager] Database lease check failed (falling back to in-memory lock):`,
+      // Fail closed: without a durable lease table we must not start an authorized scrape.
+      // Dry-runs never call this path.
+      console.error(
+        `[JobManager] Database lease check failed (refusing scrape):`,
         err instanceof Error ? err.message : String(err)
       );
-      return { acquired: true, leaseGeneration: 1 };
+      return { acquired: false, leaseGeneration: 0 };
     }
   }
 

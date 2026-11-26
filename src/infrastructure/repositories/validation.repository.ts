@@ -2,6 +2,14 @@ import { pool } from '../db/db-client';
 import { CustomRule } from './rule-config.repository';
 
 export class ValidationRepository {
+  public async getLatestReportForOffer(offerId: string) {
+    const result = await pool.query(
+      `SELECT * FROM validation_reports WHERE offer_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [offerId]
+    );
+    return result.rows[0] ?? null;
+  }
+
   public async getValidationReports(passed?: boolean, limit = 50) {
     const conditions: string[] = [];
     const params: unknown[] = [];

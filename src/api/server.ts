@@ -57,7 +57,6 @@ app.use(express.json());
 app.use(correlationMiddleware);
 app.use(adminNetworkGuard);
 
-// ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api', healthRoutes);
 app.use('/api', offerRoutes);
 app.use('/api', duplicateRoutes);
@@ -71,7 +70,6 @@ app.use('/api', scraperRoutes);
 app.use('/api', geoRoutes);
 app.use('/api', scheduleRoutes);
 
-// ─── Admin Dashboard Static Assets ────────────────────────────────────────────
 const CANDIDATE_DISTS = [
   path.resolve(__dirname, '../../../dashboard/dist'),
   path.resolve(__dirname, '../../../../admin/dashboard/dist'),
